@@ -1,16 +1,22 @@
 # Build a wordpress server
 
 FROM debian:10
+
 MAINTAINER bvalette <bvalette@student.42.fr>
 
+ENV DEBIAN_FRONTEND noninteractive
 EXPOSE 80
 
+ADD ./srcs/sources /tmp/
+RUN cat /tmp/sources >> /etc/apt/sources.list
 RUN apt-get update
 RUN apt-get install -y apt-utils
 RUN apt-get upgrade
 RUN apt-get install -y nginx
 RUN apt-get install -y php7.3-fpm
 RUN apt-get install -y supervisor
+RUN apt-get install -y mariadb-server
+RUN apt-get install -y phpmyadmin
 
 RUN rm /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 ADD ./srcs/my_site /etc/nginx/sites-available/
@@ -22,6 +28,8 @@ RUN service nginx restart
 
 ADD ./srcs/www.conf /etc/php/7.3/fpm/pool.d
 ADD ./srcs/supervisor.conf /etc/supervisor/conf.d/
+
+#RUN mysql_secure_installation
 CMD ["/usr/bin/supervisord"]
 
 
