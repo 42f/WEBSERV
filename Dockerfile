@@ -6,35 +6,46 @@ MAINTAINER bvalette <bvalette@student.42.fr>
 
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV MYSQL_ROOT_PASSWORD="user42"
-ENV MYSQL_DATABASE="my_site_db"
-ENV MYSQL_USER="mysq"
-ENV MYSQL_PASSWORD="user42"
+ENV MYSQL_DATABASE="WP_db"
+ENV MYSQL_USER="user"
+ENV MYSQL_PASSWORD="42"
 
 
 EXPOSE 80
+EXPOSE 8080
 
+# INSTALL ALL PACKAGED
 ADD ./srcs/sources /tmp/
 ADD ./srcs/packages_script.sh /tmp/
 RUN cat /tmp/sources >> /etc/apt/sources.list
 RUN chmod 755 /tmp/packages_script.sh
 RUN /tmp/packages_script.sh
 
+# SETUP MY_SITE
+COPY ./srcs/www.conf /etc/php/7.3/fpm/pool.d
 RUN rm /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 ADD ./srcs/my_site /etc/nginx/sites-available/
-RUN ln -s /etc/nginx/sites-available/my_site /etc/nginx/sites-enabled/my_site
-RUN mkdir /var/www/my_site
-RUN echo "<?php\n phpinfo();\n ?>" > /var/www/my_site/index.php
+ADD ./srcs/phpmyadmin /etc/nginx/sites-available/
+RUN ln -s /etc/nginx/sites-available/my_site /etc/nginx/sites-enabled/
+RUN ln -s /etc/nginx/sites-available/phpmyadmin /etc/nginx/sites-enabled/
+ADD ./srcs/setup.sql /tmp/
+
 RUN nginx -t
-RUN service nginx restart
 
-ADD ./srcs/www.conf /etc/php/7.3/fpm/pool.d
+RUN mkdir -p /var/run/php
 ADD ./srcs/supervisor.conf /etc/supervisor/conf.d/
+CMD /usr/bin/supervisord
+RUN service mysql start \
+	&& mysql -u root -p -e "CREATE DATABASE ${MYSQL_DATABASE};" \
+	&& mysql -u root -p -e "GRANT ALL ON ${MYSQL_DATABASE}.* TO ${MYSQL_USER}@localhost IDENTIFIED BY '${MYSQL_PASSWORD}';"
 
-#RUN mysql_secure_installation
-RUN service supervisor start
-#ADD ./srcs/sql_script.sh /tmp/
-#RUN chmod 755 /tmp/sql_script.sh
-#RUN /tmp/packages_script.sh
+
+
+
+
+#ADD ./srcs/start_services.sh /tmp/
+#RUN chmod 755 /tmp/start_services.sh
+#RUN /tmp/start_services.sh && tail -f /dev/null
 
 
 
@@ -47,5 +58,4 @@ RUN service supervisor start
 #RUN chmod 755 /usr/bin/srcs/script.sh
 #RUN locate www.conf | xargs cat -n | grep "listen = " 
 #RUN cat /usr/bin/srcs/location_directive > /etc/nginx/sites-available/my_site
-#RUN sed 's#listen =[.]##' /etc/sphp/7.3/fpm/pool.d/www.conf | grep listen
 

@@ -8,7 +8,8 @@ server {
        server_name 127.0.0.1;
 
 #Défini le répertoire qui va accueillir les fichiers de votre site internet
-       root /var/www/my_site;
+#       root /var/www/my_site;
+       root /usr/share/wordpress;
 
 #Permet de définir l'ordre d'exécution de votre index. Ici, s'il y a deux index.php/html à la racine du site, index.php sera exécuté en priorité
        index index.php index.html;
