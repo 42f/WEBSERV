@@ -7,5 +7,6 @@ apt-get install -y nginx
 apt-get install -y php7.3-fpm
 apt-get install -y supervisor
 apt-get install -y phpmyadmin
-apt-get install -y wordpress
 apt-get install -y mariadb-server
+apt-get install -y vim
+apt-get install -y locate && updatedb
