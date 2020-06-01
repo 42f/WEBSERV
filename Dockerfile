@@ -4,19 +4,20 @@ FROM debian:10
 
 MAINTAINER bvalette <bvalette@student.42.fr>
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND="noninteractive"
+ENV MYSQL_ROOT_PASSWORD="user42"
+ENV MYSQL_DATABASE="my_site_db"
+ENV MYSQL_USER="mysq"
+ENV MYSQL_PASSWORD="user42"
+
+
 EXPOSE 80
 
 ADD ./srcs/sources /tmp/
+ADD ./srcs/packages_script.sh /tmp/
 RUN cat /tmp/sources >> /etc/apt/sources.list
-RUN apt-get update
-RUN apt-get install -y apt-utils
-RUN apt-get upgrade
-RUN apt-get install -y nginx
-RUN apt-get install -y php7.3-fpm
-RUN apt-get install -y supervisor
-RUN apt-get install -y mariadb-server
-RUN apt-get install -y phpmyadmin
+RUN chmod 755 /tmp/packages_script.sh
+RUN /tmp/packages_script.sh
 
 RUN rm /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 ADD ./srcs/my_site /etc/nginx/sites-available/
@@ -30,7 +31,10 @@ ADD ./srcs/www.conf /etc/php/7.3/fpm/pool.d
 ADD ./srcs/supervisor.conf /etc/supervisor/conf.d/
 
 #RUN mysql_secure_installation
-CMD ["/usr/bin/supervisord"]
+RUN service supervisor start
+#ADD ./srcs/sql_script.sh /tmp/
+#RUN chmod 755 /tmp/sql_script.sh
+#RUN /tmp/packages_script.sh
 
 
 
