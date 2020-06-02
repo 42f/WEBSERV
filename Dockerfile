@@ -23,26 +23,34 @@ RUN chmod 755 /tmp/packages_script.sh
 RUN /tmp/packages_script.sh
 
 # GET WORDPRESS
-ADD https://wordpress.org/latest.tar.gz /tmp
+COPY ./assets/latest.tar.gz /tmp
 RUN tar -xf /tmp/latest.tar.gz && mv wordpress /var/www/
 COPY ./srcs/www.conf /etc/php/7.3/fpm/pool.d
 # CONFIGURE WORDPRESS
 ADD ./srcs/wp-config.php /var/www/wordpress/
+# LINK PHPMYADMIN
+RUN cp -rf /usr/share/phpmyadmin /var/www/
 
 # CONFIGURE SITES FOR NGINX
-RUN rm /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-ADD ./srcs/my_site /etc/nginx/sites-available/
+#RUN rm /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+ADD ./srcs/wordpress /etc/nginx/sites-available/
 ADD ./srcs/phpmyadmin /etc/nginx/sites-available/
-RUN ln -s /etc/nginx/sites-available/my_site /etc/nginx/sites-enabled/
+RUN ln -s /etc/nginx/sites-available/wordpress /etc/nginx/sites-enabled/
 RUN ln -s /etc/nginx/sites-available/phpmyadmin /etc/nginx/sites-enabled/
 
 RUN nginx -t
 
 RUN mkdir -p /var/run/php
+ADD ./srcs/create_db.sql /tmp
+ADD ./srcs/config.ini.php /tmp
 ADD ./srcs/supervisor.conf /etc/supervisor/conf.d/
 RUN service mysql start \
-	&& mysql -u root -p -e "CREATE DATABASE ${MYSQL_DATABASE};" \
-	&& mysql -u root -p -e "GRANT ALL ON ${MYSQL_DATABASE}.* TO ${MYSQL_USER}@localhost IDENTIFIED BY '${MYSQL_PASSWORD}';"
+	&& mysql -u root -p -e "CREATE DATABASE ${MYSQL_DATABASE};" \ 
+	&& mysql -u root -p -e "GRANT ALL ON *.* TO ${MYSQL_USER}@localhost IDENTIFIED BY '${MYSQL_PASSWORD}';" \
+	&& mysql -u root -p -e "GRANT ALL ON *.* TO phpmyadmin@localhost IDENTIFIED BY '${MYSQL_PASSWORD}';" \
+	&& mv /tmp/config.ini.php /etc/phpmyadmin/ \
+	&& mysql < /tmp/create_db.sql  
+
 
 # DEFAULT COMMAND : supervisor
 CMD /usr/bin/supervisord

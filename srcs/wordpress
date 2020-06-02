@@ -1,0 +1,30 @@
+server {
+#Permet d'écouter sur le port 80 de l'IPv4 de votre serveur
+       listen 80;
+#Permet d'écouter sur le port 80 de l'IPv6 de votre serveur
+       listen [::]:80;
+
+#Vous devez renseigner le nom de domaine de votre site internet
+       server_name 127.0.0.1 localhost/wordpress;
+
+#Défini le répertoire qui va accueillir les fichiers de votre site internet
+       #root /var/www/wordpress;
+       root /var/www;
+
+#Permet de définir l'ordre d'exécution de votre index. Ici, s'il y a deux index.php/html à la racine du site, index.php sera exécuté en priorité
+       index index.php index.html;
+
+#Ici, on donne l'ordre d'afficher une page 404 sur la totalité du site si un fichier n'existe pas   
+       location / {
+         try_files $uri $uri/ =404;
+     }
+
+location ~ \.php$ {
+        try_files $uri =404;
+         fastcgi_index index.php;
+         fastcgi_pass 127.0.0.1:9000;
+         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+         include /etc/nginx/fastcgi_params;
+	}
+}
+

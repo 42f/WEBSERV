@@ -3,9 +3,10 @@ server {
        listen 8080;
        listen [::]:8080;
 
-       server_name my_site;
+       server_name 127.0.0.1 localhost/phpmyadmin;
 
-       root /usr/share/phpmyadmin;
+#       root /usr/share/phpmyadmin;
+       root /var/www;
        index index.php index.html;
 
        location / {
