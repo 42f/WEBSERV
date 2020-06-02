@@ -28,7 +28,7 @@ COPY ./srcs/nginx-selfsigned.crt /etc/ssl/certs/
 COPY ./srcs/self-signed.conf /etc/nginx/snippets/
 
 # GET WORDPRESS
-COPY ./assets/latest.tar.gz /tmp
+COPY ./srcs/assets/latest.tar.gz /tmp
 RUN tar -xf /tmp/latest.tar.gz && mv wordpress /var/www/
 COPY ./srcs/www.conf /etc/php/7.3/fpm/pool.d
 # CONFIGURE WORDPRESS
