@@ -16,6 +16,7 @@ ENV MYSQL_PASSWORD="42"
 EXPOSE 80
 EXPOSE 8080
 
+
 # UPDATE CONTAINER TIMEZONE FOR SSL
 ENV TZ Europe/Paris
 RUN cp /usr/share/zoneinfo/Europe/Paris /etc/localtime
