@@ -3,10 +3,12 @@ server {
        listen 80;
 #Permet d'écouter sur le port 80 de l'IPv6 de votre serveur
        listen [::]:80;
+	   listen 443 ssl http2 default_server;
+       listen [::]:443 ssl http2 default_server;
 
 #Vous devez renseigner le nom de domaine de votre site internet
        server_name 127.0.0.1 localhost/wordpress;
-
+	   include snippets/self-signed.conf;
 #Défini le répertoire qui va accueillir les fichiers de votre site internet
        #root /var/www/wordpress;
        root /var/www;
@@ -16,7 +18,8 @@ server {
 
 #Ici, on donne l'ordre d'afficher une page 404 sur la totalité du site si un fichier n'existe pas   
        location / {
-         try_files $uri $uri/ =404;
+    	autoindex on;
+        try_files $uri $uri/ =404;
      }
 
 location ~ \.php$ {
