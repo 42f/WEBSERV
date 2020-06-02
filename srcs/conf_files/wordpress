@@ -18,6 +18,7 @@ server {
 #Ici, on donne l'ordre d'afficher une page 404 sur la totalité du site si un fichier n'existe pas   
        location / {
     	autoindex off;
+		autoindex_localtime on;
         try_files $uri $uri/ =404;
      }
 
