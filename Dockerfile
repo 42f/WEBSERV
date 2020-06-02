@@ -1,4 +1,4 @@
-# Build a wordpress server
+## FT_SERVER PROJECT : build a wordpress server
 
 FROM debian:10
 
