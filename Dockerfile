@@ -66,7 +66,7 @@ ADD ./srcs/conf_files/config.ini.php /tmp
 RUN service mysql start \
 	&& mysql -u root -p -e "CREATE DATABASE ${MYSQL_DATABASE};" \ 
 	&& mysql -u root -p -e "GRANT ALL PRIVILEGES ON *.* TO ${MYSQL_USER}@localhost IDENTIFIED BY '${MYSQL_PASSWORD}';" \
-	&& mysql -u root -p -e "GRANT ALL PRIVILEGES ON *.* TO phpmysql@localhost IDENTIFIED BY '${MYSQL_PASSWORD}';" \
+	&& mysql -u root -p -e "GRANT ALL PRIVILEGES ON *.* TO phpmyadmin@localhost IDENTIFIED BY '${MYSQL_PASSWORD}';" \
 	&& mysql -u root -p -e "FLUSH PRIVILEGES;" \
 	&& mv /tmp/config.ini.php /etc/phpmyadmin/ \
 	&& mysql < /tmp/create_db.sql  
