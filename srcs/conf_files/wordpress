@@ -11,16 +11,14 @@ server {
 	   include snippets/self-signed.conf;
 #Défini le répertoire qui va accueillir les fichiers de votre site internet
        root /var/www;
-
 #Permet de définir l'ordre d'exécution de votre index. Ici, s'il y a deux index.php/html à la racine du site, index.php sera exécuté en priorité
        index index.php index.html;
 
-#Ici, on donne l'ordre d'afficher une page 404 sur la totalité du site si un fichier n'existe pas   
-       location / {
-    	autoindex off;
-		autoindex_localtime on;
-        try_files $uri $uri/ =404;
-     }
+		location / {
+			autoindex on;
+			autoindex_localtime on;
+			try_files $uri $uri/ =404;
+		}
 
 location ~ \.php$ {
         try_files $uri =404;

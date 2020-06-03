@@ -56,7 +56,7 @@ ADD ./srcs/conf_files/wordpress /etc/nginx/sites-available/
 ADD ./srcs/conf_files/phpmyadmin /etc/nginx/sites-available/
 RUN ln -s /etc/nginx/sites-available/wordpress /etc/nginx/sites-enabled/default
 RUN ln -s /etc/nginx/sites-available/phpmyadmin /etc/nginx/sites-enabled/
-RUN echo "<h1 style="text-align:center">FT_SERVER Kikoo<br/><br/><img src="https://media.giphy.com/media/l3V0uEmPgKpjZH6ve/source.gif" width="1440" height="1065"></h1>" > /var/www/index.html
+# RUN echo "<h1 style="text-align:center">FT_SERVER Kikoo<br/><br/><img src="https://media.giphy.com/media/l3V0uEmPgKpjZH6ve/source.gif" width="1440" height="1065"></h1>" > /var/www/index.html
 RUN nginx -t
 
 # CONFIGURE PHPMYADMIN
@@ -65,8 +65,8 @@ ADD ./srcs/sql/create_db.sql /tmp
 ADD ./srcs/conf_files/config.ini.php /tmp
 RUN service mysql start \
 	&& mysql -u root -p -e "CREATE DATABASE ${MYSQL_DATABASE};" \ 
-	&& mysql -u root -p -e "GRANT ALL ON *.* TO ${MYSQL_USER}@localhost IDENTIFIED BY '${MYSQL_PASSWORD}';" \
-	&& mysql -u root -p -e "GRANT ALL ON *.* TO phpmyadmin@localhost IDENTIFIED BY '${MYSQL_PASSWORD}';" \
+	&& mysql -u root -p -e "GRANT ALL PRIVILEGES ON *.* TO ${MYSQL_USER}@localhost IDENTIFIED BY '${MYSQL_PASSWORD}';" \
+	&& mysql -u root -p -e "FLUSH PRIVILEGES;" \
 	&& mv /tmp/config.ini.php /etc/phpmyadmin/ \
 	&& mysql < /tmp/create_db.sql  
 
