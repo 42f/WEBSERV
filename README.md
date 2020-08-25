@@ -23,7 +23,7 @@ All websites will be accessible on `http://localhost:80` and `https://localhost:
 
 `$> docker rmi $(docker images -q bv/ft_server)`
 
-### Notes for improvements
+# Notes for improvements
 
 Security is not optimal (it's the least I can say...) and could be much improved with password in a docker secret.
 Currently the wordpress deploys as a brand new, but it would be easy to have it already configured.
