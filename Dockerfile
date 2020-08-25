@@ -4,6 +4,8 @@ FROM debian:10
 
 MAINTAINER bvalette <bvalette@student.42.fr>
 
+LABEL project=ft_server
+
 # DEFINES
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV MYSQL_ROOT_PASSWORD="user42"
