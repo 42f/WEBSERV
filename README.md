@@ -27,3 +27,7 @@ All websites will be accessible on `http://localhost:80` and `https://localhost:
 
 Security is not optimal (it's the least I can say...) and could be much improved with password in a docker secret.
 Currently the wordpress deploys as a brand new, but it would be easy to have it already configured.
+
+## Disclaimer
+
+It is well understood that a container should contain only the bare minimum for one service, this project packs 4 stuff in a container, it is done only to comply with the project framework... For myself I would, of course, use kubernetes to deploy several containers. 
