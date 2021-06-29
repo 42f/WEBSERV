@@ -13,7 +13,7 @@ Small project which deploys a Wordpress website on the local network. It runs wi
 
 **replace with your own password**:
 
-`$> docker run -rm -d -p 80:80 -e "MYSQL_PASSWORD"=[PASSWORD] -p 8080:8080 -p443:443 bv/ft_server`
+`$> docker run -rm -d -p 80:80 -e "MYSQL_PASSWORD"=[PASSWORD] -p 8080:8080 -p443:443 ft_server`
 
 All websites will be accessible on `http://localhost:80` and `https://localhost:443`
 
