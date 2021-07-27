@@ -1,3 +1,19 @@
+
+/objs
+
+#binaries
+webserv
+webserv98
+
+#clion project files
+/.idea
+webserv.cbp
+
+# Cmake files
+cmake_install.cmake
+CMakeFiles
+CMakeCache.txt
+
 # Prerequisites
 *.d
 
