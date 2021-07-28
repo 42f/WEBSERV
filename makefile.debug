@@ -23,7 +23,9 @@ endif
 
 all: ${NAME}
 
-fast: all
+fast:
+	make -j12 -f makefile.debug $(OBJS)
+	make -f makefile.debug ${NAME}
 
 print: $(wildcard src/**/*.cpp)
 	ls -la $?

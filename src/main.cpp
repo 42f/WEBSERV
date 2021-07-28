@@ -1,5 +1,5 @@
 
-#include "Config/config.hpp"
+#include "Config/ConfigParser.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -36,7 +36,7 @@ int main(int ac, char **av)
 	ParserResult<std::vector<config::Server> >	cfgs = ConfigParser()(cfg);
 	if (cfgs.is_err()) {
 		std::cerr << cfgs.unwrap_err() << std::endl;
-#if LOG_LEVEL == LOG_LEVEL_TRACE
+#if LOG_LEVEL == LOG_LEVEL_TRACE	//start line error
 	cfgs.unwrap_err().trace(cfg);
 #endif
 	} else {

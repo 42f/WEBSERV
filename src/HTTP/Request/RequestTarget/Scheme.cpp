@@ -14,5 +14,3 @@ Scheme::result_type	Scheme::operator()(const slice &input)
 {
 	return as_slice(sequence(alpha, TakeWhile(scheme_charset, true)))(input);
 }
-
-//TODO REMOVE FROM ?

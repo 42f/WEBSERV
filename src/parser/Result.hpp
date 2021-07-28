@@ -4,6 +4,7 @@
 
 #ifndef WEBSERV_RESULT_HPP
 #define WEBSERV_RESULT_HPP
+
 #include "Error.hpp"
 #include "slice.hpp"
 

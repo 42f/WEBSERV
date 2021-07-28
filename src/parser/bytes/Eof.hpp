@@ -5,10 +5,11 @@
 #ifndef WEBSERV_EOF_HPP
 #define WEBSERV_EOF_HPP
 
-#include "export.hpp"
+#include "Parser.hpp"
 
 // Matches the end of the slice (no input left)
-class Eof: public Parser<slice> {
+class Eof: public Parser<slice>
+{
 public:
 	Eof();
 	result_type operator()(const slice &input);

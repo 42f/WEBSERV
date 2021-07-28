@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /mnt/c/Users/alena/Documents/42/webserv_2
+CMAKE_SOURCE_DIR = /mnt/c/Users/alena/Documents/42/webserv
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /mnt/c/Users/alena/Documents/42/webserv_2
+CMAKE_BINARY_DIR = /mnt/c/Users/alena/Documents/42/webserv
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/alena/Documents/42/webserv_2/CMakeFiles /mnt/c/Users/alena/Documents/42/webserv_2/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/alena/Documents/42/webserv/CMakeFiles /mnt/c/Users/alena/Documents/42/webserv/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/alena/Documents/42/webserv_2/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/alena/Documents/42/webserv/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -122,6 +122,33 @@ webserv: cmake_check_build_system
 webserv/fast:
 	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/build
 .PHONY : webserv/fast
+
+src/Config/ConfigParser.o: src/Config/ConfigParser.cpp.o
+
+.PHONY : src/Config/ConfigParser.o
+
+# target to build an object file
+src/Config/ConfigParser.cpp.o:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Config/ConfigParser.cpp.o
+.PHONY : src/Config/ConfigParser.cpp.o
+
+src/Config/ConfigParser.i: src/Config/ConfigParser.cpp.i
+
+.PHONY : src/Config/ConfigParser.i
+
+# target to preprocess a source file
+src/Config/ConfigParser.cpp.i:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Config/ConfigParser.cpp.i
+.PHONY : src/Config/ConfigParser.cpp.i
+
+src/Config/ConfigParser.s: src/Config/ConfigParser.cpp.s
+
+.PHONY : src/Config/ConfigParser.s
+
+# target to generate assembly for a file
+src/Config/ConfigParser.cpp.s:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Config/ConfigParser.cpp.s
+.PHONY : src/Config/ConfigParser.cpp.s
 
 src/Config/Directives/Cgi.o: src/Config/Directives/Cgi.cpp.o
 
@@ -420,6 +447,60 @@ src/Config/Directives/Upload.cpp.s:
 	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Config/Directives/Upload.cpp.s
 .PHONY : src/Config/Directives/Upload.cpp.s
 
+src/Config/Server.o: src/Config/Server.cpp.o
+
+.PHONY : src/Config/Server.o
+
+# target to build an object file
+src/Config/Server.cpp.o:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Config/Server.cpp.o
+.PHONY : src/Config/Server.cpp.o
+
+src/Config/Server.i: src/Config/Server.cpp.i
+
+.PHONY : src/Config/Server.i
+
+# target to preprocess a source file
+src/Config/Server.cpp.i:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Config/Server.cpp.i
+.PHONY : src/Config/Server.cpp.i
+
+src/Config/Server.s: src/Config/Server.cpp.s
+
+.PHONY : src/Config/Server.s
+
+# target to generate assembly for a file
+src/Config/Server.cpp.s:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Config/Server.cpp.s
+.PHONY : src/Config/Server.cpp.s
+
+src/Config/ServerBlock.o: src/Config/ServerBlock.cpp.o
+
+.PHONY : src/Config/ServerBlock.o
+
+# target to build an object file
+src/Config/ServerBlock.cpp.o:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Config/ServerBlock.cpp.o
+.PHONY : src/Config/ServerBlock.cpp.o
+
+src/Config/ServerBlock.i: src/Config/ServerBlock.cpp.i
+
+.PHONY : src/Config/ServerBlock.i
+
+# target to preprocess a source file
+src/Config/ServerBlock.cpp.i:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Config/ServerBlock.cpp.i
+.PHONY : src/Config/ServerBlock.cpp.i
+
+src/Config/ServerBlock.s: src/Config/ServerBlock.cpp.s
+
+.PHONY : src/Config/ServerBlock.s
+
+# target to generate assembly for a file
+src/Config/ServerBlock.cpp.s:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Config/ServerBlock.cpp.s
+.PHONY : src/Config/ServerBlock.cpp.s
+
 src/Config/Structure/Line.o: src/Config/Structure/Line.cpp.o
 
 .PHONY : src/Config/Structure/Line.o
@@ -447,32 +528,59 @@ src/Config/Structure/Line.cpp.s:
 	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Config/Structure/Line.cpp.s
 .PHONY : src/Config/Structure/Line.cpp.s
 
-src/Config/config.o: src/Config/config.cpp.o
+src/HTTP/Headers/Header.o: src/HTTP/Headers/Header.cpp.o
 
-.PHONY : src/Config/config.o
+.PHONY : src/HTTP/Headers/Header.o
 
 # target to build an object file
-src/Config/config.cpp.o:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Config/config.cpp.o
-.PHONY : src/Config/config.cpp.o
+src/HTTP/Headers/Header.cpp.o:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Headers/Header.cpp.o
+.PHONY : src/HTTP/Headers/Header.cpp.o
 
-src/Config/config.i: src/Config/config.cpp.i
+src/HTTP/Headers/Header.i: src/HTTP/Headers/Header.cpp.i
 
-.PHONY : src/Config/config.i
+.PHONY : src/HTTP/Headers/Header.i
 
 # target to preprocess a source file
-src/Config/config.cpp.i:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Config/config.cpp.i
-.PHONY : src/Config/config.cpp.i
+src/HTTP/Headers/Header.cpp.i:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Headers/Header.cpp.i
+.PHONY : src/HTTP/Headers/Header.cpp.i
 
-src/Config/config.s: src/Config/config.cpp.s
+src/HTTP/Headers/Header.s: src/HTTP/Headers/Header.cpp.s
 
-.PHONY : src/Config/config.s
+.PHONY : src/HTTP/Headers/Header.s
 
 # target to generate assembly for a file
-src/Config/config.cpp.s:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Config/config.cpp.s
-.PHONY : src/Config/config.cpp.s
+src/HTTP/Headers/Header.cpp.s:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Headers/Header.cpp.s
+.PHONY : src/HTTP/Headers/Header.cpp.s
+
+src/HTTP/Headers/Headers.o: src/HTTP/Headers/Headers.cpp.o
+
+.PHONY : src/HTTP/Headers/Headers.o
+
+# target to build an object file
+src/HTTP/Headers/Headers.cpp.o:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Headers/Headers.cpp.o
+.PHONY : src/HTTP/Headers/Headers.cpp.o
+
+src/HTTP/Headers/Headers.i: src/HTTP/Headers/Headers.cpp.i
+
+.PHONY : src/HTTP/Headers/Headers.i
+
+# target to preprocess a source file
+src/HTTP/Headers/Headers.cpp.i:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Headers/Headers.cpp.i
+.PHONY : src/HTTP/Headers/Headers.cpp.i
+
+src/HTTP/Headers/Headers.s: src/HTTP/Headers/Headers.cpp.s
+
+.PHONY : src/HTTP/Headers/Headers.s
+
+# target to generate assembly for a file
+src/HTTP/Headers/Headers.cpp.s:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Headers/Headers.cpp.s
+.PHONY : src/HTTP/Headers/Headers.cpp.s
 
 src/HTTP/Request.o: src/HTTP/Request.cpp.o
 
@@ -1023,6 +1131,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... webserv"
+	@echo "... src/Config/ConfigParser.o"
+	@echo "... src/Config/ConfigParser.i"
+	@echo "... src/Config/ConfigParser.s"
 	@echo "... src/Config/Directives/Cgi.o"
 	@echo "... src/Config/Directives/Cgi.i"
 	@echo "... src/Config/Directives/Cgi.s"
@@ -1056,12 +1167,21 @@ help:
 	@echo "... src/Config/Directives/Upload.o"
 	@echo "... src/Config/Directives/Upload.i"
 	@echo "... src/Config/Directives/Upload.s"
+	@echo "... src/Config/Server.o"
+	@echo "... src/Config/Server.i"
+	@echo "... src/Config/Server.s"
+	@echo "... src/Config/ServerBlock.o"
+	@echo "... src/Config/ServerBlock.i"
+	@echo "... src/Config/ServerBlock.s"
 	@echo "... src/Config/Structure/Line.o"
 	@echo "... src/Config/Structure/Line.i"
 	@echo "... src/Config/Structure/Line.s"
-	@echo "... src/Config/config.o"
-	@echo "... src/Config/config.i"
-	@echo "... src/Config/config.s"
+	@echo "... src/HTTP/Headers/Header.o"
+	@echo "... src/HTTP/Headers/Header.i"
+	@echo "... src/HTTP/Headers/Header.s"
+	@echo "... src/HTTP/Headers/Headers.o"
+	@echo "... src/HTTP/Headers/Headers.i"
+	@echo "... src/HTTP/Headers/Headers.s"
 	@echo "... src/HTTP/Request.o"
 	@echo "... src/HTTP/Request.i"
 	@echo "... src/HTTP/Request.s"

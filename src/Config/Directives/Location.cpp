@@ -3,7 +3,7 @@
 //
 
 #include "Location.hpp"
-#include "Config/config.hpp"
+#include "Config/Server.hpp"
 
 const size_t	LocationConfig::SIZE_UNSET = std::numeric_limits<size_t>::max();
 

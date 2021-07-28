@@ -33,6 +33,7 @@ const Comment comment = Comment();
  * Wraps directives with optionnal spaces at the start and a ; followed by a newline at the end
  * Directive = OWS P; OWS CRLF
  */
+
 template<typename P>
 class Directive: public Parser<typename P::data_type>
 {

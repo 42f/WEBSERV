@@ -5,24 +5,21 @@
 #ifndef WEBSERV_HEADERS_HPP
 #define WEBSERV_HEADERS_HPP
 
-#include "parser/combinators.hpp"
+#include "export.hpp"
 #include "Header.hpp"
+#include "HeaderParser.hpp"
 
 typedef TakeWhile		ContentLength;
 const ContentLength		CONTENT_LENGTH = TakeWhile(std::isdigit);
 
-class Headers: public Parser<Header> {
-
+class Headers: public Parser<Header>
+{
 public:
-	Headers() { }
+	Headers();
 
-	result_type 	operator()(const slice& input) {
-		return alt(
-			header("Content-Length", CONTENT_LENGTH),
-			HeaderParser<>())(input);
-	}
+	result_type 	operator()(const slice& input);
 };
 
-//TODO more headers... and cpp
+//TODO more headers...
 
 #endif //WEBSERV_HEADERS_HPP

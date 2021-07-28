@@ -8,19 +8,23 @@
 #include <slice.hpp>
 
 template<typename P>
-class Strip: public Parser<slice> {
+class Strip: public Parser<slice>
+{
 private:
 	P	_parser;
 
 public:
 	Strip(P parser): _parser(parser) {  }
 
-	result_type		operator()(const slice& input) {
+	result_type		operator()(const slice& input)
+	{
 		typename P::result_type	res = _parser(input);
+
 		if (res.is_err())
 			return res.template convert<slice>();
 		slice	parsed = input.take(res.left().p - input.p);
-		while (std::isspace(*parsed.p)) {
+		while (std::isspace(*parsed.p))
+		{
 			parsed.p++;
 			parsed.size--;
 		}

@@ -2,11 +2,12 @@
 // Created by alena on 06/07/2021.
 //
 
-#include "config.hpp"
+#include "Server.hpp"
 
 LocationConfig *::LocationConfig::active = 0;
 
-namespace config {
+namespace config
+{
 	Server *Server::active = 0;
 
 /*
@@ -73,6 +74,7 @@ namespace config {
 	unsigned short	Server::get_port() { return _port; }
 	std::string		Server::get_addr() { return _address; }
 
+//TODO soit getter, soit la response en bas
 /*
  * RESPONSE
  */
