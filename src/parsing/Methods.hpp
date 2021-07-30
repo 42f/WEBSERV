@@ -11,11 +11,13 @@ namespace methods
 {
 	enum	s_method
 	{
+		OTHER = 0,
 		GET = 1,
 		POST = 2,
 		DELETE = 4
 	};
 
+	s_method	as_other(slice input);
 	s_method	as_get(slice input);
 	s_method	as_post(slice input);
 	s_method	as_delete(slice input);

@@ -6,6 +6,7 @@
 #define WEBSERV_RESULT_HPP
 
 #include "Error.hpp"
+#include "HTTP/Status.hpp"
 #include "slice.hpp"
 
 class DefaultError
@@ -78,7 +79,7 @@ public:
 	 * Dont access it before checking if the result is an err (is_err() == true)
 	 */
 	Err	&unwrap_err() const { return *this->_err; }
-	Err	&unwrap_err() { return *this->_err; }
+	Err &unwrap_err() { return *this->_err; }
 
 	/*
 	 * Converts this result to another Data type by using the supplied function
@@ -110,69 +111,74 @@ public:
 	}
 };
 
-template<typename Data, typename E = Empty>
-class ParserResult
-{
+template<typename Data, typename E = status::StatusCode>
+class ParserResult {
 private:
-	typedef std::pair<slice, Data>			data_type;
-	typedef std::pair<slice, Error<E> >		error_type;
-	typedef Result<data_type, error_type>	result_type;
+	typedef std::pair<slice, Data> data_type;
+	typedef std::pair<slice, Error<E> > error_type;
+	typedef Result<data_type, error_type> result_type;
 
-	result_type 							_res;
-	bool 									_failure;
+	result_type _res;
+	bool _failure;
 
-	ParserResult(): _res(), _failure(false) { }
+	ParserResult() : _res(), _failure(false) {}
 
 public:
-	~ParserResult() { }
-	ParserResult(const slice &left, Data d): _res(result_type(std::make_pair(left, d))), _failure(false) { }
-	ParserResult(const slice &left, Error<E> e, bool failure = false): _res(result_type(std::make_pair(left, e))), _failure(failure) { }
-	ParserResult(const ParserResult& other): _res(other._res), _failure(other._failure) { }
+	~ParserResult() {}
+
+	ParserResult(const slice &left, Data d) : _res(result_type(std::make_pair(left, d))), _failure(false) {}
+
+	ParserResult(const slice &left, Error<E> e, bool failure = false) : _res(result_type(std::make_pair(left, e))),
+																		_failure(failure) {}
+
+	ParserResult(const ParserResult &other) : _res(other._res), _failure(other._failure) {}
 
 	static ParserResult ok(const slice &left, Data data) { return ParserResult(left, data); }
+
 	static ParserResult err(const slice &left, Error<E> err) { return ParserResult(left, err); }
+
 	static ParserResult fail(const slice &left, Error<E> err) { return ParserResult(left, err, true); }
 
-	bool	is_ok() const { return this->_res.is_ok(); }
-	bool	is_err() const { return this->_res.is_err(); }
+	bool is_ok() const { return this->_res.is_ok(); }
 
-	slice	left()
-	{
+	bool is_err() const { return this->_res.is_err(); }
+
+	slice left() {
 		if (_res.is_ok())
 			return _res.unwrap().first;
 		else
 			return _res.unwrap_err().first;
 	}
+
 	/*
 	 * Dont access it before checking if the result is an ok (is_ok() == true)
 	 */
-	Data	&unwrap() const { return this->_res.unwrap().second; }
-	Data	&unwrap() { return this->_res.unwrap().second; }
+	Data &unwrap() const { return this->_res.unwrap().second; }
+
+	Data &unwrap() { return this->_res.unwrap().second; }
 
 	/*
 	 * Dont access it before checking if the result is an err (is_err() == true)
 	 */
-	Error<E>	&unwrap_err() const { return this->_res.unwrap_err().second; }
-	Error<E>	&unwrap_err() { return this->_res.unwrap_err().second; }
+	Error<E> &unwrap_err() const { return this->_res.unwrap_err().second; }
+
+	Error<E> &unwrap_err() { return this->_res.unwrap_err().second; }
 
 	/*
 	 * Unwraps the error side and append a new item to the stacktrace
 	 */
-	ParserResult	unwind(const slice &at, std::string msg)
-	{
+	ParserResult unwind(const slice &at, std::string msg) {
 		this->unwrap_err().at(at, msg);
 		return *this;
 	}
 
-	ParserResult	failure()
-	{
+	ParserResult failure() {
 		if (this->is_err())
 			this->_failure = true;
 		return *this;
 	}
 
-	bool			is_failure() const
-	{
+	bool is_failure() const {
 		return this->_failure;
 	}
 
@@ -182,19 +188,24 @@ public:
 	 * if the result is an error, casts it to the correct type
 	 */
 	template<typename Output>
-	ParserResult<Output>	map(const slice&input, Output (*fn)(const slice&, ParserResult<Data>&))
-	{
+	ParserResult<Output>	map(const slice &input, Output (*fn)(const slice &, ParserResult<Data> &)) {
 		if (this->is_ok())
 			return ParserResult<Output>::ok(this->left(), fn(input, *this));
 		return this->convert<Output>();
 	}
 
 	template<typename Output>
-	ParserResult<Output>	map(Output data)
-	{
+	ParserResult<Output>	map(Output data) {
 		if (this->is_ok())
 			return ParserResult<Output>::ok(this->left(), data);
 		return this->convert<Output>();
+	}
+
+	ParserResult		map_err(E value)
+	{
+		if (this->is_err())
+			this->unwrap_err().replace(value);
+		return *this;
 	}
 
 	template<typename Output>

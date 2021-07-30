@@ -9,8 +9,11 @@
 #include "Header.hpp"
 #include "HeaderParser.hpp"
 
+typedef Tag				TransferEncoding;
+const TransferEncoding	TRANSFER_ENCODING = Tag("chunked");
+
 typedef TakeWhile		ContentLength;
-const ContentLength		CONTENT_LENGTH = TakeWhile(std::isdigit);
+const ContentLength		CONTENT_LENGTH =TakeWhile(std::isdigit);
 
 class Headers: public Parser<Header>
 {

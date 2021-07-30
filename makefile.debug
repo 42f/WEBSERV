@@ -30,7 +30,6 @@ fast:
 print: $(wildcard src/**/*.cpp)
 	ls -la $?
 
-
 ${NAME}: $(OBJS)
 	$(CC) -o $@ $(OBJS) $(LINK)
 

@@ -4,7 +4,9 @@
 
 #include "Error.hpp"
 
-Error<Empty>	error(std::string msg)
+Error<status::StatusCode>	error(std::string msg, status::StatusCode status)
 {
-	return Error<Empty>(msg);
+	return Error<status::StatusCode>(msg, status);
 }
+
+

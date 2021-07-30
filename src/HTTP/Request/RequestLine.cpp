@@ -14,7 +14,8 @@ RequestMethod::result_type RequestMethod::operator()(const slice &input)
 	return alt(
 			map(Tag("GET"), methods::as_get),
 			map(Tag("POST"), methods::as_post),
-			map(Tag("DELETE"), methods::as_delete))(input);
+			map(Tag("DELETE"), methods::as_delete),
+				map(TakeWhile(std::isalpha), methods::as_other))(input);
 }
 
 std::ostream &operator<<(std::ostream& st, const methods::s_method& method)

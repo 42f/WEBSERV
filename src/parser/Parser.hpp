@@ -27,7 +27,7 @@ public:
 	Failure() { }
 	typename Failure::result_type	operator()(const slice& input)
 	{
-		return ParserResult<T>::err(input, Error<Empty>());
+		return ParserResult<T>::err(input, Error<status::StatusCode>());
 	}
 };
 

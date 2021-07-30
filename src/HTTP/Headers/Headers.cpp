@@ -10,5 +10,6 @@ Headers::result_type		Headers::operator()(const slice& input)
 {
 	return alt(
 			header("Content-Length", CONTENT_LENGTH),
-			HeaderParser<>())(input);
+			header("Transfer-Encoding", TRANSFER_ENCODING),
+			HeaderParser<>()).no_failure()(input);
 }

@@ -56,12 +56,12 @@ namespace config
 		 */
 		unsigned short 				get_port();
 		std::string					get_addr();
+		std::string					get_name();
 
 		/*
 		 * RESPONSE
 		 */
 		// TODO match server
-		bool is_match(std::string host, const Request &req);
 
 		struct Response {  };
 		Result<Response, int>	handle(const Request &req);

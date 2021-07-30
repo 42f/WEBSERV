@@ -12,6 +12,8 @@
 #include "slice.hpp"
 #include "utils.hpp"
 
+#include "HTTP/Status.hpp"
+
 template<typename Data = Empty>
 class Error
 {
@@ -34,10 +36,15 @@ public:
 			return ;
 		this->_msg = other._msg;
 		this->_stack = other._stack;
+		this->_data = other._data;
 	}
 
 	Data	content() const {
 		return this->_data;
+	}
+
+	void	replace(Data value) {
+		this->_data = value;
 	}
 
 	/*
@@ -63,6 +70,6 @@ public:
 	}
 };
 
-Error<Empty>	error(std::string msg);
+Error<status::StatusCode>	error(std::string msg, status::StatusCode = status::None);
 
 #endif //WEBSERV_ERROR_HPP

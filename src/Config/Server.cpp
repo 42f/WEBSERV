@@ -73,8 +73,7 @@ namespace config
  */
 	unsigned short	Server::get_port() { return _port; }
 	std::string		Server::get_addr() { return _address; }
-
-//TODO soit getter, soit la response en bas
+	std::string		Server::get_name() { return _name; }
 /*
  * RESPONSE
  */

@@ -59,6 +59,13 @@ struct Version
 		return Version(data.first, data.second);
 	}
 
+	bool operator==(const Version &other)
+	{
+		return major == other.major && minor == other.minor;
+	}
+
+	bool operator!=(const Version &other) { return !operator==(other); }
+
 	friend std::ostream& operator<<(std::ostream &stream, const Version &version)
 	{
 		stream << version.major << "." << version.minor;

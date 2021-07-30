@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.6)
 project(webserv)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -std=c++98")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -g2 -std=c++98")
 
 include_directories(src/parser src/parsing src)
 
@@ -67,6 +67,12 @@ set(FILES
 
         src/HTTP/Request.cpp
         src/HTTP/Request.hpp
+        src/HTTP/Status.cpp
+        src/HTTP/Status.hpp
+        src/HTTP/RequestParser.cpp
+        src/HTTP/RequestParser.hpp
+        src/HTTP/RequestHandler.cpp
+        src/HTTP/RequestHandler.hpp
         src/HTTP/Request/RequestLine.cpp
         src/HTTP/Request/RequestLine.hpp
         src/HTTP/Request/RequestTarget/OriginForm.cpp
