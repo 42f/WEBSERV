@@ -70,8 +70,9 @@ namespace config
 		 */
 		// TODO match server
 
-		struct Response {  };
-		Result<Response, int>	handle(const Request &req);
+		// struct Response {  };
+		// Result<Response, int>	handle(const Request &req);
+		// moved to files Response
 
 		friend std::ostream &operator<<(std::ostream& stream, const Server& cfg);
 	};

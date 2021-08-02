@@ -3,11 +3,14 @@ project(webserv)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -g2 -std=c++98")
 
-include_directories(src/parser src/parsing src)
+include_directories(src/parser src/parsing src/utils src)
 
 set(FILES
         src/main.cpp
         src/Constants.hpp
+
+        src/utils/logger.hpp
+        src/utils/logger.cpp
 
         src/parser/combinators.hpp
         src/parser/Error.cpp

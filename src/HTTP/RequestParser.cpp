@@ -20,7 +20,7 @@ RequestParser::result_type	RequestParser::operator()(const slice& input)
 		if (info.first == methods::OTHER)
 			return RequestParser::result_type::err(line.left(), error("Not implemented", status::NotImplemented));
 		if (info.third != Version(1, 1))
-			return RequestParser::result_type::err(line.left(), error("Unsupported version", status::UnsupportedVersion));
+			return RequestParser::result_type::err(line.left(), error("Unsupported version", status::HTTPVersionNotSupported));
 		req = Request(info.first, info.second, info.third);
 	}
 	else {
