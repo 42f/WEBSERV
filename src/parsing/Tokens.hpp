@@ -55,11 +55,14 @@ public:
 	result_type		operator()(const slice &input);
 };
 
+/*
+ * quoted-string  = DQUOTE *( qdtext / quoted-pair ) DQUOTE
+ */
 class QuotedText: public Parser<slice>
 {
 public:
 	QuotedText();
-	result_type 	operator()(const slice &input);
+	result_type	operator()(const slice &input);
 };
 
 const Char	single_space = Char(' ');
