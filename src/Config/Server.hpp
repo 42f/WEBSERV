@@ -54,9 +54,16 @@ namespace config
 		/*
 		 * GETTER
 		 */
-		unsigned short 				get_port();
-		std::string					get_addr();
-		std::string					get_name();
+
+		int									get_port();
+		std::string							get_address();
+		std::string							get_name();
+		std::string							get_root();
+		std::string							get_index();
+		size_t								get_body_size();
+		std::vector<LocationConfig>			get_locations();
+		std::map<int, std::string>			get_error_pages();
+		std::map<std::string, std::string>	get_cgis();
 
 		/*
 		 * RESPONSE
