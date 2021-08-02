@@ -34,19 +34,11 @@ RequestHandler::result_type RequestHandler::update(const char *buff, size_t read
 	_buffer.reserve(offset + read);
 	std::vector<char>::iterator off = _buffer.begin() + offset;
 	_buffer.insert(off, buff, buff + read);
-	switch (_status)
-	{
-		case request_status::Incomplete:
-			parse();
-			if (_status == request_status::Error || _status == request_status::Complete)
-				return _req;
-			return receive();
-		case request_status::Waiting:
-			return receive();
-		default:
-			break;
-	}
-	return result_type::err(status::None);
+	if (_status == request_status::Incomplete)
+		parse();
+	if (_status == request_status::Waiting)
+		return receive();
+	return _req;
 }
 
 void		RequestHandler::reset()
@@ -66,7 +58,10 @@ void	RequestHandler::parse()
 	ParserResult<Request>	req = RequestParser()(input);
 
 	if (req.is_err())
+	{
+		std::cout << req.unwrap_err() << std::endl;
 		req.unwrap_err().trace(input);
+	}
 	if (req.is_ok())
 	{
 		Request	r = req.unwrap();

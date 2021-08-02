@@ -7,6 +7,9 @@
 
 #include "Header.hpp"
 
+/*
+ * HeaderParser = field-name ":" OWS field-value OWS
+ */
 template<typename Name = FieldName, typename P = FieldValue>
 class HeaderParser: public Parser<Header>
 {
@@ -24,7 +27,7 @@ public:
 		if (name.is_err())
 			return name.template convert<Header>();
 		slice	left = name.left();
-		typename P::result_type	value = as_slice(_field)(left);
+		typename P::result_type	value = terminated(as_slice(_field), ows)(left);
 		if (value.is_err())
 			return value.failure().map_err(left.size ? status::BadRequest : status::None).template convert<Header>();
 		return result_type::ok(value.left(), Header(name.unwrap(), value.unwrap()));

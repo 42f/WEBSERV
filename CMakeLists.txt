@@ -82,6 +82,8 @@ set(FILES
         src/HTTP/RequestHandler.hpp
         src/HTTP/Request/RequestLine.cpp
         src/HTTP/Request/RequestLine.hpp
+        src/HTTP/Request/Chunk.cpp
+        src/HTTP/Request/Chunk.hpp
         src/HTTP/Request/RequestTarget/OriginForm.cpp
         src/HTTP/Request/RequestTarget/OriginForm.hpp
         src/HTTP/Request/RequestTarget/Segment.cpp
@@ -131,8 +133,7 @@ set(FILES
         src/Config/Structure/Bloc.hpp
         src/Config/Structure/Line.hpp
         src/Config/Structure/Line.cpp
-
-        src/HTTP/Request/Chunk.cpp src/HTTP/Request/Chunk.hpp)
+        )
 
 message("compiling with flags ${CMAKE_CXX_FLAGS}")
 
