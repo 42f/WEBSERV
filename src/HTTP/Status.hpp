@@ -14,10 +14,88 @@ namespace status
 	enum StatusCode
 	{
 		None = 0,
+
+	/*
+	 * Errors starting by 1xx: informational
+	*/
+
+		Continue = 100,
+		SwitchingProtocols,
+		Processing,
+		EarlyHints,
+	/*
+	 * Errors starting by 2xx: successful_status_code
+	*/
+
 		Ok = 200,
+		Created,
+		Accepted,
+		NonAuthoritativeInformation,
+		NoContent,
+		ResetContent,
+		PartialContent,
+		MultiStatus,
+		AlreadyReported,
+		IMUsed = 226,
+	/*
+	 * Errors starting by 3xx: redirectionstatuscode
+	*/
+		MultipleChoices = 300,
+		MovedPermanently,
+		Found,
+		SeeOther,
+		NotModified,
+		UseProxy,
+		TemporaryRedirect = 307,
+		PermanentRedirect,
+	/*
+	 * Errors starting by 4xx: clienterrorstatuscode
+	*/
+
 		BadRequest = 400,
-		NotImplemented = 501,
-		UnsupportedVersion = 505
+		Unauthorized,
+		PaymentRequired,
+		Forbidden,
+		NotFound,
+		MethodNotAllowed,
+		NotAcceptable,
+		ProxyAuthenticationRequired,
+		RequestTimeout,
+		Conflict,
+		Gone,
+		LengthRequired,
+		PreconditionFailed,
+		PayloadTooLarge,
+		URITooLong,
+		UnsupportedMediaType,
+		RangeNotSatisfiable,
+		ExpectationFailed, //417
+		MisdirectedRequest = 421,
+		UnprocessableEntity,
+		Locked,
+		FailedDependency,
+		TooEarly,
+		UpgradeRequired,
+		PreconditionRequired = 428,
+		TooManyRequests,
+		RequestHeaderFieldsTooLarge = 431,
+		UnavailableForLegalReasons = 451,
+
+	/*
+	 * Errors starting by 5xx: servererrorstatuscode
+	*/
+
+		InternalServerError = 500,
+		NotImplemented,
+		BadGateway,
+		ServiceUnavailable,
+		GatewayTimeout,
+		HTTPVersionNotSupported,
+		VariantAlsoNegotiates,
+		InsufficientStorage,
+		LoopDetected,
+		NotExtended = 510,
+		NetworkAuthenticationRequired
 	};
 
 	class StatusMessage
