@@ -16,7 +16,7 @@ namespace status
 		None = 0,
 
 	/*
-	 * Errors starting by 1xx: informational
+	 * Errors starting by 1xx: informational status code
 	*/
 
 		Continue = 100,
@@ -24,7 +24,7 @@ namespace status
 		Processing,
 		EarlyHints,
 	/*
-	 * Errors starting by 2xx: successful_status_code
+	 * Errors starting by 2xx: successful status code
 	*/
 
 		Ok = 200,
@@ -38,7 +38,7 @@ namespace status
 		AlreadyReported,
 		IMUsed = 226,
 	/*
-	 * Errors starting by 3xx: redirectionstatuscode
+	 * Errors starting by 3xx: redirection status code
 	*/
 		MultipleChoices = 300,
 		MovedPermanently,
@@ -49,7 +49,7 @@ namespace status
 		TemporaryRedirect = 307,
 		PermanentRedirect,
 	/*
-	 * Errors starting by 4xx: clienterrorstatuscode
+	 * Errors starting by 4xx: client error status code
 	*/
 
 		BadRequest = 400,
@@ -82,7 +82,7 @@ namespace status
 		UnavailableForLegalReasons = 451,
 
 	/*
-	 * Errors starting by 5xx: servererrorstatuscode
+	 * Errors starting by 5xx: server error status code
 	*/
 
 		InternalServerError = 500,
