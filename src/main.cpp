@@ -1,6 +1,6 @@
 
 #include "Config/ConfigParser.hpp"
-#include "HTTP/RequestHandler.hpp"
+#include "Server.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -45,23 +45,26 @@ int main(int ac, char **av)
 			std::cout << *it << std::endl;
 		}
 	}
+	tcp::Server	server;
 
-	RequestHandler	handler;
+	server.start();
 
-	std::string		request = "OPTIONS / HTTP/1.0\r\nHost: localhost\r\n\r\n";
-	Result<Request, status::StatusCode> res = handler.update(request.c_str(), request.length());
-	if (res.is_ok()) {
-		Request req = res.unwrap();
-		// TODO we're in the client. Check the associated config::Server for a
-		// with config::Server::is_match
-		// then call config::Server::handle(req);
-	}
-	if (res.is_err())
-	{
-		if (res.unwrap_err() != status::None) {
-			std::cerr << res.unwrap_err() << " " << status::message(res.unwrap_err()) << std::endl;
-		}
-	}
+//	RequestHandler	handler;
+//
+//	std::string		request = "GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 12\r\n\r\nHello world!and everything after";
+//	Result<Request, status::StatusCode> res = handler.update(request.c_str(), request.length());
+//	if (res.is_ok()) {
+//		Request req = res.unwrap();
+//		//TODO we're in the client. Check the associated config::Server for a
+//		// with config::Server::is_match
+//		// then call config::Server::handle(req);
+//	}
+//	if (res.is_err())
+//	{
+//		if (res.unwrap_err() != status::None) {
+//			std::cerr << res.unwrap_err() << " " << status::message(res.unwrap_err()) << std::endl;
+//		}
+//	}
 
 	return 0;
 }

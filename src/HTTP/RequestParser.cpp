@@ -19,7 +19,7 @@ RequestParser::result_type	RequestParser::operator()(const slice& input)
 		tuple<methods::s_method, Target, Version>	info = line.unwrap();
 		if (info.first == methods::OTHER)
 			return RequestParser::result_type::err(line.left(), error("Not implemented", status::NotImplemented));
-		if (info.third != Version(1, 1))
+		if (info.third != Version('1', '1'))
 			return RequestParser::result_type::err(line.left(), error("Unsupported version", status::UnsupportedVersion));
 		req = Request(info.first, info.second, info.third);
 	}
@@ -41,5 +41,4 @@ RequestParser::result_type	RequestParser::operator()(const slice& input)
 	}
 	std::cerr << res.unwrap_err() << std::endl;
 	return res.convert<Request>();
-	// TODO if this is not here, either the request is incomplete or ill-formatted
 }

@@ -7,7 +7,6 @@
 
 #include "ServerBlock.hpp"
 
-// TODO: handle comments and wrap up file (newline or eof at the end)
 class ConfigParser : public Parser<std::vector<config::Server> >
 {
 public :

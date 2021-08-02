@@ -2,8 +2,8 @@
 // Created by alena on 06/07/2021.
 //
 
-#ifndef WEBSERV_SERVER_HPP
-#define WEBSERV_SERVER_HPP
+#ifndef WEBSERV_CONFIG_SERVER_HPP
+#define WEBSERV_CONFIG_SERVER_HPP
 
 #include "Config/Directives/Location.hpp"
 #include "HTTP/Request.hpp"
@@ -61,7 +61,6 @@ namespace config
 		/*
 		 * RESPONSE
 		 */
-		// TODO match server
 
 		struct Response {  };
 		Result<Response, int>	handle(const Request &req);

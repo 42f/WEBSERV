@@ -609,6 +609,33 @@ src/HTTP/Request.cpp.s:
 	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request.cpp.s
 .PHONY : src/HTTP/Request.cpp.s
 
+src/HTTP/Request/Chunk.o: src/HTTP/Request/Chunk.cpp.o
+
+.PHONY : src/HTTP/Request/Chunk.o
+
+# target to build an object file
+src/HTTP/Request/Chunk.cpp.o:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/Chunk.cpp.o
+.PHONY : src/HTTP/Request/Chunk.cpp.o
+
+src/HTTP/Request/Chunk.i: src/HTTP/Request/Chunk.cpp.i
+
+.PHONY : src/HTTP/Request/Chunk.i
+
+# target to preprocess a source file
+src/HTTP/Request/Chunk.cpp.i:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/Chunk.cpp.i
+.PHONY : src/HTTP/Request/Chunk.cpp.i
+
+src/HTTP/Request/Chunk.s: src/HTTP/Request/Chunk.cpp.s
+
+.PHONY : src/HTTP/Request/Chunk.s
+
+# target to generate assembly for a file
+src/HTTP/Request/Chunk.cpp.s:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/Chunk.cpp.s
+.PHONY : src/HTTP/Request/Chunk.cpp.s
+
 src/HTTP/Request/RequestLine.o: src/HTTP/Request/RequestLine.cpp.o
 
 .PHONY : src/HTTP/Request/RequestLine.o
@@ -797,6 +824,33 @@ src/HTTP/Status.s: src/HTTP/Status.cpp.s
 src/HTTP/Status.cpp.s:
 	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Status.cpp.s
 .PHONY : src/HTTP/Status.cpp.s
+
+src/Server.o: src/Server.cpp.o
+
+.PHONY : src/Server.o
+
+# target to build an object file
+src/Server.cpp.o:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Server.cpp.o
+.PHONY : src/Server.cpp.o
+
+src/Server.i: src/Server.cpp.i
+
+.PHONY : src/Server.i
+
+# target to preprocess a source file
+src/Server.cpp.i:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Server.cpp.i
+.PHONY : src/Server.cpp.i
+
+src/Server.s: src/Server.cpp.s
+
+.PHONY : src/Server.s
+
+# target to generate assembly for a file
+src/Server.cpp.s:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Server.cpp.s
+.PHONY : src/Server.cpp.s
 
 src/main.o: src/main.cpp.o
 
@@ -1095,6 +1149,33 @@ src/parser/bytes/Tag.cpp.s:
 	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/parser/bytes/Tag.cpp.s
 .PHONY : src/parser/bytes/Tag.cpp.s
 
+src/parser/bytes/TakeExact.o: src/parser/bytes/TakeExact.cpp.o
+
+.PHONY : src/parser/bytes/TakeExact.o
+
+# target to build an object file
+src/parser/bytes/TakeExact.cpp.o:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/parser/bytes/TakeExact.cpp.o
+.PHONY : src/parser/bytes/TakeExact.cpp.o
+
+src/parser/bytes/TakeExact.i: src/parser/bytes/TakeExact.cpp.i
+
+.PHONY : src/parser/bytes/TakeExact.i
+
+# target to preprocess a source file
+src/parser/bytes/TakeExact.cpp.i:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/parser/bytes/TakeExact.cpp.i
+.PHONY : src/parser/bytes/TakeExact.cpp.i
+
+src/parser/bytes/TakeExact.s: src/parser/bytes/TakeExact.cpp.s
+
+.PHONY : src/parser/bytes/TakeExact.s
+
+# target to generate assembly for a file
+src/parser/bytes/TakeExact.cpp.s:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/parser/bytes/TakeExact.cpp.s
+.PHONY : src/parser/bytes/TakeExact.cpp.s
+
 src/parser/bytes/TakeUntil.o: src/parser/bytes/TakeUntil.cpp.o
 
 .PHONY : src/parser/bytes/TakeUntil.o
@@ -1266,6 +1347,9 @@ help:
 	@echo "... src/HTTP/Request.o"
 	@echo "... src/HTTP/Request.i"
 	@echo "... src/HTTP/Request.s"
+	@echo "... src/HTTP/Request/Chunk.o"
+	@echo "... src/HTTP/Request/Chunk.i"
+	@echo "... src/HTTP/Request/Chunk.s"
 	@echo "... src/HTTP/Request/RequestLine.o"
 	@echo "... src/HTTP/Request/RequestLine.i"
 	@echo "... src/HTTP/Request/RequestLine.s"
@@ -1287,6 +1371,9 @@ help:
 	@echo "... src/HTTP/Status.o"
 	@echo "... src/HTTP/Status.i"
 	@echo "... src/HTTP/Status.s"
+	@echo "... src/Server.o"
+	@echo "... src/Server.i"
+	@echo "... src/Server.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
@@ -1320,6 +1407,9 @@ help:
 	@echo "... src/parser/bytes/Tag.o"
 	@echo "... src/parser/bytes/Tag.i"
 	@echo "... src/parser/bytes/Tag.s"
+	@echo "... src/parser/bytes/TakeExact.o"
+	@echo "... src/parser/bytes/TakeExact.i"
+	@echo "... src/parser/bytes/TakeExact.s"
 	@echo "... src/parser/bytes/TakeUntil.o"
 	@echo "... src/parser/bytes/TakeUntil.i"
 	@echo "... src/parser/bytes/TakeUntil.s"

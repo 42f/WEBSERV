@@ -19,6 +19,10 @@ struct Request
 private:
 	std::map<std::string, Header>			_headers;
 	std::vector<char>						_body;
+	size_t									_length;
+
+	bool		receive_chunked(std::vector<char> &buff);
+	bool		receive_raw(std::vector<char> &buff);
 
 public:
 	methods::s_method						method;
@@ -29,11 +33,10 @@ public:
 
 	Request(methods::s_method method, Target target, Version version);
 
-	void				set_header(const Header& header);
-	Result<std::string>	get_header(const std::string& name) const;
-	std::vector<char>	body();
+	void					set_header(const Header& header);
 
-	//TODO check end of body
+	Result<std::string>		get_header(const std::string& name) const;
+	const std::vector<char>	&get_body() const;
 
 	bool receive(std::vector<char> &vector);
 

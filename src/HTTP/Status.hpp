@@ -8,7 +8,6 @@
 #include <map>
 #include <string>
 
-//TODO list des http status code
 namespace status
 {
 	enum StatusCode
