@@ -562,30 +562,27 @@ src/HTTP/Request.cpp.s:
 .PHONY : src/HTTP/Request.cpp.s
 
 src/HTTP/Request/Chunk.o: src/HTTP/Request/Chunk.cpp.o
-
 .PHONY : src/HTTP/Request/Chunk.o
 
 # target to build an object file
 src/HTTP/Request/Chunk.cpp.o:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/Chunk.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/Chunk.cpp.o
 .PHONY : src/HTTP/Request/Chunk.cpp.o
 
 src/HTTP/Request/Chunk.i: src/HTTP/Request/Chunk.cpp.i
-
 .PHONY : src/HTTP/Request/Chunk.i
 
 # target to preprocess a source file
 src/HTTP/Request/Chunk.cpp.i:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/Chunk.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/Chunk.cpp.i
 .PHONY : src/HTTP/Request/Chunk.cpp.i
 
 src/HTTP/Request/Chunk.s: src/HTTP/Request/Chunk.cpp.s
-
 .PHONY : src/HTTP/Request/Chunk.s
 
 # target to generate assembly for a file
 src/HTTP/Request/Chunk.cpp.s:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/Chunk.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/Chunk.cpp.s
 .PHONY : src/HTTP/Request/Chunk.cpp.s
 
 src/HTTP/Request/RequestLine.o: src/HTTP/Request/RequestLine.cpp.o
@@ -732,6 +729,30 @@ src/HTTP/RequestParser.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/RequestParser.cpp.s
 .PHONY : src/HTTP/RequestParser.cpp.s
 
+src/HTTP/Response/Response.o: src/HTTP/Response/Response.cpp.o
+.PHONY : src/HTTP/Response/Response.o
+
+# target to build an object file
+src/HTTP/Response/Response.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/Response.cpp.o
+.PHONY : src/HTTP/Response/Response.cpp.o
+
+src/HTTP/Response/Response.i: src/HTTP/Response/Response.cpp.i
+.PHONY : src/HTTP/Response/Response.i
+
+# target to preprocess a source file
+src/HTTP/Response/Response.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/Response.cpp.i
+.PHONY : src/HTTP/Response/Response.cpp.i
+
+src/HTTP/Response/Response.s: src/HTTP/Response/Response.cpp.s
+.PHONY : src/HTTP/Response/Response.s
+
+# target to generate assembly for a file
+src/HTTP/Response/Response.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/Response.cpp.s
+.PHONY : src/HTTP/Response/Response.cpp.s
+
 src/HTTP/Status.o: src/HTTP/Status.cpp.o
 .PHONY : src/HTTP/Status.o
 
@@ -755,33 +776,6 @@ src/HTTP/Status.s: src/HTTP/Status.cpp.s
 src/HTTP/Status.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Status.cpp.s
 .PHONY : src/HTTP/Status.cpp.s
-
-src/Server.o: src/Server.cpp.o
-
-.PHONY : src/Server.o
-
-# target to build an object file
-src/Server.cpp.o:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Server.cpp.o
-.PHONY : src/Server.cpp.o
-
-src/Server.i: src/Server.cpp.i
-
-.PHONY : src/Server.i
-
-# target to preprocess a source file
-src/Server.cpp.i:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Server.cpp.i
-.PHONY : src/Server.cpp.i
-
-src/Server.s: src/Server.cpp.s
-
-.PHONY : src/Server.s
-
-# target to generate assembly for a file
-src/Server.cpp.s:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Server.cpp.s
-.PHONY : src/Server.cpp.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -1048,30 +1042,27 @@ src/parser/bytes/Tag.cpp.s:
 .PHONY : src/parser/bytes/Tag.cpp.s
 
 src/parser/bytes/TakeExact.o: src/parser/bytes/TakeExact.cpp.o
-
 .PHONY : src/parser/bytes/TakeExact.o
 
 # target to build an object file
 src/parser/bytes/TakeExact.cpp.o:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/parser/bytes/TakeExact.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/parser/bytes/TakeExact.cpp.o
 .PHONY : src/parser/bytes/TakeExact.cpp.o
 
 src/parser/bytes/TakeExact.i: src/parser/bytes/TakeExact.cpp.i
-
 .PHONY : src/parser/bytes/TakeExact.i
 
 # target to preprocess a source file
 src/parser/bytes/TakeExact.cpp.i:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/parser/bytes/TakeExact.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/parser/bytes/TakeExact.cpp.i
 .PHONY : src/parser/bytes/TakeExact.cpp.i
 
 src/parser/bytes/TakeExact.s: src/parser/bytes/TakeExact.cpp.s
-
 .PHONY : src/parser/bytes/TakeExact.s
 
 # target to generate assembly for a file
 src/parser/bytes/TakeExact.cpp.s:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/parser/bytes/TakeExact.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/parser/bytes/TakeExact.cpp.s
 .PHONY : src/parser/bytes/TakeExact.cpp.s
 
 src/parser/bytes/TakeUntil.o: src/parser/bytes/TakeUntil.cpp.o
@@ -1278,12 +1269,12 @@ help:
 	@echo "... src/HTTP/RequestParser.o"
 	@echo "... src/HTTP/RequestParser.i"
 	@echo "... src/HTTP/RequestParser.s"
+	@echo "... src/HTTP/Response/Response.o"
+	@echo "... src/HTTP/Response/Response.i"
+	@echo "... src/HTTP/Response/Response.s"
 	@echo "... src/HTTP/Status.o"
 	@echo "... src/HTTP/Status.i"
 	@echo "... src/HTTP/Status.s"
-	@echo "... src/Server.o"
-	@echo "... src/Server.i"
-	@echo "... src/Server.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

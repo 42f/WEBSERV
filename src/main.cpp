@@ -1,6 +1,7 @@
 
 #include "Config/ConfigParser.hpp"
 #include "HTTP/RequestHandler.hpp"
+#include "HTTP/Response/Response.hpp"
 #include "utils/Logger.hpp"
 
 #include <fstream>
@@ -44,7 +45,6 @@ void*	conn_reader(void *connection_data ) {
 
 	char	recvline[MAXLINE+1];
 	int		n;
-	uint8_t	buff[MAXLINE+1];
 	memset(recvline, 0, MAXLINE);
 	n = read(c->connfd, recvline, MAXLINE-1);
 	if (n < 0)
@@ -67,8 +67,21 @@ void*	conn_reader(void *connection_data ) {
 
 		// default response, will be replace by response manager
 		fake_workload(c->req_counter);
-		snprintf((char*)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nHello! >>>> [%d] your IP [%s]\n", c->req_counter, c->client_addr.c_str());
-		write(c->connfd, (char*)buff, strlen((char*)buff));
+
+		Response resp(res.unwrap().version, status::Ok);
+
+
+		resp.set_header(Header(slice("coucou"), slice("42")));
+
+		std::cout << resp << std::endl;
+
+
+		std::ostringstream output;
+		output << resp;
+		output << "\r\n";
+		output << c->req_counter << " - Hello [" << c->client_addr << "]";
+		output << "\r\n\r\n";
+		write(c->connfd, output.str().c_str(), output.str().length());
 	}
 	close(c->connfd);
 	free(connection_data);

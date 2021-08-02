@@ -30,6 +30,6 @@ std::string	Header::name() const { return this->_name.to_string(); }
 
 std::ostream &operator<<(std::ostream& stream, const Header& header)
 {
-	stream << header._name.to_string() << " : " << header._value.to_string();
+	stream << header._name.to_string() << ": " << header._value.to_string();
 	return stream;
 }

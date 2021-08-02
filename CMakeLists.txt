@@ -9,13 +9,11 @@ set(FILES
         src/main.cpp
         src/Constants.hpp
 
-<<<<<<< HEAD
         src/utils/logger.hpp
         src/utils/logger.cpp
-=======
-        src/Server.cpp
-        src/Server.hpp
->>>>>>> origin/parser
+
+        src/HTTP/Response/Response.cpp
+        src/HTTP/Response/Response.hpp
 
         src/parser/combinators.hpp
         src/parser/Error.cpp
