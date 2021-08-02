@@ -15,6 +15,7 @@
 #include "bytes/Tag.hpp"
 #include "bytes/OneOf.hpp"
 #include "bytes/TakeUntil.hpp"
+#include "bytes/TakeExact.hpp"
 #include "bytes/TakeUntilMatch.hpp"
 #include "bytes/TakeWhile.hpp"
 #include "bytes/TakeWith.hpp"

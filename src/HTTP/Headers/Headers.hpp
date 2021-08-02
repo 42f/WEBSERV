@@ -20,9 +20,7 @@ class Headers: public Parser<Header>
 public:
 	Headers();
 
-	result_type 	operator()(const slice& input);
+	result_type		operator()(const slice& input);
 };
-
-//TODO more headers...
 
 #endif //WEBSERV_HEADERS_HPP

@@ -9,16 +9,9 @@
 #include "Tokens.hpp"
 
 /*
- * FieldName = token = 1 * tchar = "!" | "#" | "$" | "%" | "&" | "'" | "*"| "+" | "-" | "." | "^" | "_" | "`" | "|" | "~" | DIGIT | ALPHA
+ * FieldName = token
  */
-static const OneOf charset = OneOf("!#$%&'*+-.^_`|~");
-
-class FieldName : public Parser<slice>
-{
-public:
-	FieldName();
-	result_type operator()(const slice &input);
-};
+typedef Token FieldName;
 
 /*
  * FieldValue  = *(field-vchar [ 1*( SP / HTAB ) field-vchar ])
@@ -41,8 +34,6 @@ private:
 
 public:
 	Header(slice name, slice value);
-
-	static Header	from_tuple(tuple<slice, slice> input);
 
 	std::string	value();
 	std::string	value() const;

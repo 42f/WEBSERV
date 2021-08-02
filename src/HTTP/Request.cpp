@@ -3,13 +3,15 @@
 //
 
 #include "Request.hpp"
+#include "Request/Chunk.hpp"
+#include <cstdlib>
 
 /*
  * Request
  */
-Request::Request() { };
+Request::Request(): _length(0) { };
 
-Request::Request(methods::s_method method, Target target, Version version): method(method), target(target), version(version) { }
+Request::Request(methods::s_method method, Target target, Version version): _length(0), method(method), target(target), version(version) { }
 
 void	Request::set_header(const Header& header)
 {
@@ -24,10 +26,50 @@ Result<std::string>		Request::get_header(const std::string &name) const
 	return Result<std::string>::ok(it->second.value());
 }
 
-bool Request::receive(std::vector<char> &vector)
+const std::vector<char> &Request::get_body() const { return _body; }
+
+bool Request::receive_chunked(std::vector<char> &buff)
 {
-	(void)vector;
+	bool 	end = false;
+
+	ParserResult<std::vector<chunk_data> >	chunks = ChunkBody()(slice(buff.data(), buff.size()));
+	if (chunks.is_err())
+		return false;
+	std::vector<chunk_data>		lst = chunks.unwrap();
+	std::cerr << "chunks: received " << lst.size() << " chunks" << std::endl;
+	for (std::vector<chunk_data>::iterator it = lst.begin(); it != lst.end(); it++)
+	{
+		_body.reserve(_body.size() + it->data.size);
+		_body.insert(_body.end(), it->data.p, it->data.p + it->data.size);
+		if (it->end) end = true;
+	}
+	buff.erase(buff.begin(), buff.begin() + (chunks.left().p - buff.data()));
+	return end;
+}
+
+bool Request::receive_raw(std::vector<char> &buff)
+{
+	if (buff.size() >= _length)
+	{
+		_body.reserve(_length);
+		_body.insert(_body.begin(), buff.begin(), buff.begin() + _length);
+		buff.erase(buff.begin(), buff.begin() + _length);
+		return true;
+	}
 	return false;
+}
+
+/*
+ * Check the type of body and call the corresponding receive handler
+ */
+bool Request::receive(std::vector<char> &buff)
+{
+	if (_length)
+		return receive_raw(buff);
+	if (get_header("Transfer-Encoding").is_ok())
+		return receive_chunked(buff);
+	_length = atoi(get_header("Content-Length").unwrap().c_str());
+	return receive_raw(buff);
 }
 
 std::ostream &operator<<(std::ostream & stream, const Request &req)

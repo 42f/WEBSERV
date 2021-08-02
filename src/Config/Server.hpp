@@ -68,7 +68,6 @@ namespace config
 		/*
 		 * RESPONSE
 		 */
-		// TODO match server
 
 		// struct Response {  };
 		// Result<Response, int>	handle(const Request &req);

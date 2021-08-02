@@ -41,5 +41,4 @@ RequestParser::result_type	RequestParser::operator()(const slice& input)
 	}
 	std::cerr << res.unwrap_err() << std::endl;
 	return res.convert<Request>();
-	// TODO if this is not here, either the request is incomplete or ill-formatted
 }

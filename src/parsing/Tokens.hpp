@@ -46,17 +46,28 @@ public:
 const Newline newline = Newline();
 
 /*
- * SingleSpace = ' '
+ * Token = 1 * tchar = "!" | "#" | "$" | "%" | "&" | "'" | "*"| "+" | "-" | "." | "^" | "_" | "`" | "|" | "~" | DIGIT | ALPHA
  */
-class SingleSpace: public Parser<char>
+class Token: public Parser<slice>
 {
 public:
-	SingleSpace();
+	Token();
 	result_type		operator()(const slice &input);
 };
 
-const SingleSpace single_space = SingleSpace();
+class QuotedText: public Parser<slice>
+{
+public:
+	QuotedText();
+	result_type 	operator()(const slice &input);
+};
+
+const Char	single_space = Char(' ');
 const RWS rws = RWS();
 const OWS ows = OWS();
+const Match		vchar = Match(isprint);
+const HexChar obs = HexChar('\x80', '\xFF');
+const Token token = Token();
+const QuotedText quoted_text = QuotedText();
 
 #endif //WEBSERV_TOKENS_HPP

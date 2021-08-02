@@ -9,8 +9,13 @@ set(FILES
         src/main.cpp
         src/Constants.hpp
 
+<<<<<<< HEAD
         src/utils/logger.hpp
         src/utils/logger.cpp
+=======
+        src/Server.cpp
+        src/Server.hpp
+>>>>>>> origin/parser
 
         src/parser/combinators.hpp
         src/parser/Error.cpp
@@ -45,6 +50,8 @@ set(FILES
         src/parser/bytes/TakeWhile.cpp
         src/parser/bytes/TakeWhile.hpp
         src/parser/bytes/TakeWith.hpp
+        src/parser/bytes/TakeExact.cpp
+        src/parser/bytes/TakeExact.hpp
 
         src/parser/combinators/Alt.hpp
         src/parser/combinators/AsSlice.hpp
@@ -128,7 +135,7 @@ set(FILES
         src/Config/Structure/Line.hpp
         src/Config/Structure/Line.cpp
 
-        )
+        src/HTTP/Request/Chunk.cpp src/HTTP/Request/Chunk.hpp)
 
 message("compiling with flags ${CMAKE_CXX_FLAGS}")
 
