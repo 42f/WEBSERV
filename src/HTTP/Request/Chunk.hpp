@@ -9,7 +9,6 @@
 #include "parsing/Tokens.hpp"
 #include "HTTP/Headers/HeaderParser.hpp"
 
-//TODO cpp
 struct chunk_data
 {
 public:
