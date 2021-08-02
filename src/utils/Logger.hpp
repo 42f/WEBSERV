@@ -9,26 +9,28 @@ class Logger
 	public:
 
 		// log a new line
-		int		log(std::string const &dest, std::string const & message);
+		static bool		log( std::string const & message, int dest = Logger::_defaultDest);
 
 		// set Verbose, true by default
-		void			setVerbose(bool setting = true);
+		static void		setVerbose(bool setting = true);
+		static void		setDefaultDest(int setting = Logger::toFile);
 
-		static Logger&	getInstance(std::string const destFile = "");
-		static const	std::string	toConsole;
-		static const	std::string	toFile;
+		// instanciate a new logger with: verbose = true and defaultDest = to file.
+		static Logger&	getInstance(std::string const destFile = "./webserv.log",
+														const int defaultDest = Logger::toFile);
+		static const int	toConsole;
+		static const int	toFile;
 
 		~Logger();
 
 	private:
 
-		Logger( std::string const destFile);
+		static bool				_verbose;
+		static int				_defaultDest;
+		static std::string 		_fileName;
 
-		bool				_verbose;
-		std::string			_makeLogEntry(std::string rawEntry);
-		int					_logToConsole(std::string entry);
-		int					_logToFile(std::string entry);
-		std::string			_destFile;
+		Logger( std::string const destFile, int defaultDest);
+		static std::string		_makeLogEntry(std::string rawEntry);
 };
 
 #endif /* ********************************************************** LOGGER_H */

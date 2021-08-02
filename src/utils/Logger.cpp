@@ -6,17 +6,22 @@
 #include <ctime>
 #include "Logger.hpp"
 
-const std::string	Logger::toConsole = "toConsole";
-const std::string	Logger::toFile = "toFile";
+const int Logger::toConsole = 0;
+const int Logger::toFile = 1;
+
+bool	Logger::_verbose = true;
+int		Logger::_defaultDest = Logger::toFile;
+std::string 	Logger::_fileName = "";
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Logger::Logger( std::string const destFile )
+Logger::Logger( std::string const destFile, int defaultDest )
 {
- 	this->_verbose = true;
- 	this->_destFile = destFile;
+	Logger::_fileName = destFile;
+	Logger::_verbose = true;
+	Logger::_defaultDest = defaultDest;
 }
 
 /*
@@ -27,7 +32,6 @@ Logger::~Logger()
 {
 }
 
-
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
@@ -37,25 +41,7 @@ Logger::~Logger()
 */
 
 void			Logger::setVerbose(bool setting) {
-	this->_verbose = setting;
-}
-
-int				Logger::_logToConsole(std::string logEntry)	{
-	std::clog << logEntry.c_str() << std::endl;
-	return (0);
-}
-
-int				Logger::_logToFile(std::string logEntry)	{
-	std::ofstream	ofs(this->_destFile.c_str(), std::ofstream::app);
-
-	if (ofs.good() == true)
-	{
-		ofs << logEntry << std::endl;
-		ofs.close();
-		return (0);
-	}
-	else
-		return (1);
+	Logger::_verbose = setting;
 }
 
 std::string		Logger::_makeLogEntry(std::string rawEntry)	{
@@ -75,23 +61,31 @@ std::string		Logger::_makeLogEntry(std::string rawEntry)	{
 	return (logEntry.str());
 }
 
-int				Logger::log(std::string const &dest, std::string const & message)	{
-	std::string		dest_list[2] = { Logger::toConsole, Logger::toFile };
-	int				(Logger::*function_list[2])(std::string) = { &Logger::_logToConsole, &Logger::_logToFile };
-	int				i = 0;
+bool		Logger::log( std::string const & message, int dest)  {
 
-	while(i < 1 && dest_list[i] != dest)
-		i++;
-	return ((this->*function_list[i])(Logger::_makeLogEntry(message)));
+	int destination = (dest != Logger::_defaultDest) ? dest : Logger::_defaultDest;
+
+	if (destination == Logger::toConsole && Logger::_verbose == true) {
+		std::clog << _makeLogEntry(message) << std::endl;
+	}
+	else if (destination == Logger::toFile && Logger::_verbose == true) {
+		std::ofstream	outputFS(Logger::_fileName.c_str(), std::ofstream::app);
+		outputFS << _makeLogEntry(message) << std::endl;
+		outputFS.close();
+	}
+	else	{
+		return false;
+	}
+	return true;
 }
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-Logger&			Logger::getInstance(std::string const destFile) {
+Logger&			Logger::getInstance(std::string const destFile, const int defaultDest) {
 
-	static	Logger l(destFile);
+	static	Logger l(destFile, defaultDest);
 	return l;
 }
 

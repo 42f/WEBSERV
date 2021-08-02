@@ -105,8 +105,6 @@ void	simple_listener( ParserResult<std::vector<config::Server> >&cfgs ) {
 
 		printf("[#%d] Waiting for connection on port %d...\n", req_counter++, SERVER_PORT);
 		fflush(stdout);
-		Logger::getInstance().log(Logger::toFile, "__Coucou");
-
 		bzero(&servaddr, sizeof(servaddr_client));
 		int len = sizeof(servaddr_client);
 		// will block until something comes to the port
@@ -137,8 +135,7 @@ void	simple_listener( ParserResult<std::vector<config::Server> >&cfgs ) {
 
 int main(int ac, char **av)
 {
-	Logger::getInstance("/Users/bvalette/log_webserv.log");
-
+	Logger::getInstance("./logg", Logger::toConsole);
 	std::string 	path;
 	switch (ac) {
 		case 1:
