@@ -12,14 +12,15 @@
 #include "../Request.hpp"
 #include "../Status.hpp"
 
-#define BUFF_SIZE 512
-
 class Response	{
 
 	public:
 
 		Response( void );
+		Response( Response const & src );
 		Response( Version version, status::StatusCode statusCode );
+
+		Response &		operator=( Response const & rhs );
 		~Response( void );
 
 		void	setVersion( const Version& version );
@@ -47,8 +48,6 @@ class Response	{
 		std::string						_bodyLengthStr;
 		size_t							_length;
 
-		Response( Response const & src );
-		Response &		operator=( Response const & rhs );
 
 		friend std::ostream&	operator<<( std::ostringstream & o, Response const & i );
 		friend std::istream&	operator>>( std::istream & is, Response& i );

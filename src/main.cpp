@@ -2,6 +2,7 @@
 #include "Config/ConfigParser.hpp"
 #include "HTTP/RequestHandler.hpp"
 #include "HTTP/Response/Response.hpp"
+#include "HTTP/Response/ResponseHandler.hpp"
 #include "utils/Logger.hpp"
 
 #include <fstream>
@@ -47,28 +48,40 @@ void*	conn_reader(void *connection_data ) {
 	int		n;
 	memset(recvline, 0, MAXLINE);
 	n = read(c->connfd, recvline, MAXLINE-1);
-	if (n < 0)
+	if (n < 0)	{
+		Logger::log("read() returned an error.");
 		exit (1);
+	}
 
 	RequestHandler	handler;
-
 	std::string		request(recvline);
 	std::cout << request << std::endl;
 
 	std::cout << BLUE << std::endl;
 	RequestHandler::result_type res = handler.update(request.c_str(), request.length());
 	std::cout << NC << std::endl;
+
 	if (res.is_ok()) {
 		Request req = res.unwrap();
 		fake_workload(c->req_counter);
 
-		Response resp(res.unwrap().version, status::Ok);
 
-		std::stringstream io;
+		ResponseHandler		respHandler;
 
-		io << "[request #" << c->req_counter++ << "] hello " << c->client_addr << ", this is a response body.";
-		io >> resp;
-		resp.setHeader(Header(std::string("Content-Length"), resp.getBodyLenStr()));
+		ResponseHandler::result_type result_resp = respHandler.processRequest(req);
+		Response	resp = result_resp.unwrap();
+
+
+
+	// 	Response resp(res.unwrap().version, status::Ok);
+	// 	std::stringstream io;
+	// io << "[request #" << c->req_counter++ << "] hello " << c->client_addr << ", this is a response body. \nAnd a second line";
+	// 	io >> resp;
+	// 	resp.setHeader(Header(std::string("Content-Length"), resp.getBodyLenStr()));
+
+
+
+
 
 		// Here for Calixte ! //
 		std::ostringstream output;

@@ -38,6 +38,9 @@ public:
 	result_type 	update(const char *buff, size_t read);
 	result_type 	receive();
 
+	// TODO remove, debug only
+	static int		req_counter;
+
 	void			reset();
 };
 

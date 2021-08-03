@@ -71,7 +71,7 @@ void	Response::setStatus( const status::StatusCode &statusCode )	{
 
 /* ................................. OVERLOAD ................................*/
 
-Response &				Response::operator=( Response const & rhs )	{
+Response &		Response::operator=( Response const & rhs )	{
 	if ( this != &rhs )	{
 		this->_version = rhs._version;
 		this->_statusCode = rhs._statusCode;
@@ -84,22 +84,22 @@ Response &				Response::operator=( Response const & rhs )	{
 }
 
 // appends the content of istream in the response _body, use clearBody() before if needed.
-std::istream &			operator>>( std::istream & is, Response& inst )	{
-	char buff[BUFF_SIZE];
+std::istream &	operator>>( std::istream & is, Response& inst )	{
+
+	std::string		buffer;
 
 	while (is.good()) {
-		bzero(&buff, BUFF_SIZE);
-		is.getline(buff, BUFF_SIZE);
-		inst._body.reserve(inst._body.size() + BUFF_SIZE);
-		for (int i = 0; i < BUFF_SIZE && buff[i] != '\0'; i++)
-			inst._body.push_back(buff[i]);
+		std::getline(is, buffer);
+		if (is.eof() == false)
+			buffer += '\n'; // add back the newline removed by getline as a delimiter
+		inst._body.insert(inst._body.end(), buffer.begin(), buffer.end());
 	}
 	inst.update_BodyLen();
 	return is;
 }
 
 // Writes the response's content to the client's connection fd
-std::ostream &			operator<<( std::ostringstream & o, Response const & i )	{
+std::ostream &	operator<<( std::ostringstream & o, Response const & i )	{
 
 	// Writes status line
 	o << "HTTP/" << i._version << " " << i._statusCode << " " << i._statusMessage << "\r\n";
