@@ -7,6 +7,8 @@
 #include "HTTP/Request/RequestLine.hpp"
 #include "HTTP/Headers/Headers.hpp"
 #include "Config/Directives/Redirect.hpp"
+
+#include "../utils/Logger.hpp"
 #include "../Request.hpp"
 #include "../Status.hpp"
 
@@ -24,15 +26,14 @@ class Response	{
 		void	setHeader( const Header& header );
 		void	setStatus( const status::StatusCode& statusCode );
 
-		void				reset( void );
+		void	reset( void );
 
-		void				clearBody( void );
+		void	clearBody( void );
 		std::vector<char> const&	getBody( void ) const;
 
-		int						getBodyLen( void ) const;
-		std::string&			getBodyLenStr( void );
-
-		void				update_BodyLen( void );
+		int				getBodyLen( void ) const;
+		std::string&	getBodyLenStr( void );
+		void			update_BodyLen( void );
 
 	private:
 
@@ -49,7 +50,7 @@ class Response	{
 		Response( Response const & src );
 		Response &		operator=( Response const & rhs );
 
-		friend std::ostream&	operator<<( std::ostream & o, Response const & i );
+		friend std::ostream&	operator<<( std::ostringstream & o, Response const & i );
 		friend std::istream&	operator>>( std::istream & is, Response& i );
 
 };

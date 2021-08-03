@@ -60,32 +60,22 @@ void*	conn_reader(void *connection_data ) {
 	std::cout << NC << std::endl;
 	if (res.is_ok()) {
 		Request req = res.unwrap();
-
-		// TODO we're in the client. Check the associated config::Server for a
-		// with config::Server::is_match
-		// then call config::Server::handle(req);
-
-		// default response, will be replace by response manager
 		fake_workload(c->req_counter);
 
 		Response resp(res.unwrap().version, status::Ok);
 
+		std::stringstream io;
 
+		io << "[request #" << c->req_counter++ << "] hello " << c->client_addr << ", this is a response body.";
+		io >> resp;
+		resp.setHeader(Header(std::string("Content-Length"), resp.getBodyLenStr()));
 
-		std::istringstream test("Hello body response a little longer...");
-		std::stringstream len;
-		test >> resp;
-		len << test.str().length();
-
-		resp.setHeader(Header(slice("Content-Length"), slice(resp.getBodyLenStr())));
-		Logger::log("Response is: ", Logger::toConsole);
-		std::cout << resp << std::endl;
+		// Here for Calixte ! //
 		std::ostringstream output;
 		output << resp;
-		// output << "\r\n";
-		// output << c->req_counter << " - Hello [" << c->client_addr << "]";
-		// output << "\r\n\r\n";
 		write(c->connfd, output.str().c_str(), output.str().length());
+		//-------------------//
+
 	}
 	close(c->connfd);
 	free(connection_data);

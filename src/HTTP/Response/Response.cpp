@@ -83,7 +83,7 @@ Response &				Response::operator=( Response const & rhs )	{
 	return *this;
 }
 
-// TODO get stream of bytes in the response _body
+// appends the content of istream in the response _body, use clearBody() before if needed.
 std::istream &			operator>>( std::istream & is, Response& inst )	{
 	char buff[BUFF_SIZE];
 
@@ -99,7 +99,7 @@ std::istream &			operator>>( std::istream & is, Response& inst )	{
 }
 
 // Writes the response's content to the client's connection fd
-std::ostream &			operator<<( std::ostream & o, Response const & i )	{
+std::ostream &			operator<<( std::ostringstream & o, Response const & i )	{
 
 	// Writes status line
 	o << "HTTP/" << i._version << " " << i._statusCode << " " << i._statusMessage << "\r\n";
@@ -120,6 +120,8 @@ std::ostream &			operator<<( std::ostream & o, Response const & i )	{
 		o.write(i._body.data(), i._body.size());
 	}
 
+	// TODO remove or find a cheap way to cut short the body.
+	Logger::log(std::string("Response sent: \n") + o.str(), Logger::toConsole);
 	return o;
 }
 
