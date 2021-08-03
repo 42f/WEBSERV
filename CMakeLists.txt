@@ -14,6 +14,8 @@ set(FILES
 
         src/HTTP/Response/Response.cpp
         src/HTTP/Response/Response.hpp
+        src/HTTP/Response/ResponseHandler.cpp
+        src/HTTP/Response/ResponseHandler.hpp
 
         src/parser/combinators.hpp
         src/parser/Error.cpp

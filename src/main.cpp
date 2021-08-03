@@ -32,9 +32,9 @@ void	fake_workload( int req_id )	{
 
 struct Connection {
 
-	std::string 	client_addr;
-	int 			req_counter;
-	int 			connfd;
+	std::string			client_addr;
+	int					req_counter;
+	int 				connfd;
 	ParserResult<std::vector<config::Server> > cfgs;
 };
 
@@ -71,16 +71,20 @@ void*	conn_reader(void *connection_data ) {
 		Response resp(res.unwrap().version, status::Ok);
 
 
-		resp.set_header(Header(slice("coucou"), slice("42")));
 
+		std::istringstream test("Hello body response a little longer...");
+		std::stringstream len;
+		test >> resp;
+		len << test.str().length();
+
+		resp.setHeader(Header(slice("Content-Length"), slice(resp.getBodyLenStr())));
+		Logger::log("Response is: ", Logger::toConsole);
 		std::cout << resp << std::endl;
-
-
 		std::ostringstream output;
 		output << resp;
-		output << "\r\n";
-		output << c->req_counter << " - Hello [" << c->client_addr << "]";
-		output << "\r\n\r\n";
+		// output << "\r\n";
+		// output << c->req_counter << " - Hello [" << c->client_addr << "]";
+		// output << "\r\n\r\n";
 		write(c->connfd, output.str().c_str(), output.str().length());
 	}
 	close(c->connfd);
@@ -116,17 +120,23 @@ void	simple_listener( ParserResult<std::vector<config::Server> >&cfgs ) {
 	// infinit loop to listen to the port and respond
 	while (true)	{
 
-		printf("[#%d] Waiting for connection on port %d...\n", req_counter++, SERVER_PORT);
-		fflush(stdout);
+		std::ostringstream message;
+		message << "[# " << req_counter++ <<"]" << " Waiting for connections on port " << SERVER_PORT;
+		Logger::log(message.str(), Logger::toConsole);
+
 		bzero(&servaddr, sizeof(servaddr_client));
 		int len = sizeof(servaddr_client);
+
 		// will block until something comes to the port
 		connfd = accept(listenfd, (struct sockaddr *)&servaddr_client, (socklen_t *)&len);
 
 		char client_addr[32];
 		bzero(&client_addr, 32);
 		inet_ntop(AF_INET, &(servaddr_client.sin_addr), client_addr, 32);
-		printf("client ip: %s\n",  client_addr);
+		message.str("");
+		message.clear();
+		message << "New Connection: Client ip is: " << client_addr;
+		Logger::log(message.str());
 
 
 		Connection	*c = (Connection*)malloc(sizeof(Connection));

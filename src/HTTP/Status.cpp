@@ -11,6 +11,7 @@ namespace status
 
 	StatusMessage::StatusMessage()
 	{
+		_msgs[status::None] = "";
 		_msgs[status::Continue] = "Continue";
 		_msgs[status::SwitchingProtocols] = "Switching Protocols";
 		_msgs[status::Processing] = "Processing";
