@@ -39,13 +39,17 @@ private:
 	static const size_t		SIZE_UNSET;
 
 public:
-	LocationConfig();
-
-	static	void	use(LocationConfig *ptr);
-
 /*
- * GETTER
- */
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
+	LocationConfig();
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
+	static	void	use(LocationConfig *ptr);
+/*
+** --------------------------------- GETTERS ----------------------------------
+*/
 	static	LocationConfig	*path(slice path);
 	static	LocationConfig	*root(slice root);
 	static	LocationConfig	*body_size(size_t size);
@@ -56,8 +60,8 @@ public:
 	static	LocationConfig	*redirection(redirect ret);
 	static	LocationConfig	*dump(slice unused);
 /*
- * SETTER
- */
+** --------------------------------- SETTERS ----------------------------------
+*/
 	LocationConfig	&set_path(slice path);
 	LocationConfig	&set_size(size_t size);
 	LocationConfig	&set_root(slice root);
@@ -67,8 +71,13 @@ public:
 	LocationConfig	&set_index(slice index);
 	LocationConfig	&set_redirect(redirect ret);
 
+/*
+** --------------------------------- OVERLOAD ---------------------------------
+*/
 	friend std::ostream &operator<<(std::ostream& stream, const LocationConfig& cfg);
 };
+
+/* ************************************************************************** */
 
 /*
  * LocationContent is a line for block server
@@ -82,6 +91,9 @@ public:
 	result_type 	operator()(const slice &input);
 };
 
+/* ************************************************************************** */
+
+
 class Head : public Parser<slice>
 {
 public:
@@ -89,6 +101,8 @@ public:
 
 	result_type operator()(const slice &input);
 };
+
+/* ************************************************************************** */
 
 /*
  * Location = location RWS path RWS { . . . }
@@ -101,5 +115,6 @@ public:
 	result_type operator()(const slice &input);
 };
 
+/* ************************************************************************** */
 
 #endif //WEBSERV_LOCATION_HPP

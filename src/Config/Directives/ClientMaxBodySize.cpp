@@ -23,3 +23,5 @@ ClientMaxBodySize::result_type ClientMaxBodySize::operator()(const slice &input)
 	}
 	return res.convert<size_t>();
 }
+
+/* ************************************************************************** */

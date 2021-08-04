@@ -5,7 +5,7 @@
 #ifndef WEBSERV_REQUESTPARSER_HPP
 #define WEBSERV_REQUESTPARSER_HPP
 
-#include "parser/export.hpp"
+#include "export.hpp"
 #include "Tokens.hpp"
 #include "Request.hpp"
 
@@ -19,5 +19,7 @@ public:
 
 	result_type operator()(const slice& input);
 };
+
+/* ************************************************************************** */
 
 #endif //WEBSERV_REQUESTPARSER_HPP

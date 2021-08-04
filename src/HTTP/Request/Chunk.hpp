@@ -36,6 +36,8 @@ public:
 	result_type operator()(const slice &input);
 };
 
+/* ************************************************************************** */
+
 /*
  * chunk = chunk-size [ chunk-extension ] CRLF chunk-data CRLF
  */
@@ -46,6 +48,8 @@ public:
 
 	result_type		operator()(const slice&input);
 };
+
+/* ************************************************************************** */
 
 /*
  * last-chunk = 1*("0") [ chunk-extension ] CRLF trailer CRLF
@@ -58,6 +62,8 @@ public:
 	result_type		operator()(const slice&input);
 };
 
+/* ************************************************************************** */
+
 /*
  * Chunked-Body = *chunk last-chunk
  */
@@ -68,6 +74,8 @@ public:
 
 	result_type		operator()(const slice &input);
 };
+
+/* ************************************************************************** */
 
 
 #endif //WEBSERV_CHUNK_HPP

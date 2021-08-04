@@ -8,19 +8,25 @@
  * AbsolutePath = 1*( "/" segment )
  */
 AbsolutePath::AbsolutePath() { }
+
 AbsolutePath::result_type	AbsolutePath::operator()(const slice &input)
 {
 	return take_with(sequence(Char('/'), Segment()))(input);
 }
 
+/* ************************************************************************** */
+
 /*
  * Query = *( pchar / "/" / "?" )
  */
 Query::Query() { }
+
 Query::result_type	Query::operator()(const slice &input)
 {
 	return take_with(alt(Pchar(), OneOf("/?")), true)(input);
 }
+
+/* ************************************************************************** */
 
 /*
  * OriginForm = AbsolutePath [ "?" Query]
@@ -31,8 +37,12 @@ Target	as_target(const slice& input, ParserResult<tuple<slice, slice> >&res)
 	return Target::from(res.unwrap().first, res.unwrap().second);
 }
 
+OriginForm::OriginForm() { };
+
 OriginForm::result_type OriginForm::operator()(const slice &input)
 {
 	return sequence(AbsolutePath(), opt(preceded(Char('?'), Query())))(input)
 			.map(input, as_target);
 }
+
+/* ************************************************************************** */

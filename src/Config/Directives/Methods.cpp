@@ -8,23 +8,26 @@
  * Method = method GET POST ...
  * sequence(slice, many(preceded(Char(" "), slice))
  */
-
-config::Methods::Methods() { }
-
-config::Methods::result_type config::Methods::operator()(const slice &input)
+namespace config
 {
-	ParserResult<tuple<methods::s_method, std::vector<methods::s_method> > > res = preceded(
-			sequence(Tag("methods"), rws), sequence(RequestMethod(), many(
-					preceded(Char(' '), RequestMethod()), true)))(input);
-	if (res.is_ok())
+	config::Methods::Methods() { }
+
+	config::Methods::result_type config::Methods::operator()(const slice &input)
 	{
-		methods::Methods ret = methods::Methods(res.unwrap().first);
-		std::vector<methods::s_method>	lst = res.unwrap().second;
-		for (std::vector<methods::s_method>::const_iterator it = lst.begin(); it != lst.end(); it++)
+		ParserResult<tuple<methods::s_method, std::vector<methods::s_method> > > res = preceded(
+				sequence(Tag("methods"), rws), sequence(RequestMethod(), many(
+						preceded(Char(' '), RequestMethod()), true)))(input); //TODO I DONT UNDERTANCE
+		if (res.is_ok())
 		{
-			ret.add_method(*it);
+			methods::Methods ret = methods::Methods(res.unwrap().first);
+			std::vector<methods::s_method> lst = res.unwrap().second;
+			for (std::vector<methods::s_method>::const_iterator it = lst.begin(); it != lst.end(); it++) {
+				ret.add_method(*it);
+			}
+			return res.map(ret);
 		}
-		return res.map(ret);
+		return res.convert<methods::Methods>();
 	}
-	return res.convert<methods::Methods>();
 }
+
+/* ************************************************************************** */

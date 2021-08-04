@@ -5,7 +5,7 @@
 #ifndef WEBSERV_REQUEST_HPP
 #define WEBSERV_REQUEST_HPP
 
-#include "HTTP/Request/RequestLine.hpp"
+#include "RequestLine.hpp"
 #include "HTTP/Headers/Headers.hpp"
 #include "Config/Directives/Redirect.hpp"
 
@@ -30,7 +30,6 @@ public:
 	Version									version;
 
 	Request();
-
 	Request(methods::s_method method, Target target, Version version);
 
 	void					set_header(const Header& header);
@@ -40,7 +39,11 @@ public:
 
 	bool receive(std::vector<char> &vector);
 
+
 	friend std::ostream &operator<<(std::ostream & stream, const Request &req);
+
 };
+
+/* ************************************************************************** */
 
 #endif //WEBSERV_REQUEST_HPP

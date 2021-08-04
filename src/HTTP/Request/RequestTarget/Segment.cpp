@@ -20,6 +20,9 @@ PctEncoded::result_type	PctEncoded::operator()(const slice &input)
 	return result_type::ok(res.left(), c);
 }
 
+/* ************************************************************************** */
+
+
 /*
  * unreserved  = ALPHA | DIGIT | "-" | "." | "_" | "~"
  */
@@ -29,6 +32,9 @@ Unreserved::result_type	Unreserved::operator()(const slice &input)
 {
 	return alt(alpha, digit, OneOf("-._~"))(input);
 }
+
+/* ************************************************************************** */
+
 
 /*
  * Pchar = unreserved | pct-encoded | sub-delims | ":" | "@"
@@ -40,6 +46,9 @@ Pchar::result_type	Pchar::operator()(const slice &input)
 	return alt(Unreserved(), PctEncoded(), SubDelims, OneOf(":@"))(input);
 }
 
+/* ************************************************************************** */
+
+
 /*
  * Segment = *Pchar
  * NonzeroSegment = 1*Pchar (Segment(false))
@@ -50,3 +59,5 @@ Segment::result_type	Segment::operator()(const slice &input)
 {
 	return take_with(Pchar(), _empty)(input);
 }
+
+/* ************************************************************************** */

@@ -32,6 +32,8 @@ ServerContent::result_type ServerContent::operator()(const slice &input)
 	return res.map(cfg);
 }
 
+/* ************************************************************************** */
+
 /*
  * A create the server block
  */

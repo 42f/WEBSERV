@@ -3,24 +3,25 @@
 //
 
 #include "RequestHandler.hpp"
-#include "RequestParser.hpp"
+#include "HTTP/Request/RequestParser.hpp"
 
 /*
- * RequestHandler
- */
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
 RequestHandler::RequestHandler() : _status(request_status::Incomplete), _req(result_type::err(status::None))
 {
 	_buffer.reserve(512);
 }
 
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
 // if client timeout, there's no need to call this
 RequestHandler::result_type RequestHandler::receive()
 {
 	if (_req.unwrap().receive(_buffer))
 	{
 		_status = request_status::Complete;
-		std::cout << "body: [" << slice(_req.unwrap().get_body().data(), _req.unwrap().get_body().size()) << "]" << std::endl;
-		std::cout << "left: [" << slice(_buffer.data(), _buffer.size()) << "]" << std::endl;
 		return _req;
 	}
 	return result_type::err(status::None);
@@ -37,7 +38,12 @@ RequestHandler::result_type RequestHandler::update(const char *buff, size_t read
 	if (_status == request_status::Incomplete)
 		parse();
 	if (_status == request_status::Waiting)
-		return receive();
+	{
+		RequestHandler::result_type t = receive();
+		if (_req.is_ok())
+			std::cout << _req.unwrap() << std::endl; //TODO remove if
+		return t;
+	}
 	return _req;
 }
 
@@ -50,8 +56,8 @@ void		RequestHandler::reset()
 }
 
 /*
- * Private fonction
- */
+** --------------------------------- PRIVATE ----------------------------------
+*/
 void	RequestHandler::parse()
 {
 	slice					input = slice(_buffer.data(), _buffer.size());
@@ -59,8 +65,12 @@ void	RequestHandler::parse()
 
 	if (req.is_err())
 	{
-		std::cout << req.unwrap_err() << std::endl;
-		req.unwrap_err().trace(input);
+		{
+			LogStream stream; stream << req.unwrap_err();
+#if LOG_LEVEL == LOG_LEVEL_TRACE
+			req.unwrap_err().trace(input, stream);
+#endif
+		}
 	}
 	if (req.is_ok())
 	{
@@ -80,3 +90,5 @@ void	RequestHandler::parse()
 		_req = result_type::err(req.unwrap_err().content());
 	}
 }
+
+/* ************************************************************************** */

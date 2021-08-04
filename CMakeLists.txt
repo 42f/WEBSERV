@@ -71,13 +71,12 @@ set(FILES
         src/parsing/Tokens.hpp
 
 
-
-        src/HTTP/Request.cpp
-        src/HTTP/Request.hpp
+        src/HTTP/Request/Request.cpp
+        src/HTTP/Request/Request.hpp
         src/HTTP/Status.cpp
         src/HTTP/Status.hpp
-        src/HTTP/RequestParser.cpp
-        src/HTTP/RequestParser.hpp
+        src/HTTP/Request/RequestParser.cpp
+        src/HTTP/Request/RequestParser.hpp
         src/HTTP/RequestHandler.cpp
         src/HTTP/RequestHandler.hpp
         src/HTTP/Request/RequestLine.cpp

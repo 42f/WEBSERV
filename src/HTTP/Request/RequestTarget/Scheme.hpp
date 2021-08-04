@@ -20,4 +20,7 @@ public:
 	result_type 	operator()(const slice &input);
 };
 
+/* ************************************************************************** */
+
+
 #endif //WEBSERV_SCHEME_HPP

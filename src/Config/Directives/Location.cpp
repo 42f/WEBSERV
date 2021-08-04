@@ -10,6 +10,9 @@ const size_t	LocationConfig::SIZE_UNSET = std::numeric_limits<size_t>::max();
 /*
  * LocationConfig
  */
+/*
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
 LocationConfig::LocationConfig():
 	_path(""),
 	_methods(methods::GET),
@@ -19,11 +22,14 @@ LocationConfig::LocationConfig():
 	_root("")
 	{ }
 
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
 void	LocationConfig::use(LocationConfig *ptr) { LocationConfig::active = ptr; }
 
 /*
- * GETTER
- */
+** --------------------------------- GETTERS ----------------------------------
+*/
 LocationConfig	*LocationConfig::path(slice path)
 {
 	active->set_path(path);
@@ -79,8 +85,8 @@ LocationConfig	*LocationConfig::dump(slice unused)
 }
 
 /*
- * SETTER
- */
+** --------------------------------- SETTERS ----------------------------------
+*/
 LocationConfig	&LocationConfig::set_path(slice path)
 {
 	this->_path = path.to_string();
@@ -129,22 +135,30 @@ LocationConfig	&LocationConfig::set_redirect(redirect ret)
 	return *this;
 }
 
+/*
+** --------------------------------- OVERLOAD ---------------------------------
+*/
 std::ostream& operator<<(std::ostream& stream, const LocationConfig& cfg)
 {
-	stream << MAGENTA << "Location : " << cfg._path << NC << std::endl
-		   << BLUE << "root : " << cfg._root << std::endl
-		   << "methods : "<< cfg._methods << std::endl
-		   << "autoindex : " << (cfg._auto_index ? "on" : "off") << std::endl
-		   << "upload : " << (cfg._upload ? "on" : "off") << std::endl
-		   << "body_size : ";
+	stream << GREEN << "Location { " << NC << std::endl
+			<< "path : " << cfg._path << std::endl
+			<< "root : " << cfg._root << std::endl
+			<< "methods : "<< cfg._methods << std::endl
+			<< "autoindex : " << (cfg._auto_index ? "on" : "off") << std::endl
+			<< "upload : " << (cfg._upload ? "on" : "off") << std::endl
+			<< "body_size : ";
 	if (cfg._body_size == LocationConfig::SIZE_UNSET)
 		stream << "unset" << std::endl;
 	else
 		stream << cfg._body_size << std::endl;
 	stream << "index : " << cfg._index << std::endl
-		   << "Redirect : " << cfg._redirect.status << " | " << cfg._redirect.uri << NC << std::endl;
+			<< "Redirect : " << cfg._redirect.status << " | " << cfg._redirect.uri << std::endl
+			<< GREEN << "}" << NC << std::endl;
+
 	return stream;
 }
+
+/* ************************************************************************** */
 
 /*
  * LocationContent
@@ -172,6 +186,8 @@ LocationContent::result_type	LocationContent::operator()(const slice &input)
 	return res.map(cfg);
 }
 
+/* ************************************************************************** */
+
 /*
  * Head
  */
@@ -181,6 +197,9 @@ Head::result_type Head::operator()(const slice &input)
 {
 	return preceded(sequence(Tag("Location"), rws), take_until_match(rws))(input);
 }
+
+/* ************************************************************************** */
+
 
 /*
  * Location = location RWS path RWS { . . . }
@@ -194,3 +213,6 @@ Location::result_type Location::operator()(const slice &input)
 		return res.convert<LocationConfig>();
 	return res.map(res.unwrap().second.set_path(res.unwrap().first));
 }
+
+/* ************************************************************************** */
+

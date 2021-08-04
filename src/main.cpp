@@ -1,7 +1,6 @@
 
 #include "Config/ConfigParser.hpp"
 #include "HTTP/RequestHandler.hpp"
-#include "utils/Logger.hpp"
 #include "Server.hpp"
 
 
@@ -20,7 +19,7 @@ int main(int ac, char **av)
 			std::cerr << "./webserv [ConfigServerv]" << std::endl;
 			return -1;
 	}
-	Logger::getInstance("./webserv.log", Logger::toConsole);
+	Logger::getInstance("./webserv.log");
 
 	std::vector<config::Server>		servers = config::parse(path);
 

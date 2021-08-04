@@ -11,6 +11,7 @@
 #include "Constants.hpp"
 #include "slice.hpp"
 #include "utils.hpp"
+#include "utils/Logger.hpp"
 
 #include "HTTP/Status.hpp"
 
@@ -19,7 +20,7 @@ class Error
 {
 private:
 	Data										_data;
-	std::string 								_msg;
+	std::string									_msg;
 	std::vector<std::pair<slice, std::string> >	_stack;
 
 	typedef std::vector<std::pair<slice, std::string> >::const_iterator iterator;
@@ -58,18 +59,16 @@ public:
 
 	friend std::ostream	&operator<<(std::ostream &stream, const Error &err)
 	{
-		stream << YELLOW << err._msg << NC << std::endl;
+		stream << err._msg << std::endl;
 		return stream;
 	}
 
-	void 		trace(slice start) const
-	{
-
-		for (Error::iterator it = _stack.begin(); it != _stack.end(); it++) {
-			std::cerr << RED << "\tat: (l" << it->first.lines(start) << "c" << it->first.character(start) << "): " << it->first.take(10).until('\n') << " (" << it->second << ")" << NC << std::endl;
-		}
+	void 	trace(slice start, LogStream &stream) const {
+		for (Error::iterator it = _stack.begin(); it != _stack.end(); it++)
+			stream << "\tat: (l" << it->first.lines(start) << "c" << it->first.character(start) << "): " << it->first.take(10).until('\n') << " (" << it->second << ")\n";
 	}
 };
+
 
 Error<status::StatusCode>	error(std::string msg, status::StatusCode = status::None);
 

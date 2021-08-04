@@ -19,9 +19,13 @@ namespace config
 	public:
 		typedef tuple<typename Header::data_type, typename Content::data_type>	data_type;
 		typedef ParserResult<data_type>	result_type;
-
+/*
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
 		Bloc(Header header, Content content): _header(header), _content(content) { }
-
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
 		result_type operator()(const slice &input)
 		{
 			return preceded(many(newline, true), sequence(
@@ -32,7 +36,12 @@ namespace config
 	};
 }
 
+/*
+** --------------------------------- ACCESSOR ---------------------------------
+*/
 template<typename Header, typename Content>
 config::Bloc<Header,Content>	bloc(Header head, Content content) { return config::Bloc<Header, Content>(head, content); }
+
+/* ************************************************************************** */
 
 #endif //WEBSERV_BLOC_HPP

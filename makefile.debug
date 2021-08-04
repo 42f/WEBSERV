@@ -41,8 +41,6 @@ $(OBJ_DIR)%.o: $(SRC_DIR)%.cpp
 	@mkdir -p $(OBJ_DIR)parser/combinators
 	@mkdir -p $(OBJ_DIR)parser/sequence
 
-	@mkdir -p $(OBJ_DIR)parsing
-
 	@mkdir -p $(OBJ_DIR)Config
 	@mkdir -p $(OBJ_DIR)Config/Directives
 	@mkdir -p $(OBJ_DIR)Config/Structure
@@ -50,7 +48,12 @@ $(OBJ_DIR)%.o: $(SRC_DIR)%.cpp
 	@mkdir -p $(OBJ_DIR)HTTP
 	@mkdir -p $(OBJ_DIR)HTTP/Headers
 	@mkdir -p $(OBJ_DIR)HTTP/Request
+	@mkdir -p $(OBJ_DIR)HTTP/Response
 	@mkdir -p $(OBJ_DIR)HTTP/Request/RequestTarget
+
+	@mkdir -p $(OBJ_DIR)utils
+	@mkdir -p $(OBJ_DIR)parsing
+
 	${CC} ${CFLAGS} -c -o $@ $<
 
 clean:

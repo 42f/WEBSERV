@@ -20,6 +20,8 @@ public :
 	result_type operator()(const slice &input);
 };
 
+/* ************************************************************************** */
+
 /*
  * AddressIP = dec-octet "." dec-octet ". dec-octet "." dec-octet
  */
@@ -31,6 +33,9 @@ public :
 	result_type operator()(const slice &input);
 };
 
+/* ************************************************************************** */
+
+
 /*
  * Port = 0-65535
  */
@@ -41,6 +46,9 @@ public:
 
 	result_type operator()(const slice &input);
 };
+
+/* ************************************************************************** */
+
 
 /*
  * Listen = listen RWS [ AdresseIP:port | port | Adresse IP ]
@@ -56,5 +64,8 @@ public :
 
 	result_type operator()(const slice &input);
 };
+
+/* ************************************************************************** */
+
 
 #endif //WEBSERV_LISTEN_HPP
