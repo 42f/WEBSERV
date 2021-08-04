@@ -26,3 +26,5 @@ Redirect::result_type Redirect::operator()(const slice &input)
 						sequence(TakeWhile(std::isdigit),
 								 preceded(rws, TakeUntil(";")))), redirect::parse)(input);
 }
+
+/* ************************************************************************** */

@@ -8,7 +8,7 @@
 #include "parser/export.hpp"
 #include "parsing/Tokens.hpp"
 #include "HTTP/Request/RequestLine.hpp"
-#include "Methods.hpp"
+
 
 /*
  * Method = method GET POST ...
@@ -16,13 +16,15 @@
  */
 namespace config
 {
-class Methods : public Parser<methods::Methods>
-{
-public :
-	Methods();
+	class Methods : public Parser<methods::Methods>
+	{
+	public :
+		Methods();
 
-	result_type operator()(const slice &input);
-};
-
+		result_type operator()(const slice &input);
+	};
 }
+
+/* ************************************************************************** */
+
 #endif //WEBSERV_METHODS_HPP

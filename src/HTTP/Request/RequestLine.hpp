@@ -6,8 +6,8 @@
 #define WEBSERV_REQUESTLINE_HPP
 
 #include "parser/export.hpp"
-#include "Tokens.hpp"
-#include "Methods.hpp"
+#include "parsing/Tokens.hpp"
+#include "parsing/Methods.hpp"
 
 #include "HTTP/Request/RequestTarget/OriginForm.hpp"
 
@@ -22,7 +22,6 @@
 /*
  * RequestMethod = [GET | POST | DELETE] SP
  */
-
 class RequestMethod : public Parser<methods::s_method>
 {
 public:
@@ -33,16 +32,22 @@ public:
 
 std::ostream &operator<<(std::ostream& st, const methods::s_method& method);
 
+/* ************************************************************************** */
+
+
 /*
  * RequestTarget = OriginForm (| absolute-form)
  */
-
 class RequestTarget: public Parser<Target>
 {
 public:
 	RequestTarget();
+
 	result_type	operator()(const slice &input);
 };
+
+/* ************************************************************************** */
+
 
 /*
  * Version
@@ -80,8 +85,11 @@ class RequestVersion: public Parser<Version>
 {
 public:
 	RequestVersion();
+
 	result_type operator()(const slice &input);
 };
+
+/* ************************************************************************** */
 
 /*
  * RequestLine = RequestMethod SP RequestTarget SP RequestVersion CRLF
@@ -90,8 +98,11 @@ class RequestLine: public Parser<tuple<methods::s_method, Target, Version> >
 {
 public:
 	RequestLine();
+
 	result_type operator()(const slice &input);
 };
+
+/* ************************************************************************** */
 
 
 #endif //WEBSERV_REQUESTLINE_HPP

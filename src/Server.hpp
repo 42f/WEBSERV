@@ -27,12 +27,12 @@
 
 struct Response {
 	int		status;
-	char 	buf[];
+	//char 	buf[];
 };
 
 class Client {
 private:
-	int					_socket;
+	//int					_socket;
 
 public:
 	RequestHandler		_req;

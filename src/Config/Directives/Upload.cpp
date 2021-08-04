@@ -16,3 +16,5 @@ Upload::result_type Upload::operator()(const slice &input)
 		return res.map(res.unwrap() == "on");
 	return res.convert<bool>();
 }
+
+/* ************************************************************************** */

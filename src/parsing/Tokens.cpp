@@ -4,7 +4,6 @@
 
 #include "Tokens.hpp"
 
-
 /*
  * OWS = *(' ' | '\t')
  */
@@ -15,6 +14,8 @@ OWS::result_type	OWS::operator()(const slice &input)
 	return take_with(alt(Char(' '), Char('\t')), true)(input);
 }
 
+/* ************************************************************************** */
+
 /*
  * RWS = 1*(' ' | '\t')
  */
@@ -24,6 +25,8 @@ RWS::result_type	RWS::operator()(const slice &input)
 {
 	return take_with(alt(Char(' '), Char('\t')))(input);
 }
+
+/* ************************************************************************** */
 
 /*
  * Newline = '\r\n' or '\n'
@@ -38,6 +41,8 @@ Newline::result_type	Newline::operator()(const slice& input)
 	return (res);
 }
 
+/* ************************************************************************** */
+
 /*
  * Token = 1 * tchar = "!" | "#" | "$" | "%" | "&" | "'" | "*"| "+" | "-" | "." | "^" | "_" | "`" | "|" | "~" | DIGIT | ALPHA
  */
@@ -49,6 +54,8 @@ Token::result_type	Token::operator()(const slice &input)
 {
 	return take_with(alt(charset, digit, alpha))(input);
 }
+
+/* ************************************************************************** */
 
 /*
  * quoted-string = DQUOTE *( qdtext / quoted-pair ) DQUOTE
@@ -70,3 +77,5 @@ QuotedText::result_type QuotedText::operator()(const slice &input)
 
 	return as_slice(delimited(DQUOTE, take_with(alt(QD_TEXT, QD_PAIR)), DQUOTE))(input);
 }
+
+/* ************************************************************************** */

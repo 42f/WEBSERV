@@ -14,6 +14,8 @@ Index::result_type Index::operator()(const slice &input)
 	return preceded(sequence(Tag("index"), rws),TakeUntil(";"))(input);
 }
 
+/* ************************************************************************** */
+
 /*
  * AutoIndex = autoindex on | off
  */
@@ -27,3 +29,5 @@ AutoIndex::result_type AutoIndex::operator()(const slice &input)
 		return res.map(res.unwrap() == "on");
 	return res.convert<bool>();
 }
+
+/* ************************************************************************** */

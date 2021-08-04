@@ -1,9 +1,8 @@
 //
 // Created by alena on 06/07/2021.
 //
-
+#include "utils/Logger.hpp"
 #include "Server.hpp"
-#include "Logger.hpp"
 #include "ConfigParser.hpp"
 #include <fstream>
 #include <sstream>
@@ -18,13 +17,18 @@ namespace config
 /*
  * ServerConfig
  */
+/*
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
 	Server::Server() : _port(0), _address(""), _name(""), _body_size(1048576) { }
 
-	void Server::use(Server *ptr) { Server::active = ptr; }
+/*
+** -------------------------------- DESTRUCTOR --------------------------------
+*/
 
 /*
- * SETTER
- */
+** --------------------------------- SETTERS ----------------------------------
+*/
 	Server *Server::with_addr(tuple<std::string, int> addr) {
 		active->_address = addr.first;
 		active->_port = addr.second;
@@ -74,8 +78,8 @@ namespace config
 	}
 
 /*
- * GETTER
- */
+** --------------------------------- GETTERS ----------------------------------
+*/
 		int									Server::get_port() { return _port; }
 		std::string							Server::get_address() { return _address; }
 		std::string							Server::get_name() { return _name; }
@@ -84,11 +88,12 @@ namespace config
 		size_t								Server::get_body_size() { return _body_size; }
 		std::vector<LocationConfig>			Server::get_locations() { return _locations; }
 		std::map<int, std::string>			Server::get_error_pages() { return _error_pages; }
-		std::map<std::string, std::string>	Server::get_cgis() { return _cgis; }
 
 /*
- * CGI_BINARY
- */
+** --------------------------------- METHODS ----------------------------------
+*/
+	void Server::use(Server *ptr) { Server::active = ptr; }
+
 	Result<std::string>	Server::cgi_binary(std::string ext)
 	{
 		std::map<std::string, std::string>::iterator it = this->_cgis.find(ext);
@@ -97,29 +102,36 @@ namespace config
 		return Result<std::string>::ok(it->second);
 	}
 
+/*
+** --------------------------------- OVERLOAD ---------------------------------
+*/
 	std::ostream &operator<<(std::ostream &stream, const Server &cfg)
 	{
-		stream << YELLOW << "AdresseIP/Port : " << cfg._address << ":" << cfg._port << std::endl
-			   << "Server_name : " << cfg._name << std::endl
-			   << "Root : " << cfg._root << std::endl
-			   << "Client_max_body_size : " << cfg._body_size << " bytes" << NC << std::endl << std::endl;
+		stream << YELLOW << "Server {" << NC << std::endl
+				<< "AdresseIP/Port : " << cfg._address << ":" << cfg._port << std::endl
+				<< "Server_name : " << cfg._name << std::endl
+				<< "Root : " << cfg._root << std::endl
+				<< "Client_max_body_size : " << cfg._body_size << " bytes" << std::endl;
 		for (std::map<std::string, std::string>::const_iterator it = cfg._cgis.begin();
 			 it != cfg._cgis.end(); it++) {
 			stream << "CGI : " << it->first << " -> " << it->second << std::endl;
+		}
+		for (std::map<int, std::string>::const_iterator it = cfg._error_pages.begin();
+			 it != cfg._error_pages.end(); it++) {
+			stream << "error_page: " << it->first << " -> " << it->second << std::endl;
 		}
 		stream << std::endl;
 		for (std::vector<LocationConfig>::const_iterator it = cfg._locations.begin();
 			 it != cfg._locations.end(); it++) {
 			stream << *it << std::endl;
 		}
-		for (std::map<int, std::string>::const_iterator it = cfg._error_pages.begin();
-			 it != cfg._error_pages.end(); it++) {
-			stream << "error_page: " << it->first << " -> " << it->second << std::endl;
-		}
+		stream << YELLOW << "}" << NC << std::endl;
 		return stream;
 	}
 
-	//TODO enleve le LOG_LEVEL
+/*
+** --------------------------------- ACCESSOR ---------------------------------
+*/
 	std::vector<Server> parse(const std::string &path)
 	{
 		std::ifstream t(path.c_str());
@@ -131,18 +143,23 @@ namespace config
 		ParserResult<std::vector<config::Server> >	cfgs = ConfigParser()(cfg);
 		if (cfgs.is_err())
 		{
-			LogStream() << cfgs.unwrap_err() << "\n";
+			{
+				LogStream stream; stream << cfgs.unwrap_err();
 #if LOG_LEVEL == LOG_LEVEL_TRACE	//start line error
-			cfgs.unwrap_err().trace(cfg);
+				cfgs.unwrap_err().trace(cfg, stream);
 #endif
+				std::cerr << RED << "Configuration error" << NC << std::endl;
+			}
 			exit(-1);
 		} else
 		{
-			LogStream() << "parsed " << cfgs.unwrap().size() << " servers\n";
+			LogStream() << "Parsed " << cfgs.unwrap().size() << " servers\n";
 			for (std::vector<config::Server>::iterator it = cfgs.unwrap().begin(); it != cfgs.unwrap().end(); it++) {
 				std::cout << *it << std::endl;
-			}
+			}//TODO remove for
 			return cfgs.unwrap();
 		}
 	}
 }
+
+/* ************************************************************************** */

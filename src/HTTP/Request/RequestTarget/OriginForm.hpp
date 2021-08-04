@@ -25,6 +25,8 @@ public :
 	result_type	operator()(const slice &input);
 };
 
+/* ************************************************************************** */
+
 /*
  * Query = *( pchar / "/" / "?" )
  */
@@ -36,16 +38,20 @@ public :
 	result_type	operator()(const slice &input);
 };
 
+/* ************************************************************************** */
+
 /*
  * OriginForm = AbsolutePath [ "?" Query ]
  */
-
 class OriginForm : public Parser<Target>
 {
 public :
-	OriginForm() { }
+	OriginForm();
 
 	result_type	operator()(const slice &input);
 };
+
+/* ************************************************************************** */
+
 
 #endif //WEBSERV_ORIGINFORM_HPP

@@ -19,6 +19,8 @@ public :
 	result_type operator()(const slice &input);
 };
 
+/* ************************************************************************** */
+
 /*
  * AutoIndex = autoindex on | off
  */
@@ -29,5 +31,7 @@ public :
 
 	result_type operator()(const slice &input);
 };
+
+/* ************************************************************************** */
 
 #endif //WEBSERV_INDEX_HPP

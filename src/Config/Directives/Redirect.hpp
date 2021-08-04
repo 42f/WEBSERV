@@ -8,7 +8,8 @@
 #include "parser/export.hpp"
 #include "parsing/Tokens.hpp"
 
-struct redirect {
+struct redirect
+{
 	unsigned int	status;
 	std::string		uri;
 
@@ -28,5 +29,8 @@ public :
 
 	result_type operator()(const slice &input);
 };
+
+/* ************************************************************************** */
+
 
 #endif //WEBSERV_REDIRECT_HPP

@@ -19,6 +19,8 @@ public:
 	result_type		operator()(const slice &input);
 };
 
+/* ************************************************************************** */
+
 /*
  * RWS = 1*(' ' | '\t')
  */
@@ -29,6 +31,8 @@ public:
 
 	result_type		operator()(const slice &input);
 };
+
+/* ************************************************************************** */
 
 /*
  * Newline = '\r\n' or '\n'
@@ -43,6 +47,8 @@ public:
 	result_type 	operator()(const slice& input);
 };
 
+/* ************************************************************************** */
+
 const Newline newline = Newline();
 
 /*
@@ -55,6 +61,8 @@ public:
 	result_type		operator()(const slice &input);
 };
 
+/* ************************************************************************** */
+
 /*
  * quoted-string  = DQUOTE *( qdtext / quoted-pair ) DQUOTE
  */
@@ -64,6 +72,8 @@ public:
 	QuotedText();
 	result_type	operator()(const slice &input);
 };
+
+/* ************************************************************************** */
 
 const Char	single_space = Char(' ');
 const RWS rws = RWS();

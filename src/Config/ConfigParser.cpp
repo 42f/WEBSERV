@@ -14,3 +14,5 @@ ConfigParser::result_type	ConfigParser::operator()(const slice &input)
 					  many(newline, true))),
 					  sequence(take_with(Comment(), true), take_with(Newline(), true), Eof()))(input);
 }
+
+/* ************************************************************************** */

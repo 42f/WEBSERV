@@ -21,6 +21,8 @@ DecOctet::result_type DecOctet::operator()(const slice &input)
 	return res;
 }
 
+/* ************************************************************************** */
+
 /*
  * AddressIP = dec-octet "." dec-octet ". dec-octet "." dec-octet
  */
@@ -32,6 +34,8 @@ AddressIP::result_type AddressIP::operator()(const slice &input)
 					DecOctet(), Char('.'),
 					DecOctet(), Char('.'), DecOctet())), slice::to_string_static)(input);
 }
+
+/* ************************************************************************** */
 
 /*
  * Port = 0-65535
@@ -49,6 +53,8 @@ Port::result_type Port::operator()(const slice &input)
 	return result_type::ok(res.left(), port);
 }
 
+/* ************************************************************************** */
+
 /*
  * Listen = listen RWS [ AdresseIP:port | port | Adresse IP ]
  */
@@ -65,3 +71,6 @@ Listen::result_type Listen::operator()(const slice &input)
 			map(AddressIP(), with_addr)
 	))(input);
 }
+
+/* ************************************************************************** */
+

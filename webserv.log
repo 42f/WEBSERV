@@ -1,4 +1,15 @@
---96775-- [2021.08.02_14.41.13] - __Coucou file
---96775-- [2021.08.02_14.41.13] - __Coucou file_display
---97039-- [2021.08.02_14.43.34] - Message in file
---97039-- [2021.08.02_14.43.34] - Message in file - WILL DISPLAY
+
+--22927-- [2021.08.04_17.43.13] - Parsed 3 servers
+
+--24119-- [2021.08.04_17.43.41] - Parsed 3 servers
+
+--24119-- [2021.08.04_17.43.41] - TakeWhile: no match
+	at: (l3c17): douze		 (Terminated: no match for first)
+	at: (l3c1): Content-Le (Terminated: no match for first)
+	at: (l2c1): Host:		loc (Many: failure while parsing)
+	at: (l2c1): Host:		loc (Terminated: no match for first)
+
+--417-- [2021.08.04_17.48.04] - Parsed 3 servers
+
+--29579-- [2021.08.04_18.14.12] - Parsed 3 servers
+

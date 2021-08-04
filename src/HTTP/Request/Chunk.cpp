@@ -10,8 +10,14 @@
  * chunk-ext-name = token
  * chunk-ext-val  = token | quoted-string
  */
-ChunkExtension::ChunkExtension() { }
 
+/*
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
+ChunkExtension::ChunkExtension() { }
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
 ChunkExtension::result_type	ChunkExtension::operator()(const slice &input)
 {
 	return as_slice(many(preceded(Char(';'),
@@ -19,14 +25,21 @@ ChunkExtension::result_type	ChunkExtension::operator()(const slice &input)
 							alt(token, quoted_text))))), true))(input);
 }
 
+/* ************************************************************************** */
+
 /*
  * chunk = chunk-size [ chunk-extension ] CRLF chunk-data CRLF
  *
  * chunk-size = 1*HEX
  * chunk-data = chunk-size(OCTET)
  */
+/*
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
 Chunk::Chunk() { }
-
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
 Chunk::result_type	Chunk::operator()(const slice&input)
 {
 	static const ChunkExtension EXT = ChunkExtension();
@@ -46,11 +59,18 @@ Chunk::result_type	Chunk::operator()(const slice&input)
 	return result_type::ok(data.left(), chunk_data(data.unwrap()));
 }
 
+/* ************************************************************************** */
+
 /*
  * last-chunk = 1*("0") [ chunk-extension ] CRLF trailer CRLF
  */
+/*
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
 LastChunk::LastChunk() { }
-
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
 LastChunk::result_type	LastChunk::operator()(const slice&input)
 {
 	return terminated(map(take_with(Char('0')),chunk_data::last),
@@ -58,11 +78,18 @@ LastChunk::result_type	LastChunk::operator()(const slice&input)
 					many(HeaderParser<>(), true), Newline()))(input);
 }
 
+/* ************************************************************************** */
+
 /*
  * Chunked-Body = *chunk last-chunk
  */
+/*
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
 ChunkBody::ChunkBody() { }
-
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
 ChunkBody::result_type	ChunkBody::operator()(const slice &input)
 {
 	ParserResult<std::vector<chunk_data> >	lst = many(Chunk())(input);
@@ -78,3 +105,5 @@ ChunkBody::result_type	ChunkBody::operator()(const slice &input)
 	}
 	return lst;
 }
+
+/* ************************************************************************** */

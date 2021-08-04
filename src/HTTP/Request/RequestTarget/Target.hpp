@@ -39,18 +39,28 @@ private:
 	}
 
 public:
-
+/*
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
 	Target(): scheme(""), path(""), query(""), decoded_path("") { }
 	Target(slice path, slice query): scheme("http"), path(path.to_string()), query(query.to_string()) {
 		decoded_path = decode(this->path);
 		decoded_query = decode(this->query);
 	}
+/*
+** -------------------------------- DESTRUCTOR --------------------------------
+*/
 
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
 	static Target from(slice path, slice query)
 	{
 		return Target(path, query);
 	}
-
+/*
+** --------------------------------- OVERLOAD ---------------------------------
+*/
 	friend std::ostream&	operator<<(std::ostream& stream, const Target& target)
 	{
 		//stream << "url encoded: " << target.decoded_path << "?" << target.decoded_query << std::endl;
@@ -60,5 +70,12 @@ public:
 		return stream;
 	}
 };
+
+/*
+** --------------------------------- ACCESSOR ---------------------------------
+*/
+
+/* ************************************************************************** */
+
 
 #endif //WEBSERV_TARGET_HPP

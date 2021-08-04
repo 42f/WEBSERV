@@ -5,7 +5,8 @@
 #ifndef WEBSERV_REQUESTHANDLER_HPP
 #define WEBSERV_REQUESTHANDLER_HPP
 
-#include "Request.hpp"
+#include "HTTP/Request/Request.hpp"
+#include "utils/Logger.hpp"
 
 namespace request_status
 {
@@ -33,13 +34,16 @@ private:
 
 	void			parse();
 public:
+
 	RequestHandler();
 
-	result_type 	update(const char *buff, size_t read);
-	result_type 	receive();
+	result_type		update(const char *buff, size_t read);
+	result_type		receive();
 
 	void			reset();
+
 };
 
+/* ************************************************************************** */
 
 #endif //WEBSERV_REQUESTHANDLER_HPP

@@ -582,33 +582,6 @@ src/HTTP/Headers/Headers.cpp.s:
 	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Headers/Headers.cpp.s
 .PHONY : src/HTTP/Headers/Headers.cpp.s
 
-src/HTTP/Request.o: src/HTTP/Request.cpp.o
-
-.PHONY : src/HTTP/Request.o
-
-# target to build an object file
-src/HTTP/Request.cpp.o:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request.cpp.o
-.PHONY : src/HTTP/Request.cpp.o
-
-src/HTTP/Request.i: src/HTTP/Request.cpp.i
-
-.PHONY : src/HTTP/Request.i
-
-# target to preprocess a source file
-src/HTTP/Request.cpp.i:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request.cpp.i
-.PHONY : src/HTTP/Request.cpp.i
-
-src/HTTP/Request.s: src/HTTP/Request.cpp.s
-
-.PHONY : src/HTTP/Request.s
-
-# target to generate assembly for a file
-src/HTTP/Request.cpp.s:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request.cpp.s
-.PHONY : src/HTTP/Request.cpp.s
-
 src/HTTP/Request/Chunk.o: src/HTTP/Request/Chunk.cpp.o
 
 .PHONY : src/HTTP/Request/Chunk.o
@@ -636,6 +609,33 @@ src/HTTP/Request/Chunk.cpp.s:
 	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/Chunk.cpp.s
 .PHONY : src/HTTP/Request/Chunk.cpp.s
 
+src/HTTP/Request/Request.o: src/HTTP/Request/Request.cpp.o
+
+.PHONY : src/HTTP/Request/Request.o
+
+# target to build an object file
+src/HTTP/Request/Request.cpp.o:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/Request.cpp.o
+.PHONY : src/HTTP/Request/Request.cpp.o
+
+src/HTTP/Request/Request.i: src/HTTP/Request/Request.cpp.i
+
+.PHONY : src/HTTP/Request/Request.i
+
+# target to preprocess a source file
+src/HTTP/Request/Request.cpp.i:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/Request.cpp.i
+.PHONY : src/HTTP/Request/Request.cpp.i
+
+src/HTTP/Request/Request.s: src/HTTP/Request/Request.cpp.s
+
+.PHONY : src/HTTP/Request/Request.s
+
+# target to generate assembly for a file
+src/HTTP/Request/Request.cpp.s:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/Request.cpp.s
+.PHONY : src/HTTP/Request/Request.cpp.s
+
 src/HTTP/Request/RequestLine.o: src/HTTP/Request/RequestLine.cpp.o
 
 .PHONY : src/HTTP/Request/RequestLine.o
@@ -662,6 +662,33 @@ src/HTTP/Request/RequestLine.s: src/HTTP/Request/RequestLine.cpp.s
 src/HTTP/Request/RequestLine.cpp.s:
 	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/RequestLine.cpp.s
 .PHONY : src/HTTP/Request/RequestLine.cpp.s
+
+src/HTTP/Request/RequestParser.o: src/HTTP/Request/RequestParser.cpp.o
+
+.PHONY : src/HTTP/Request/RequestParser.o
+
+# target to build an object file
+src/HTTP/Request/RequestParser.cpp.o:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/RequestParser.cpp.o
+.PHONY : src/HTTP/Request/RequestParser.cpp.o
+
+src/HTTP/Request/RequestParser.i: src/HTTP/Request/RequestParser.cpp.i
+
+.PHONY : src/HTTP/Request/RequestParser.i
+
+# target to preprocess a source file
+src/HTTP/Request/RequestParser.cpp.i:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/RequestParser.cpp.i
+.PHONY : src/HTTP/Request/RequestParser.cpp.i
+
+src/HTTP/Request/RequestParser.s: src/HTTP/Request/RequestParser.cpp.s
+
+.PHONY : src/HTTP/Request/RequestParser.s
+
+# target to generate assembly for a file
+src/HTTP/Request/RequestParser.cpp.s:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Request/RequestParser.cpp.s
+.PHONY : src/HTTP/Request/RequestParser.cpp.s
 
 src/HTTP/Request/RequestTarget/OriginForm.o: src/HTTP/Request/RequestTarget/OriginForm.cpp.o
 
@@ -770,33 +797,6 @@ src/HTTP/RequestHandler.s: src/HTTP/RequestHandler.cpp.s
 src/HTTP/RequestHandler.cpp.s:
 	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/RequestHandler.cpp.s
 .PHONY : src/HTTP/RequestHandler.cpp.s
-
-src/HTTP/RequestParser.o: src/HTTP/RequestParser.cpp.o
-
-.PHONY : src/HTTP/RequestParser.o
-
-# target to build an object file
-src/HTTP/RequestParser.cpp.o:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/RequestParser.cpp.o
-.PHONY : src/HTTP/RequestParser.cpp.o
-
-src/HTTP/RequestParser.i: src/HTTP/RequestParser.cpp.i
-
-.PHONY : src/HTTP/RequestParser.i
-
-# target to preprocess a source file
-src/HTTP/RequestParser.cpp.i:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/RequestParser.cpp.i
-.PHONY : src/HTTP/RequestParser.cpp.i
-
-src/HTTP/RequestParser.s: src/HTTP/RequestParser.cpp.s
-
-.PHONY : src/HTTP/RequestParser.s
-
-# target to generate assembly for a file
-src/HTTP/RequestParser.cpp.s:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/RequestParser.cpp.s
-.PHONY : src/HTTP/RequestParser.cpp.s
 
 src/HTTP/Status.o: src/HTTP/Status.cpp.o
 
@@ -1371,15 +1371,18 @@ help:
 	@echo "... src/HTTP/Headers/Headers.o"
 	@echo "... src/HTTP/Headers/Headers.i"
 	@echo "... src/HTTP/Headers/Headers.s"
-	@echo "... src/HTTP/Request.o"
-	@echo "... src/HTTP/Request.i"
-	@echo "... src/HTTP/Request.s"
 	@echo "... src/HTTP/Request/Chunk.o"
 	@echo "... src/HTTP/Request/Chunk.i"
 	@echo "... src/HTTP/Request/Chunk.s"
+	@echo "... src/HTTP/Request/Request.o"
+	@echo "... src/HTTP/Request/Request.i"
+	@echo "... src/HTTP/Request/Request.s"
 	@echo "... src/HTTP/Request/RequestLine.o"
 	@echo "... src/HTTP/Request/RequestLine.i"
 	@echo "... src/HTTP/Request/RequestLine.s"
+	@echo "... src/HTTP/Request/RequestParser.o"
+	@echo "... src/HTTP/Request/RequestParser.i"
+	@echo "... src/HTTP/Request/RequestParser.s"
 	@echo "... src/HTTP/Request/RequestTarget/OriginForm.o"
 	@echo "... src/HTTP/Request/RequestTarget/OriginForm.i"
 	@echo "... src/HTTP/Request/RequestTarget/OriginForm.s"
@@ -1392,9 +1395,6 @@ help:
 	@echo "... src/HTTP/RequestHandler.o"
 	@echo "... src/HTTP/RequestHandler.i"
 	@echo "... src/HTTP/RequestHandler.s"
-	@echo "... src/HTTP/RequestParser.o"
-	@echo "... src/HTTP/RequestParser.i"
-	@echo "... src/HTTP/RequestParser.s"
 	@echo "... src/HTTP/Status.o"
 	@echo "... src/HTTP/Status.i"
 	@echo "... src/HTTP/Status.s"
