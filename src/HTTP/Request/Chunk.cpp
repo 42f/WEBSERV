@@ -10,14 +10,8 @@
  * chunk-ext-name = token
  * chunk-ext-val  = token | quoted-string
  */
-
-/*
-** ------------------------------- CONSTRUCTOR --------------------------------
-*/
 ChunkExtension::ChunkExtension() { }
-/*
-** --------------------------------- METHODS ----------------------------------
-*/
+
 ChunkExtension::result_type	ChunkExtension::operator()(const slice &input)
 {
 	return as_slice(many(preceded(Char(';'),
@@ -33,13 +27,8 @@ ChunkExtension::result_type	ChunkExtension::operator()(const slice &input)
  * chunk-size = 1*HEX
  * chunk-data = chunk-size(OCTET)
  */
-/*
-** ------------------------------- CONSTRUCTOR --------------------------------
-*/
 Chunk::Chunk() { }
-/*
-** --------------------------------- METHODS ----------------------------------
-*/
+
 Chunk::result_type	Chunk::operator()(const slice&input)
 {
 	static const ChunkExtension EXT = ChunkExtension();
@@ -64,13 +53,8 @@ Chunk::result_type	Chunk::operator()(const slice&input)
 /*
  * last-chunk = 1*("0") [ chunk-extension ] CRLF trailer CRLF
  */
-/*
-** ------------------------------- CONSTRUCTOR --------------------------------
-*/
 LastChunk::LastChunk() { }
-/*
-** --------------------------------- METHODS ----------------------------------
-*/
+
 LastChunk::result_type	LastChunk::operator()(const slice&input)
 {
 	return terminated(map(take_with(Char('0')),chunk_data::last),
@@ -83,13 +67,8 @@ LastChunk::result_type	LastChunk::operator()(const slice&input)
 /*
  * Chunked-Body = *chunk last-chunk
  */
-/*
-** ------------------------------- CONSTRUCTOR --------------------------------
-*/
 ChunkBody::ChunkBody() { }
-/*
-** --------------------------------- METHODS ----------------------------------
-*/
+
 ChunkBody::result_type	ChunkBody::operator()(const slice &input)
 {
 	ParserResult<std::vector<chunk_data> >	lst = many(Chunk())(input);
