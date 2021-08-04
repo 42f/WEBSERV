@@ -4,9 +4,13 @@
 
 int RequestHandler::req_counter = 0;
 
+// TODO: remove
+std::vector<config::Server>  *ResponseHandler::_servers = NULL;
+
 ResponseHandler::ResponseHandler( void ) :
+									_status(response_status::Empty),
 									_response(Version('4','2'), status::None),
-									_result(_response)	{
+									_result(result_type::err(status::None)) {
 }
 
 /* ..............................COPY CONSTRUCTOR.............................*/
@@ -20,6 +24,13 @@ ResponseHandler::~ResponseHandler( void )	{
 
 ResponseHandler::result_type		ResponseHandler::processRequest(Request const & req) {
 
+	/*
+	 *  HERE :
+	 * - Get a match between request target and server is_match()
+	 * 		- if no match, use first server from list
+	 * 		- if match ?
+	 *
+	*/
 	(void)req;
 
 	_response.setStatus(status::Ok);
@@ -32,6 +43,14 @@ ResponseHandler::result_type		ResponseHandler::processRequest(Request const & re
 	return _result;
 }
 
+
+config::Server&				ResponseHandler::matchServer(Request const & req)	{
+
+	(void)req;
+	// TODO: get vector of config::Server from parser
+
+	return (*_servers->begin());
+}
 
 /* ................................. ACCESSOR ................................*/
 

@@ -1,5 +1,6 @@
 
 #include "Config/ConfigParser.hpp"
+#include "Config/Server.hpp"
 #include "HTTP/RequestHandler.hpp"
 #include "HTTP/Response/Response.hpp"
 #include "HTTP/Response/ResponseHandler.hpp"
@@ -16,6 +17,7 @@
 #include <stdio.h>
 #include <sys/uio.h>
 #include <unistd.h>
+#include <utility>
 #include <pthread.h>
 
 #define BACKLOG		100 //nb of connection queued when listen is called
@@ -66,24 +68,12 @@ void*	conn_reader(void *connection_data ) {
 		fake_workload(c->req_counter);
 
 
+		// Here for Calixte ! //
 		ResponseHandler		respHandler;
 
 		ResponseHandler::result_type result_resp = respHandler.processRequest(req);
 		Response	resp = result_resp.unwrap();
 
-
-
-	// 	Response resp(res.unwrap().version, status::Ok);
-	// 	std::stringstream io;
-	// io << "[request #" << c->req_counter++ << "] hello " << c->client_addr << ", this is a response body. \nAnd a second line";
-	// 	io >> resp;
-	// 	resp.setHeader(Header(std::string("Content-Length"), resp.getBodyLenStr()));
-
-
-
-
-
-		// Here for Calixte ! //
 		std::ostringstream output;
 		output << resp;
 		write(c->connfd, output.str().c_str(), output.str().length());
@@ -159,8 +149,15 @@ void	simple_listener( ParserResult<std::vector<config::Server> >&cfgs ) {
 	} //-- end while
 }
 
+void exit_server(int sig) {
+	(void)sig;
+	std::cout << "\rGot signal, Bye..." << std::endl;
+	exit(0);
+}
+
 int main(int ac, char **av)
 {
+	signal(SIGINT, &exit_server);
 	Logger::getInstance("./logg", Logger::toConsole);
 	std::string 	path;
 	switch (ac) {
@@ -187,6 +184,33 @@ int main(int ac, char **av)
 	cfgs.unwrap_err().trace(cfg);
 #endif
 	} else {
+
+		//  ! Prototype storing each individual servers in a map
+
+		std::vector<config::Server>::iterator it = cfgs.unwrap().begin();
+		std::vector<config::Server>::iterator ite = cfgs.unwrap().end();
+
+		std::map<std::pair<std::string, int>, std::vector<config::Server> > servers;
+		for(; it != ite; it++)	{
+			servers[std::make_pair( it->get_address(), it->get_port() )].push_back(*it);
+		}
+		std::map<std::pair<std::string, int>, std::vector<config::Server> >::iterator s_it = servers.begin();
+		std::map<std::pair<std::string, int>, std::vector<config::Server> >::iterator s_ite = servers.end();
+		for(; s_it != s_ite; s_it++)	{
+			std::vector<config::Server>::iterator v_it = s_it->second.begin();
+			std::vector<config::Server>::iterator v_ite = s_it->second.end();
+			for(; v_it != v_ite; v_it++)	{
+				std::cout << "Server_ " << s_it->first.first << " " << s_it->first.second  << " | name is " << v_it->get_name() << std::endl;
+			}
+		}
+		// ! ---------------------------------------------------------
+
+
+
+
+
+
+		ResponseHandler::_servers = &(cfgs.unwrap());
 		simple_listener(cfgs);
 	}
 
