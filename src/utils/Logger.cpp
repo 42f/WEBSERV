@@ -1,9 +1,7 @@
-#include <sstream>
 #include <iomanip>
 #include <fstream>
 #include <unistd.h>
 #include <time.h>
-#include <ctime>
 #include "Logger.hpp"
 
 const int Logger::toConsole = 0;
@@ -89,4 +87,14 @@ Logger&			Logger::getInstance(std::string const destFile, const int defaultDest)
 	return l;
 }
 
+int 			Logger::dest() { return _defaultDest; }
+
 /* ************************************************************************** */
+
+LogStream::LogStream(int dest): _inner(), _dest(dest) {}
+
+std::string LogStream::raw() { return _inner.str(); }
+
+LogStream::~LogStream() {
+	Logger::getInstance().log(this->raw(), _dest);
+}

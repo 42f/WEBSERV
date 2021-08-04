@@ -3,6 +3,11 @@
 //
 
 #include "Server.hpp"
+#include "Logger.hpp"
+#include "ConfigParser.hpp"
+#include <fstream>
+#include <sstream>
+#include <cstdlib>
 
 LocationConfig *::LocationConfig::active = 0;
 
@@ -71,7 +76,6 @@ namespace config
 /*
  * GETTER
  */
-
 		int									Server::get_port() { return _port; }
 		std::string							Server::get_address() { return _address; }
 		std::string							Server::get_name() { return _name; }
@@ -81,10 +85,6 @@ namespace config
 		std::vector<LocationConfig>			Server::get_locations() { return _locations; }
 		std::map<int, std::string>			Server::get_error_pages() { return _error_pages; }
 		std::map<std::string, std::string>	Server::get_cgis() { return _cgis; }
-
-/*
- * RESPONSE
- */
 
 /*
  * CGI_BINARY
@@ -117,5 +117,32 @@ namespace config
 			stream << "error_page: " << it->first << " -> " << it->second << std::endl;
 		}
 		return stream;
+	}
+
+	//TODO enleve le LOG_LEVEL
+	std::vector<Server> parse(const std::string &path)
+	{
+		std::ifstream t(path.c_str());
+		std::stringstream buffer;
+		buffer << t.rdbuf();
+		std::string		str = buffer.str();
+		slice cfg(str);
+
+		ParserResult<std::vector<config::Server> >	cfgs = ConfigParser()(cfg);
+		if (cfgs.is_err())
+		{
+			LogStream() << cfgs.unwrap_err() << "\n";
+#if LOG_LEVEL == LOG_LEVEL_TRACE	//start line error
+			cfgs.unwrap_err().trace(cfg);
+#endif
+			exit(-1);
+		} else
+		{
+			LogStream() << "parsed " << cfgs.unwrap().size() << " servers\n";
+			for (std::vector<config::Server>::iterator it = cfgs.unwrap().begin(); it != cfgs.unwrap().end(); it++) {
+				std::cout << *it << std::endl;
+			}
+			return cfgs.unwrap();
+		}
 	}
 }

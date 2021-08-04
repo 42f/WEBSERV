@@ -17,12 +17,12 @@ namespace config
 	class Server
 	{
 	private:
-		int				_port;
-		std::string		_address;
-		std::string		_name;
-		std::string		_root;
-		std::string		_index;
-		size_t			_body_size;		// in bytes
+		int									_port;
+		std::string							_address;
+		std::string							_name;
+		std::string							_root;
+		std::string							_index;
+		size_t								_body_size;		// in bytes
 		std::vector<LocationConfig>			_locations;
 		std::map<int, std::string>			_error_pages;
 		std::map<std::string, std::string>	_cgis;
@@ -75,6 +75,8 @@ namespace config
 
 		friend std::ostream &operator<<(std::ostream& stream, const Server& cfg);
 	};
+
+	std::vector<Server>		parse(const std::string &path);
 }
 
 #endif //WEBSERV_SERVER_HPP

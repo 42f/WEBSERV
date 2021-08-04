@@ -54,7 +54,7 @@ public:
 	static	LocationConfig	*methods(methods::Methods methods);
 	static	LocationConfig	*index(slice index);
 	static	LocationConfig	*redirection(redirect ret);
-	static LocationConfig	*dump(slice unused);
+	static	LocationConfig	*dump(slice unused);
 /*
  * SETTER
  */

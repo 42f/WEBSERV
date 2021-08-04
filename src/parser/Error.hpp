@@ -64,7 +64,7 @@ public:
 
 	void 		trace(slice start) const
 	{
-		//TODO mettre la sortie dans le fichier logs
+
 		for (Error::iterator it = _stack.begin(); it != _stack.end(); it++) {
 			std::cerr << RED << "\tat: (l" << it->first.lines(start) << "c" << it->first.character(start) << "): " << it->first.take(10).until('\n') << " (" << it->second << ")" << NC << std::endl;
 		}
