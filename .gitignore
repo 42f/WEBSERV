@@ -5,6 +5,9 @@
 webserv
 webserv98
 
+#logs
+webserv.log
+
 #clion project files
 /.idea
 /Testing
