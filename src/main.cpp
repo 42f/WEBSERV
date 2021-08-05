@@ -38,7 +38,6 @@ struct Connection {
 	std::string			client_addr;
 	int					req_counter;
 	int 				connfd;
-	ParserResult<std::vector<config::Server> > cfgs;
 };
 
 
@@ -68,16 +67,21 @@ void*	conn_reader(void *connection_data ) {
 		fake_workload(c->req_counter);
 
 
-		// Here for Calixte ! //
+		// ! Here for Calixte ! //
 		ResponseHandler		respHandler;
 
 		ResponseHandler::result_type result_resp = respHandler.processRequest(req);
+		if (result_resp.is_ok()) {
 		Response	resp = result_resp.unwrap();
 
 		std::ostringstream output;
 		output << resp;
 		write(c->connfd, output.str().c_str(), output.str().length());
-		//-------------------//
+		}
+		else {
+			std::cout << "ERROR REQ" << std::endl;
+		}
+		// ! -------------------//
 
 	}
 	close(c->connfd);
@@ -85,7 +89,7 @@ void*	conn_reader(void *connection_data ) {
 	return NULL;
 }
 
-void	simple_listener( ParserResult<std::vector<config::Server> >&cfgs ) {
+void	simple_listener( void ) {
 
 	int					req_counter = 0;
 	int					listenfd, connfd;
@@ -137,7 +141,6 @@ void	simple_listener( ParserResult<std::vector<config::Server> >&cfgs ) {
 		c->client_addr.insert(0, client_addr);
 		c->connfd = connfd;
 		c->req_counter = req_counter;
-		c->cfgs = cfgs;
 
 		//threaded version :
 		// pthread_t	t;
@@ -158,7 +161,6 @@ void exit_server(int sig) {
 int main(int ac, char **av)
 {
 	signal(SIGINT, &exit_server);
-	Logger::getInstance("./logg", Logger::toConsole);
 	std::string 	path;
 	switch (ac) {
 		case 1:
@@ -171,57 +173,37 @@ int main(int ac, char **av)
 			std::cerr << "./webserv [ConfigServerv]" << std::endl;
 			return -1;
 	}
-	Logger::getInstance("./webserv.log");
 
-	std::vector<config::Server>		servers = config::parse(path);
+	ResponseHandler::init(path);
+
+	std::vector<config::Server> 	servers = ResponseHandler::getServers();
+
+	// std::vector<config::Server>		servers = config::parse(path);
+
+	Logger::getInstance("./logg", Logger::toConsole);
+
 
 	RequestHandler	handler;
 
-	ParserResult<std::vector<config::Server> >	cfgs = ConfigParser()(cfg);
-	if (cfgs.is_err()) {
-		std::cerr << cfgs.unwrap_err() << std::endl;
-#if LOG_LEVEL == LOG_LEVEL_TRACE
-	cfgs.unwrap_err().trace(cfg);
-#endif
-	} else {
 
-		//  ! Prototype storing each individual servers in a map
+	//  ! Prototype storing each individual servers in a map
+	// std::vector<config::Server>::iterator it = cfgs.unwrap().begin();
+	// std::vector<config::Server>::iterator ite = cfgs.unwrap().end();
 
-		std::vector<config::Server>::iterator it = cfgs.unwrap().begin();
-		std::vector<config::Server>::iterator ite = cfgs.unwrap().end();
-
-		std::map<std::pair<std::string, int>, std::vector<config::Server> > servers;
-		for(; it != ite; it++)	{
-			servers[std::make_pair( it->get_address(), it->get_port() )].push_back(*it);
+	// std::map<std::pair<std::string, int>, std::vector<config::Server> > servers;
+	// for(; it != ite; it++)	{
+	// 	servers[std::make_pair( it->get_address(), it->get_port() )].push_back(*it);
+	// }
+std::cout << "----------" << std::endl;
+	std::vector<config::Server>::iterator s_it = servers.begin();
+	std::vector<config::Server>::iterator s_ite = servers.end();
+	for(; s_it != s_ite; s_it++)	{
+			std::cout << "Server_ " << s_it->get_address() << " " << s_it->get_port() << " | name is " << s_it->get_name() << std::endl;
 		}
-		std::map<std::pair<std::string, int>, std::vector<config::Server> >::iterator s_it = servers.begin();
-		std::map<std::pair<std::string, int>, std::vector<config::Server> >::iterator s_ite = servers.end();
-		for(; s_it != s_ite; s_it++)	{
-			std::vector<config::Server>::iterator v_it = s_it->second.begin();
-			std::vector<config::Server>::iterator v_ite = s_it->second.end();
-			for(; v_it != v_ite; v_it++)	{
-				std::cout << "Server_ " << s_it->first.first << " " << s_it->first.second  << " | name is " << v_it->get_name() << std::endl;
-			}
-		}
-		// ! ---------------------------------------------------------
+	// }
+	// ! ---------------------------------------------------------
 
+	simple_listener();
 
-
-
-
-
-		ResponseHandler::_servers = &(cfgs.unwrap());
-		simple_listener(cfgs);
-	}
-	if (res.is_err())
-	{
-		if (res.unwrap_err() != status::None) {
-			std::cerr << res.unwrap_err() << " " << status::message(res.unwrap_err()) << std::endl;
-		}
-	}
-
-	//tcp::Server	server;
-
-	//server.start();
 	return 0;
 }

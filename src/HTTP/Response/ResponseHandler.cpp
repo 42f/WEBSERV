@@ -2,10 +2,8 @@
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-int RequestHandler::req_counter = 0;
-
-// TODO: remove
-std::vector<config::Server>  *ResponseHandler::_servers = NULL;
+int 							ResponseHandler::req_counter = 0;
+std::vector<config::Server>		ResponseHandler::_servers = std::vector<config::Server>();
 
 ResponseHandler::ResponseHandler( void ) :
 									_status(response_status::Empty),
@@ -22,7 +20,12 @@ ResponseHandler::~ResponseHandler( void )	{
 
 /* ................................. METHODS .................................*/
 
-ResponseHandler::result_type		ResponseHandler::processRequest(Request const & req) {
+
+void	ResponseHandler::init(std::string const &configFilePath) {
+	ResponseHandler::_servers = config::parse(configFilePath);
+}
+
+ResponseHandler::result_type		ResponseHandler::processRequest(RequestHandler::result_type const & req) {
 
 	/*
 	 *  HERE :
@@ -37,9 +40,10 @@ ResponseHandler::result_type		ResponseHandler::processRequest(Request const & re
 
 	std::stringstream io;
 
-	io << "[request #" << RequestHandler::req_counter++ << "] hello , this is a response body. \nAnd a second line";
+	io << "[request #" << ResponseHandler::req_counter++ << "] hello , this is a response body. \nAnd a second line";
 
 	io >> _response;
+	_result = result_type(_response);
 	return _result;
 }
 
@@ -49,12 +53,15 @@ config::Server&				ResponseHandler::matchServer(Request const & req)	{
 	(void)req;
 	// TODO: get vector of config::Server from parser
 
-	return (*_servers->begin());
+	return (*_servers.begin());
 }
 
 /* ................................. ACCESSOR ................................*/
 
+std::vector<config::Server> const &	ResponseHandler::getServers( void ) {
 
+	return _servers;
+}
 
 /* ................................. OVERLOAD ................................*/
 

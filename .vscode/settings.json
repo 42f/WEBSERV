@@ -67,7 +67,8 @@
 		"utility": "cpp",
 		"vector": "cpp",
 		"clocale": "cpp",
-		"__functional_03": "cpp"
+		"__functional_03": "cpp",
+		"filesystem": "cpp"
 	},
 	"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

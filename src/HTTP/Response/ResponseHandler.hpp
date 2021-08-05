@@ -10,7 +10,7 @@
 #include "../Config/Directives/Redirect.hpp"
 
 #include "../utils/Logger.hpp"
-#include "../Request.hpp"
+#include "HTTP/Request/Request.hpp"
 #include "../RequestHandler.hpp"
 #include "../../parser/Result.hpp"
 #include "../Status.hpp"
@@ -40,7 +40,8 @@ class ResponseHandler	{
 		ResponseHandler( void );
 		~ResponseHandler( void );
 		// TODO: remove
-		static std::vector<config::Server>  *_servers;
+		static void	init(std::string const &configFilePath);
+		static std::vector<config::Server> const &	getServers( void );
 
 	private:
 
@@ -50,6 +51,9 @@ class ResponseHandler	{
 		Response					_response;
 		result_type					_result;
 
+		static	std::vector<config::Server>  _servers;
+		// TODO remove, debug only
+		static int		req_counter;
 
 		ResponseHandler( ResponseHandler const & src );
 		ResponseHandler &		operator=( ResponseHandler const & rhs );

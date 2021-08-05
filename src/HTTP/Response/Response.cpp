@@ -2,7 +2,7 @@
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-Response::Response( void ) {
+Response::Response() : _version(Version()) {
 }
 
 Response::Response( Version version, status::StatusCode statusCode ) :
@@ -21,44 +21,43 @@ Response::Response( const Response & src )	{
 
 /* ................................ DESTRUCTOR ...............................*/
 
-Response::~Response( void )	{
+Response::~Response()	{
 }
 
 /* ................................. METHODS .................................*/
 
-void	Response::reset( void )	{
+void	Response::reset()	{
 	_version = Version();
 	_statusCode = status::None;
 	_statusMessage = status::StatusMessage::get(_statusCode);
 	_headers.clear();
 	clearBody();
- };
+ }
 
-void	Response::clearBody( void )	{
+void	Response::clearBody()	{
 	_body.clear();
 	update_BodyLen();
-};
+}
 
-std::vector<char> const &	Response::getBody( void ) const	{ return _body; };
+std::vector<char> const &	Response::getBody() const	{ return _body; }
 
-int				Response::getBodyLen( void ) const	{ return _bodyLength; };
-std::string&	Response::getBodyLenStr( void ) { return _bodyLengthStr; };
+int					Response::getBodyLen() const	{ return _bodyLength; }
+std::string const&	Response::getBodyLenStr() const { return _bodyLengthStr; }
 
 
-void	Response::update_BodyLen( void ) {
+void	Response::update_BodyLen() {
 
 	_bodyLength = _body.size();
 
 	std::stringstream	len;
 	len << _bodyLength;
 	_bodyLengthStr = len.str();
-};
+}
 
 /* ................................. ACCESSOR ................................*/
 
 
-//TODO is this useful ?...
-void	Response::setVersion( const Version& version )	{ _version = version; };
+void	Response::setVersion( const Version& version )	{ _version = version; }
 
 void	Response::setHeader(const Header& header) {
 	this->_headers.insert(std::make_pair(header.name(), header));
@@ -67,7 +66,7 @@ void	Response::setHeader(const Header& header) {
 void	Response::setStatus( const status::StatusCode &statusCode )	{
 	_statusCode = statusCode;
 	_statusMessage = status::StatusMessage::get(statusCode);
-};
+}
 
 /* ................................. OVERLOAD ................................*/
 

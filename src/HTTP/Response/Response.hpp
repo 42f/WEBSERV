@@ -9,7 +9,7 @@
 #include "Config/Directives/Redirect.hpp"
 
 #include "../utils/Logger.hpp"
-#include "../Request.hpp"
+#include "HTTP/Request/Request.hpp"
 #include "../Status.hpp"
 
 class Response	{
@@ -32,8 +32,8 @@ class Response	{
 		void	clearBody( void );
 		std::vector<char> const&	getBody( void ) const;
 
-		int				getBodyLen( void ) const;
-		std::string&	getBodyLenStr( void );
+		int					getBodyLen( void ) const;
+		std::string const&	getBodyLenStr( void ) const;
 		void			update_BodyLen( void );
 
 	private:
