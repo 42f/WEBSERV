@@ -2,8 +2,7 @@
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-int 							ResponseHandler::req_counter = 0;
-std::vector<config::Server>		ResponseHandler::_servers = std::vector<config::Server>();
+int	ResponseHandler::req_counter = 0;
 
 ResponseHandler::ResponseHandler( void ) :
 									_status(response_status::Empty),
@@ -21,11 +20,7 @@ ResponseHandler::~ResponseHandler( void )	{
 /* ................................. METHODS .................................*/
 
 
-void	ResponseHandler::init(std::string const &configFilePath) {
-	ResponseHandler::_servers = config::parse(configFilePath);
-}
-
-ResponseHandler::result_type		ResponseHandler::processRequest(RequestHandler::result_type const & req) {
+ResponseHandler::result_type		ResponseHandler::processRequest(RequestHandler::result_type const & res) {
 
 	/*
 	 *  HERE :
@@ -34,34 +29,37 @@ ResponseHandler::result_type		ResponseHandler::processRequest(RequestHandler::re
 	 * 		- if match ?
 	 *
 	*/
-	(void)req;
 
-	_response.setStatus(status::Ok);
+	if (res.is_ok()) {
+		Request req = res.unwrap();
+		_response.setStatus(status::Ok);
 
-	std::stringstream io;
+		config::Server const& server = network::ServerPool::getMatch(getHeader(req, "Host"));
 
-	io << "[request #" << ResponseHandler::req_counter++ << "] hello , this is a response body. \nAnd a second line";
-
-	io >> _response;
-	_result = result_type(_response);
-	return _result;
+		std::stringstream io;
+		io << "[request #" << ResponseHandler::req_counter++ << "] hello , this is a response body. \nAnd a second line\n";
+		io << "The server used was: " << server.get_name();
+		io >> _response;
+		_result = result_type(_response);
+		return _result;
+	}
+	else
+		return (Response(Version('9', '8'), status::BadRequest));		// TODO error management
 }
 
+std::string		ResponseHandler::getHeader(const Request & req, const std::string& target) {
 
-config::Server&				ResponseHandler::matchServer(Request const & req)	{
+	Result<std::string>	result = req.get_header(target);
 
-	(void)req;
-	// TODO: get vector of config::Server from parser
-
-	return (*_servers.begin());
+	if (result.is_ok())	{
+		return result.unwrap();
+	}
+	else {
+		return std::string("");
+	}
 }
 
 /* ................................. ACCESSOR ................................*/
-
-std::vector<config::Server> const &	ResponseHandler::getServers( void ) {
-
-	return _servers;
-}
 
 /* ................................. OVERLOAD ................................*/
 

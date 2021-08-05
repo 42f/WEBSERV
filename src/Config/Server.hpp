@@ -51,14 +51,14 @@ namespace config
 /*
 ** --------------------------------- GETTERS ----------------------------------
 */
-		int									get_port();
-		std::string							get_address();
-		std::string							get_name();
-		std::string							get_root();
-		std::string							get_index();
-		size_t								get_body_size();
-		std::vector<LocationConfig>			get_locations();
-		std::map<int, std::string>			get_error_pages(); //AVOIR
+		int									get_port() const;
+		std::string							get_address() const;
+		std::string							get_name() const;
+		std::string							get_root() const;
+		std::string							get_index() const;
+		size_t								get_body_size() const;
+		std::vector<LocationConfig>			get_locations() const;
+		std::map<int, std::string>			get_error_pages() const; //AVOIR
 
 /*
 ** --------------------------------- METHODS ----------------------------------

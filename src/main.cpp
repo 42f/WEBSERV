@@ -4,6 +4,7 @@
 #include "HTTP/RequestHandler.hpp"
 #include "HTTP/Response/Response.hpp"
 #include "HTTP/Response/ResponseHandler.hpp"
+#include "Network/ServerPool.hpp"
 #include "utils/Logger.hpp"
 
 #include <fstream>
@@ -56,32 +57,25 @@ void*	conn_reader(void *connection_data ) {
 
 	RequestHandler	handler;
 	std::string		request(recvline);
+	std::cout << GREEN << std::endl;
 	std::cout << request << std::endl;
-
-	std::cout << BLUE << std::endl;
-	RequestHandler::result_type res = handler.update(request.c_str(), request.length());
 	std::cout << NC << std::endl;
 
-	if (res.is_ok()) {
-		Request req = res.unwrap();
-		fake_workload(c->req_counter);
+	std::cout << BLUE << std::endl;
+	RequestHandler::result_type result = handler.update(request.c_str(), request.length());
+	std::cout << NC << std::endl;
 
+	// ! Here for Calixte ! //
+	ResponseHandler		respHandler;
 
-		// ! Here for Calixte ! //
-		ResponseHandler		respHandler;
+	ResponseHandler::result_type response = respHandler.processRequest(result);
 
-		ResponseHandler::result_type result_resp = respHandler.processRequest(req);
-		if (result_resp.is_ok()) {
-		Response	resp = result_resp.unwrap();
-
+	if (response.is_ok()) {
+		Response	resp = response.unwrap();
 		std::ostringstream output;
 		output << resp;
 		write(c->connfd, output.str().c_str(), output.str().length());
-		}
-		else {
-			std::cout << "ERROR REQ" << std::endl;
-		}
-		// ! -------------------//
+	// !------------------- //
 
 	}
 	close(c->connfd);
@@ -174,34 +168,8 @@ int main(int ac, char **av)
 			return -1;
 	}
 
-	ResponseHandler::init(path);
-
-	std::vector<config::Server> 	servers = ResponseHandler::getServers();
-
-	// std::vector<config::Server>		servers = config::parse(path);
-
+	network::ServerPool::init(path);
 	Logger::getInstance("./logg", Logger::toConsole);
-
-
-	RequestHandler	handler;
-
-
-	//  ! Prototype storing each individual servers in a map
-	// std::vector<config::Server>::iterator it = cfgs.unwrap().begin();
-	// std::vector<config::Server>::iterator ite = cfgs.unwrap().end();
-
-	// std::map<std::pair<std::string, int>, std::vector<config::Server> > servers;
-	// for(; it != ite; it++)	{
-	// 	servers[std::make_pair( it->get_address(), it->get_port() )].push_back(*it);
-	// }
-std::cout << "----------" << std::endl;
-	std::vector<config::Server>::iterator s_it = servers.begin();
-	std::vector<config::Server>::iterator s_ite = servers.end();
-	for(; s_it != s_ite; s_it++)	{
-			std::cout << "Server_ " << s_it->get_address() << " " << s_it->get_port() << " | name is " << s_it->get_name() << std::endl;
-		}
-	// }
-	// ! ---------------------------------------------------------
 
 	simple_listener();
 

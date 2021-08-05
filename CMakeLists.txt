@@ -4,7 +4,18 @@ project(webserv)
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -Wall -Wextra -Werror -g2 -std=c++98")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -g2 -std=c++98")
 
-include_directories(src/parser src/parsing src/utils src)
+include_directories(
+        src
+        src/HTTP
+        src/HTTP/config
+        src/HTTP/Headers
+        src/HTTP/Request
+        src/HTTP/Request/RequestTarget
+        src/HTTP/Response
+        src/parser
+        src/parsing
+        src/Network
+        src/utils)
 
 set(FILES
         src/main.cpp
@@ -17,6 +28,8 @@ set(FILES
         src/HTTP/Response/Response.hpp
         src/HTTP/Response/ResponseHandler.cpp
         src/HTTP/Response/ResponseHandler.hpp
+        src/Network/ServerPool.hpp
+        src/Network/ServerPool.cpp
 
         src/parser/combinators.hpp
         src/parser/Error.cpp

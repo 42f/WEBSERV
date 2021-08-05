@@ -4,16 +4,17 @@
 #include <istream>
 #include <iostream>
 #include <sstream>
-#include "../../Config/Server.hpp"
-#include "../Request/RequestLine.hpp"
-#include "../Headers/Headers.hpp"
-#include "../Config/Directives/Redirect.hpp"
+#include "Config/Server.hpp"
+#include "Request/RequestLine.hpp"
+#include "Headers/Headers.hpp"
+#include "Config/Directives/Redirect.hpp"
 
-#include "../utils/Logger.hpp"
+#include "utils/Logger.hpp"
 #include "HTTP/Request/Request.hpp"
-#include "../RequestHandler.hpp"
-#include "../../parser/Result.hpp"
-#include "../Status.hpp"
+#include "RequestHandler.hpp"
+#include "Network/ServerPool.hpp"
+#include "parser/Result.hpp"
+#include "Status.hpp"
 #include "Response.hpp"
 
 # include <iostream>
@@ -35,24 +36,21 @@ class ResponseHandler	{
 
 		typedef Result<Response, status::StatusCode>	result_type;
 
-		result_type 	processRequest(Request const & req);
+		result_type 	processRequest(RequestHandler::result_type const & req);
 
 		ResponseHandler( void );
 		~ResponseHandler( void );
-		// TODO: remove
-		static void	init(std::string const &configFilePath);
-		static std::vector<config::Server> const &	getServers( void );
 
 	private:
 
-		config::Server&				matchServer(Request const & req);
+		config::Server&		matchServer(Request const & req);
+		std::string			getHeader(const Request & req, const std::string& target);
 
 		response_status::Status		_status;
 		Response					_response;
 		result_type					_result;
 
-		static	std::vector<config::Server>  _servers;
-		// TODO remove, debug only
+		// ! TODO remove, debug only
 		static int		req_counter;
 
 		ResponseHandler( ResponseHandler const & src );

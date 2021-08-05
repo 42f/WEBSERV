@@ -1,7 +1,7 @@
 //
 // Created by alena on 06/07/2021.
 //
-#include "utils/Logger.hpp"
+#include "../utils/Logger.hpp"
 #include "Server.hpp"
 #include "ConfigParser.hpp"
 #include <fstream>
@@ -80,14 +80,14 @@ namespace config
 /*
 ** --------------------------------- GETTERS ----------------------------------
 */
-		int									Server::get_port() { return _port; }
-		std::string							Server::get_address() { return _address; }
-		std::string							Server::get_name() { return _name; }
-		std::string							Server::get_root() { return _root; }
-		std::string							Server::get_index() { return _index; }
-		size_t								Server::get_body_size() { return _body_size; }
-		std::vector<LocationConfig>			Server::get_locations() { return _locations; }
-		std::map<int, std::string>			Server::get_error_pages() { return _error_pages; }
+		int									Server::get_port() const { return _port; }
+		std::string							Server::get_address() const { return _address; }
+		std::string							Server::get_name() const { return _name; }
+		std::string							Server::get_root() const { return _root; }
+		std::string							Server::get_index() const { return _index; }
+		size_t								Server::get_body_size() const { return _body_size; }
+		std::vector<LocationConfig>			Server::get_locations() const { return _locations; }
+		std::map<int, std::string>			Server::get_error_pages() const { return _error_pages; }
 
 /*
 ** --------------------------------- METHODS ----------------------------------
