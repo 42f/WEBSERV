@@ -171,11 +171,11 @@ int main(int ac, char **av)
 			std::cerr << "./webserv [ConfigServerv]" << std::endl;
 			return -1;
 	}
-	std::ifstream t(path.c_str());
-	std::stringstream buffer;
-	buffer << t.rdbuf();
-	std::string		str = buffer.str();
-	slice cfg(str);
+	Logger::getInstance("./webserv.log");
+
+	std::vector<config::Server>		servers = config::parse(path);
+
+	RequestHandler	handler;
 
 	ParserResult<std::vector<config::Server> >	cfgs = ConfigParser()(cfg);
 	if (cfgs.is_err()) {
@@ -213,6 +213,15 @@ int main(int ac, char **av)
 		ResponseHandler::_servers = &(cfgs.unwrap());
 		simple_listener(cfgs);
 	}
+	if (res.is_err())
+	{
+		if (res.unwrap_err() != status::None) {
+			std::cerr << res.unwrap_err() << " " << status::message(res.unwrap_err()) << std::endl;
+		}
+	}
 
+	//tcp::Server	server;
+
+	//server.start();
 	return 0;
 }

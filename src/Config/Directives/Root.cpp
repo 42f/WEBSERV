@@ -23,3 +23,5 @@ Root::result_type Root::operator()(const slice &input)
 	}
 	return res;
 }
+
+/* ************************************************************************** */

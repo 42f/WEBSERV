@@ -74,17 +74,18 @@ set(FILES
         src/parsing/Tokens.hpp
 
 
-
-        src/HTTP/Request.cpp
-        src/HTTP/Request.hpp
+        src/HTTP/Request/Request.cpp
+        src/HTTP/Request/Request.hpp
         src/HTTP/Status.cpp
         src/HTTP/Status.hpp
-        src/HTTP/RequestParser.cpp
-        src/HTTP/RequestParser.hpp
+        src/HTTP/Request/RequestParser.cpp
+        src/HTTP/Request/RequestParser.hpp
         src/HTTP/RequestHandler.cpp
         src/HTTP/RequestHandler.hpp
         src/HTTP/Request/RequestLine.cpp
         src/HTTP/Request/RequestLine.hpp
+        src/HTTP/Request/Chunk.cpp
+        src/HTTP/Request/Chunk.hpp
         src/HTTP/Request/RequestTarget/OriginForm.cpp
         src/HTTP/Request/RequestTarget/OriginForm.hpp
         src/HTTP/Request/RequestTarget/Segment.cpp
@@ -134,8 +135,7 @@ set(FILES
         src/Config/Structure/Bloc.hpp
         src/Config/Structure/Line.hpp
         src/Config/Structure/Line.cpp
-
-        src/HTTP/Request/Chunk.cpp src/HTTP/Request/Chunk.hpp)
+        )
 
 message("compiling with flags ${CMAKE_CXX_FLAGS}")
 

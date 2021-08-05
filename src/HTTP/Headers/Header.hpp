@@ -20,8 +20,10 @@ class FieldValue : public Parser<slice>
 {
 public:
 	FieldValue();
-	result_type operator()(const slice &input);
+	result_type	operator()(const slice &input);
 };
+
+/* ************************************************************************** */
 
 /*
  * Header
@@ -43,6 +45,8 @@ public:
 
 	friend std::ostream &operator<<(std::ostream& stream, const Header& header);
 };
+
+/* ************************************************************************** */
 
 
 #endif //WEBSERV_HEADERS_HPP

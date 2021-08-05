@@ -30,6 +30,7 @@ public:
 	result_type operator()(const slice &input);
 };
 
+/* ************************************************************************** */
 
 /*
  * A create the server block

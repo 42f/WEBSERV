@@ -8,5 +8,3 @@ Error<status::StatusCode>	error(std::string msg, status::StatusCode status)
 {
 	return Error<status::StatusCode>(msg, status);
 }
-
-

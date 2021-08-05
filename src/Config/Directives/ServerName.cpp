@@ -14,3 +14,5 @@ ServerName::result_type ServerName::operator()(const slice &input)
 {
 	return preceded(sequence(Tag("server_name"), rws), TakeUntil(";"))(input);
 }
+
+/* ************************************************************************** */

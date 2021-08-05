@@ -5,10 +5,13 @@
 #include "RequestParser.hpp"
 
 /*
- * RequestParser
- */
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
 RequestParser::RequestParser() { }
 
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
 RequestParser::result_type	RequestParser::operator()(const slice& input)
 {
 	ParserResult<tuple<methods::s_method, Target, Version> > line = RequestLine()(input);
@@ -28,17 +31,14 @@ RequestParser::result_type	RequestParser::operator()(const slice& input)
 	}
 	ParserResult<std::vector<Header> >	res =
 			terminated(many(terminated(Headers(), newline)), Newline())(line.left());
-	std::cout << "****Parsing****" << std::endl << req << std::endl;
 	if (res.is_ok())
 	{
 		std::vector<Header>	&v = res.unwrap();
 		for (std::vector<Header>::iterator it = v.begin(); it != v.end(); it++)
-		{
 			req.set_header(*it);
-			std::cout << *it << std::endl;
-		}
 		return result_type::ok(res.left(), req);
 	}
-	std::cerr << res.unwrap_err() << std::endl;
 	return res.convert<Request>();
 }
+/* ************************************************************************** */
+

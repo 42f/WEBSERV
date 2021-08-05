@@ -18,6 +18,8 @@ public:
 
 const EmptyLine empty_line = EmptyLine();
 
+/* ************************************************************************** */
+
 class Comment: public Parser<slice>
 {
 public:
@@ -28,6 +30,8 @@ public:
 };
 
 const Comment comment = Comment();
+
+/* ************************************************************************** */
 
 /*
  * Wraps directives with optionnal spaces at the start and a ; followed by a newline at the end
@@ -50,5 +54,7 @@ public:
 
 template<typename P>
 Directive<P>	directive(P parser) { return Directive<P>(parser); }
+
+/* ************************************************************************** */
 
 #endif //WEBSERV_LINE_HPP

@@ -2,7 +2,10 @@
 # define LOGGER_HPP
 
 # include <iostream>
+# include <sstream>
 # include <string>
+
+class LogStream;
 
 class Logger
 {
@@ -21,6 +24,8 @@ class Logger
 		static const int	toConsole;
 		static const int	toFile;
 
+		static int 			dest();
+
 		~Logger();
 
 	private:
@@ -31,6 +36,27 @@ class Logger
 
 		Logger( std::string const destFile, int defaultDest);
 		static std::string		_makeLogEntry(std::string rawEntry);
+};
+
+class LogStream
+{
+	public:
+		LogStream(int dest = Logger::getInstance().dest());
+
+		std::string		raw();
+
+		~LogStream();
+
+		template<typename T>
+		LogStream	&operator<<(const T& data)
+		{
+			_inner << data;
+			return *this;
+		}
+
+	private:
+		std::stringstream	_inner;
+		int 				_dest;
 };
 
 #endif /* ********************************************************** LOGGER_H */

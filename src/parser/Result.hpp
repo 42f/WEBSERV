@@ -42,7 +42,8 @@ public:
 
 	Result(Ok d): _data(new Ok(d)), _err(0), _is_ok(true) { }
 	Result(Err e): _data(0), _err(new Err(e)), _is_ok(false) { }
-	Result(const Result& other): _is_ok(other.is_ok())
+
+	Result(const Result& other): _data(0), _err(0), _is_ok(other.is_ok())
 	{
 		if (_is_ok)
 			_data = new Ok(*other._data);
@@ -55,6 +56,8 @@ public:
 		if (this == &other)
 			return *this;
 		this->~Result();
+		_data = 0;
+		_err = 0;
 		_is_ok = other._is_ok;
 		if (_is_ok)
 			_data = new Ok(*other._data);

@@ -6,7 +6,7 @@
 #define WEBSERV_CONFIG_SERVER_HPP
 
 #include "Config/Directives/Location.hpp"
-#include "HTTP/Request.hpp"
+#include "HTTP/Request/Request.hpp"
 #include <map>
 
 namespace config
@@ -17,30 +17,27 @@ namespace config
 	class Server
 	{
 	private:
-		int				_port;
-		std::string		_address;
-		std::string		_name;
-		std::string		_root;
-		std::string		_index;
-		size_t			_body_size;		// in bytes
+		int									_port;
+		std::string							_address;
+		std::string							_name;
+		std::string							_root;
+		std::string							_index;
+		size_t								_body_size;		// in bytes
 		std::vector<LocationConfig>			_locations;
 		std::map<int, std::string>			_error_pages;
 		std::map<std::string, std::string>	_cgis;
 
 		static Server		*active;
 
-		Result<std::string>			error_page(int status_code);
-		Result<std::string>			cgi_binary(std::string ext);
-
 	public:
-
+/*
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
 		Server();
 
-		static	void	use(Server *ptr);
-
-		/*
-		 * SETTER
-		 */
+/*
+** --------------------------------- SETTERS ----------------------------------
+*/
 		static Server	*with_addr(tuple<std::string, int> addr);
 		static Server	*dump(slice unused);
 		static Server	*name(slice name);
@@ -51,10 +48,9 @@ namespace config
 		static Server	*index(slice index);
 		static Server	*with_location(LocationConfig config);
 
-		/*
-		 * GETTER
-		 */
-
+/*
+** --------------------------------- GETTERS ----------------------------------
+*/
 		int									get_port();
 		std::string							get_address();
 		std::string							get_name();
@@ -62,19 +58,29 @@ namespace config
 		std::string							get_index();
 		size_t								get_body_size();
 		std::vector<LocationConfig>			get_locations();
-		std::map<int, std::string>			get_error_pages();
-		std::map<std::string, std::string>	get_cgis();
+		std::map<int, std::string>			get_error_pages(); //AVOIR
 
-		/*
-		 * RESPONSE
-		 */
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
+		static void	use(Server *ptr);
 
-		// struct Response {  };
-		// Result<Response, int>	handle(const Request &req);
-		// moved to files Response
+		Result<std::string>			error_page(int status_code);
+		Result<std::string>			cgi_binary(std::string ext);
 
+/*
+** --------------------------------- OVERLOAD ---------------------------------
+*/
 		friend std::ostream &operator<<(std::ostream& stream, const Server& cfg);
 	};
+/*
+** --------------------------------- ACCESSOR ---------------------------------
+*/
+
+	std::vector<Server>		parse(const std::string &path);
 }
+
+/* ************************************************************************** */
+
 
 #endif //WEBSERV_SERVER_HPP

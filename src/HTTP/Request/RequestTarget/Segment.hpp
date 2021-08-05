@@ -22,6 +22,8 @@ public:
 	result_type	operator()(const slice &input);
 };
 
+/* ************************************************************************** */
+
 /*
  * unreserved  = ALPHA | DIGIT | "-" | "." | "_" | "~"
  */
@@ -33,6 +35,8 @@ public:
 
 	result_type	operator()(const slice &input);
 };
+
+/* ************************************************************************** */
 
 /*
  * Pchar = unreserved | pct-encoded | sub-delims | ":" | "@"
@@ -46,6 +50,8 @@ public:
 
 	result_type	operator()(const slice &input);
 };
+
+/* ************************************************************************** */
 
 /*
  * Segment = *Pchar
@@ -61,5 +67,7 @@ public :
 
 	result_type	operator()(const slice &input);
 };
+
+/* ************************************************************************** */
 
 #endif //WEBSERV_SEGMENT_HPP

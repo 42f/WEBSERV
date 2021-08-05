@@ -36,23 +36,33 @@ std::ostream &operator<<(std::ostream& st, const methods::s_method& method)
 	return st;
 }
 
+/* ************************************************************************** */
+
+
 /*
  * RequestTarget = OriginForm (| absolute-form)
  */
 RequestTarget::RequestTarget() { }
+
 RequestTarget::result_type	RequestTarget::operator()(const slice &input)
 {
 	return OriginForm()(input);
 }
 
+/* ************************************************************************** */
+
+
 /*
  * RequestVersion = HTTP-version = HTTP "/" DIGIT "." DIGIT
  */
 RequestVersion::RequestVersion() { }
+
 RequestVersion::result_type	RequestVersion::operator()(const slice &input)
 {
 	return map(preceded(Tag("HTTP/"), separated(digit, Char('.'), digit)), Version::from_tuple)(input);
 }
+
+/* ************************************************************************** */
 
 /*
  * RequestLine = RequestMethod SP RequestTarget SP RequestVersion CRLF
@@ -66,3 +76,6 @@ RequestLine::result_type	RequestLine::operator()(const slice &input)
 			terminated(RequestTarget(), single_space),
 			RequestVersion()),newline)(input);
 }
+
+/* ************************************************************************** */
+

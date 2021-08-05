@@ -16,3 +16,5 @@ Cgi::result_type Cgi::operator()(const slice &input)
 				preceded(Tag("."), TakeUntil(" ")),
 			rws),TakeUntil(";"))(input);
 }
+
+/* ************************************************************************** */

@@ -28,3 +28,5 @@ ErrorPage::result_type ErrorPage::operator()(const slice &input)
 	}
 	return res.convert<data_type>().unwind(input, "ErrorPage: failed to parse");
 }
+
+/* ************************************************************************** */

@@ -7,7 +7,14 @@
 /*
  * FieldValue  = *(field-vchar [ 1*( SP / HTAB ) field-vchar ])
  */
+/*
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
 FieldValue::FieldValue() { }
+
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
 FieldValue::result_type	FieldValue::operator()(const slice &input)
 {
 	static const Alt<Match, HexChar> charset = alt(vchar, obs);
@@ -17,19 +24,32 @@ FieldValue::result_type	FieldValue::operator()(const slice &input)
 	return res;
 }
 
+/* ************************************************************************** */
+
 /*
  * Header
  */
+/*
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
 Header::Header(slice name, slice value): _name(name), _value(value) { }
 
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
 std::string	Header::value() { return this->_value.to_string(); }
 std::string	Header::value() const { return this->_value.to_string(); }
 
 std::string	Header::name() { return this->_name.to_string(); }
 std::string	Header::name() const { return this->_name.to_string(); }
 
+/*
+** --------------------------------- OVERLOAD ---------------------------------
+*/
 std::ostream &operator<<(std::ostream& stream, const Header& header)
 {
 	stream << header._name.to_string() << ": " << header._value.to_string();
 	return stream;
 }
+
+/* ************************************************************************** */
