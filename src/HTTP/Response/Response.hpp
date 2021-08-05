@@ -34,7 +34,9 @@ class Response	{
 
 		int					getBodyLen( void ) const;
 		std::string const&	getBodyLenStr( void ) const;
-		void			update_BodyLen( void );
+		void				update_BodyLen( void );
+
+
 
 	private:
 
