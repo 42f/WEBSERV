@@ -15,7 +15,6 @@ ResponseHandler::ResponseHandler( RequestHandler::result_type & requestResult ) 
 /* ................................ DESTRUCTOR ...............................*/
 
 ResponseHandler::~ResponseHandler( void )	{
-	std::cout << RED << "_______________DESTRUCTOR_____________" << NC << std::endl;
 }
 
 /* ................................. METHODS .................................*/
@@ -69,10 +68,19 @@ std::string		ResponseHandler::getHeader(const Request & req, const std::string& 
 
 /* ................................. ACCESSOR ................................*/
 
+
+/*
+ * Returns the status of the response treatment, yet the
+ * result itself has to be checked before unwraped.
+ */
 bool	ResponseHandler::isReady() {
-	return (_status == response_status::Complete);
+	return (_status == response_status::Ready);
 }
 
+/*
+ * Returns the result processed. If no call to processRequest was made prior
+ * to a call to getResult, result sould not be unwrapped.
+*/
 ResponseHandler::result_type &	ResponseHandler::getResult() {
 	return (_result);
 }

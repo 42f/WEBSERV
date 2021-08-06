@@ -76,7 +76,6 @@ Response &		Response::operator=( Response const & rhs )	{
 		this->_statusMessage = rhs._statusMessage;
 		this->_headers = rhs._headers;
 		this->_body = rhs._body;
-		this->_length = rhs._length;
 	}
 	return *this;
 }

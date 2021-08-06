@@ -48,7 +48,6 @@ class Response	{
 		std::vector<char>				_body;
 		size_t							_bodyLength;
 		std::string						_bodyLengthStr;
-		size_t							_length;
 
 
 		friend std::ostream&	operator<<( std::ostringstream & o, Response const & i );

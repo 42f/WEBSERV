@@ -28,7 +28,7 @@ namespace response_status
 	{
 		Empty,			// Not treated yet
 		Waiting,		// Waiting on full body (large file or cgi)
-		Complete		// Ready to be sent to client
+		Ready		// Ready to be sent to client
 	};
 }
 

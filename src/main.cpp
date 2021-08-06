@@ -34,17 +34,10 @@ void	fake_workload( int req_id )	{
 	usleep(sleep_time);
 }
 
-struct Connection {
-
-	std::string			client_addr;
-	int					req_counter;
-	int 				connfd;
-};
-
 void*	response_thread(void *respHandler)	{
-	ResponseHandler * handler = static_cast<ResponseHandler *>(respHandler);
 
-	handler->processRequest();
+	static_cast<ResponseHandler *>(respHandler)->processRequest();
+
 	return NULL;
 }
 
@@ -75,16 +68,18 @@ void	conn_reader(int connfd) {
 	//threaded version :
 	pthread_t	t;
 	pthread_create(&t, NULL, &response_thread, &respHandler);
+
+	// Wait for the response to be ready
 	while (respHandler.isReady() == false) {
 		std::cout << "Waiting for response to be processed by thread..." << std::endl;
-		usleep(10000);
+		usleep(30000);
 	}
-
-	if (respHandler.getResult().is_err()) {
+	ResponseHandler::result_type	responseResult = respHandler.getResult();
+	if (responseResult.is_err()) {
 		Logger::log("Error: Response could not be processed", Logger::toConsole);
 	}
-	else if (respHandler.getResult().is_ok()) {
-		Response	resp = respHandler.getResult().unwrap();
+	else if (responseResult.is_ok()) {
+		Response	resp = responseResult.unwrap();
 		std::ostringstream output;
 		output << resp;
 		write(connfd, output.str().c_str(), output.str().length());
