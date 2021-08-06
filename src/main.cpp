@@ -41,15 +41,19 @@ struct Connection {
 	int 				connfd;
 };
 
+void*	response_thread(void *respHandler)	{
+	ResponseHandler * handler = static_cast<ResponseHandler *>(respHandler);
 
-void*	conn_reader(void *connection_data ) {
+	handler->processRequest();
+	return NULL;
+}
 
-	Connection	*c = (Connection*)connection_data;
+void	conn_reader(int connfd) {
 
 	char	recvline[MAXLINE+1];
 	int		n;
 	memset(recvline, 0, MAXLINE);
-	n = read(c->connfd, recvline, MAXLINE-1);
+	n = read(connfd, recvline, MAXLINE-1);
 	if (n < 0)	{
 		Logger::log("read() returned an error.");
 		exit (1);
@@ -66,21 +70,28 @@ void*	conn_reader(void *connection_data ) {
 	std::cout << NC << std::endl;
 
 	// ! Here for Calixte ! //
-	ResponseHandler		respHandler;
+	ResponseHandler		respHandler(result);
 
-	ResponseHandler::result_type response = respHandler.processRequest(result);
+	//threaded version :
+	pthread_t	t;
+	pthread_create(&t, NULL, &response_thread, &respHandler);
+	while (respHandler.isReady() == false) {
+		std::cout << "Waiting for response to be processed by thread..." << std::endl;
+		usleep(10000);
+	}
 
-	if (response.is_ok()) {
-		Response	resp = response.unwrap();
+	if (respHandler.getResult().is_err()) {
+		Logger::log("Error: Response could not be processed", Logger::toConsole);
+	}
+	else if (respHandler.getResult().is_ok()) {
+		Response	resp = respHandler.getResult().unwrap();
 		std::ostringstream output;
 		output << resp;
-		write(c->connfd, output.str().c_str(), output.str().length());
+		write(connfd, output.str().c_str(), output.str().length());
 	// !------------------- //
 
 	}
-	close(c->connfd);
-	free(connection_data);
-	return NULL;
+	close(connfd);
 }
 
 void	simple_listener( void ) {
@@ -129,19 +140,7 @@ void	simple_listener( void ) {
 		message << "New Connection: Client ip is: " << client_addr;
 		Logger::log(message.str());
 
-
-		Connection	*c = (Connection*)malloc(sizeof(Connection));
-		bzero(c, sizeof(Connection));
-		c->client_addr.insert(0, client_addr);
-		c->connfd = connfd;
-		c->req_counter = req_counter;
-
-		//threaded version :
-		// pthread_t	t;
-		// pthread_create(&t, NULL, &conn_reader, c);
-
-		//non threaded version :
-		conn_reader(c);
+		conn_reader(connfd);
 
 	} //-- end while
 }

@@ -4,6 +4,10 @@
 #include <istream>
 #include <iostream>
 #include <sstream>
+# include <unistd.h>
+# include <iostream>
+# include <string>
+
 #include "Config/Server.hpp"
 #include "Request/RequestLine.hpp"
 #include "Headers/Headers.hpp"
@@ -17,8 +21,6 @@
 #include "Status.hpp"
 #include "Response.hpp"
 
-# include <iostream>
-# include <string>
 
 namespace response_status
 {
@@ -36,19 +38,24 @@ class ResponseHandler	{
 
 		typedef Result<Response, status::StatusCode>	result_type;
 
-		result_type 	processRequest(RequestHandler::result_type const & req);
+		bool		 	isReady( void );
+		result_type & 	getResult( void );
+		result_type 	processRequest( void );
 
-		ResponseHandler( void );
+		ResponseHandler( RequestHandler::result_type & requestResult );
 		~ResponseHandler( void );
 
 	private:
 
+		ResponseHandler( void );
+
 		config::Server&		matchServer(Request const & req);
 		std::string			getHeader(const Request & req, const std::string& target);
 
-		response_status::Status		_status;
-		Response					_response;
-		result_type					_result;
+		const RequestHandler::result_type &	_request;
+		response_status::Status				_status;
+		Response							_response;
+		result_type							_result;
 
 		// ! TODO remove, debug only
 		static int		req_counter;

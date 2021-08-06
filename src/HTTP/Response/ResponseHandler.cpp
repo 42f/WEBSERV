@@ -4,9 +4,9 @@
 
 int	ResponseHandler::req_counter = 0;
 
-ResponseHandler::ResponseHandler( void ) :
+ResponseHandler::ResponseHandler( RequestHandler::result_type & requestResult ) :
+									_request(requestResult),
 									_status(response_status::Empty),
-									_response(Version('4','2'), status::None),
 									_result(result_type::err(status::None)) {
 }
 
@@ -15,12 +15,13 @@ ResponseHandler::ResponseHandler( void ) :
 /* ................................ DESTRUCTOR ...............................*/
 
 ResponseHandler::~ResponseHandler( void )	{
+	std::cout << RED << "_______________DESTRUCTOR_____________" << NC << std::endl;
 }
 
 /* ................................. METHODS .................................*/
 
 
-ResponseHandler::result_type		ResponseHandler::processRequest(RequestHandler::result_type const & res) {
+ResponseHandler::result_type		ResponseHandler::processRequest() {
 
 	/*
 	 *  HERE :
@@ -30,23 +31,30 @@ ResponseHandler::result_type		ResponseHandler::processRequest(RequestHandler::re
 	 *
 	*/
 
-	if (res.is_ok()) {
-		Request req = res.unwrap();
-		_response.setStatus(status::Ok);
+// !---- sleep
+sleep(1);
+	if (_request.is_ok()) {
+		Request req = _request.unwrap();
 
 		config::Server const& server = network::ServerPool::getMatch(getHeader(req, "Host"));
 
 		std::stringstream io;
+
 		io << "[request #" << ResponseHandler::req_counter++ << "] hello , this is a response body. \nAnd a second line\n";
 		io << "The server used was: " << server.get_name();
 		io >> _response;
+
+		_response.setStatus(status::Ok);
 		_result = result_type(_response);
-		return _result;
 	}
 	else
-		return (Response(Version('9', '8'), status::BadRequest));		// TODO error management
+		_result = result_type (Response(Version('4', '2'), status::BadRequest));
+
+	_status = response_status::Complete;
+	return _result;
 }
 
+// safely returns the value of a header if it exists, an empty string otherwise
 std::string		ResponseHandler::getHeader(const Request & req, const std::string& target) {
 
 	Result<std::string>	result = req.get_header(target);
@@ -60,6 +68,14 @@ std::string		ResponseHandler::getHeader(const Request & req, const std::string& 
 }
 
 /* ................................. ACCESSOR ................................*/
+
+bool	ResponseHandler::isReady() {
+	return (_status == response_status::Complete);
+}
+
+ResponseHandler::result_type &	ResponseHandler::getResult() {
+	return (_result);
+}
 
 /* ................................. OVERLOAD ................................*/
 

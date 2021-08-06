@@ -2,12 +2,11 @@
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-Response::Response() : _version(Version()) {
+Response::Response() : _version(Version()), _statusCode(status::None) {
 }
 
 Response::Response( Version version, status::StatusCode statusCode ) :
 														_version (version) {
-
 	setStatus(statusCode);
 }
 
