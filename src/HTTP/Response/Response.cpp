@@ -38,33 +38,36 @@ void	Response::clearBody()	{
 	update_BodyLen();
 }
 
-std::vector<char> const &	Response::getBody() const	{ return _body; }
 
-int					Response::getBodyLen() const	{ return _bodyLength; }
-std::string const&	Response::getBodyLenStr() const { return _bodyLengthStr; }
-
-
-void	Response::update_BodyLen() {
-
+void	Response::update_BodyLen()  {
 	_bodyLength = _body.size();
+	setHeader( Header(slice("Content-Length"), slice("42")) );
 
-	std::stringstream	len;
-	len << _bodyLength;
-	_bodyLengthStr = len.str();
+	setHeader(Header(_statusMessage, _statusMessage));
+
 }
-
-/* ................................. ACCESSOR ................................*/
-
 
 void	Response::setVersion( const Version& version )	{ _version = version; }
 
 void	Response::setHeader(const Header& header) {
-	this->_headers.insert(std::make_pair(header.name(), header));
+	_headers.insert(std::make_pair(header.name(), header));
 }
 
 void	Response::setStatus( const status::StatusCode &statusCode )	{
 	_statusCode = statusCode;
 	_statusMessage = status::StatusMessage::get(statusCode);
+}
+
+/* ................................. ACCESSOR ................................*/
+
+std::vector<char> const &	Response::getBody() const	{ return _body; }
+
+int				Response::getBodyLen() const	{ return _bodyLength; }
+
+std::string 	Response::getBodyLen() {
+	std::stringstream	len;
+	len << _bodyLength;
+	return len.str().c_str();
 }
 
 /* ................................. OVERLOAD ................................*/

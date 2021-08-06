@@ -12,6 +12,7 @@ include_directories(
         src/HTTP/Request
         src/HTTP/Request/RequestTarget
         src/HTTP/Response
+        src/HTTP/Response/ResponseUtils
         src/parser
         src/parsing
         src/Network
@@ -28,6 +29,9 @@ set(FILES
         src/HTTP/Response/Response.hpp
         src/HTTP/Response/ResponseHandler.cpp
         src/HTTP/Response/ResponseHandler.hpp
+        src/HTTP/Response/ResponseUtils/File.cpp
+        src/HTTP/Response/ResponseUtils/File.hpp
+
         src/Network/ServerPool.hpp
         src/Network/ServerPool.cpp
 

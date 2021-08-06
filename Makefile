@@ -777,6 +777,30 @@ src/HTTP/Response/ResponseHandler.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/ResponseHandler.cpp.s
 .PHONY : src/HTTP/Response/ResponseHandler.cpp.s
 
+src/HTTP/Response/ResponseUtils/File.o: src/HTTP/Response/ResponseUtils/File.cpp.o
+.PHONY : src/HTTP/Response/ResponseUtils/File.o
+
+# target to build an object file
+src/HTTP/Response/ResponseUtils/File.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/ResponseUtils/File.cpp.o
+.PHONY : src/HTTP/Response/ResponseUtils/File.cpp.o
+
+src/HTTP/Response/ResponseUtils/File.i: src/HTTP/Response/ResponseUtils/File.cpp.i
+.PHONY : src/HTTP/Response/ResponseUtils/File.i
+
+# target to preprocess a source file
+src/HTTP/Response/ResponseUtils/File.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/ResponseUtils/File.cpp.i
+.PHONY : src/HTTP/Response/ResponseUtils/File.cpp.i
+
+src/HTTP/Response/ResponseUtils/File.s: src/HTTP/Response/ResponseUtils/File.cpp.s
+.PHONY : src/HTTP/Response/ResponseUtils/File.s
+
+# target to generate assembly for a file
+src/HTTP/Response/ResponseUtils/File.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/ResponseUtils/File.cpp.s
+.PHONY : src/HTTP/Response/ResponseUtils/File.cpp.s
+
 src/HTTP/Status.o: src/HTTP/Status.cpp.o
 .PHONY : src/HTTP/Status.o
 
@@ -1323,6 +1347,9 @@ help:
 	@echo "... src/HTTP/Response/ResponseHandler.o"
 	@echo "... src/HTTP/Response/ResponseHandler.i"
 	@echo "... src/HTTP/Response/ResponseHandler.s"
+	@echo "... src/HTTP/Response/ResponseUtils/File.o"
+	@echo "... src/HTTP/Response/ResponseUtils/File.i"
+	@echo "... src/HTTP/Response/ResponseUtils/File.s"
 	@echo "... src/HTTP/Status.o"
 	@echo "... src/HTTP/Status.i"
 	@echo "... src/HTTP/Status.s"

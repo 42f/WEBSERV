@@ -20,6 +20,7 @@
 #include "parser/Result.hpp"
 #include "Status.hpp"
 #include "Response.hpp"
+#include "ResponseUtils/File.hpp"
 
 
 namespace response_status

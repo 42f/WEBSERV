@@ -73,6 +73,14 @@ public:
 	bool	is_err() const { return !is_ok(); }
 
 	/*
+	 * unwrap the result or use the provided default
+	 */
+	Ok	unwrap_or(Ok other) {
+		if (_is_ok)
+			return this->unwrap();
+		return other;
+	}
+	/*
 	 * Dont access it before checking if the result is an ok (is_ok() == true)
 	 */
 	Ok	&unwrap() const { return *this->_data; }

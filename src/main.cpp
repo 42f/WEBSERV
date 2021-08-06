@@ -74,6 +74,7 @@ void	conn_reader(int connfd) {
 		std::cout << "Waiting for response to be processed by thread..." << std::endl;
 		usleep(30000);
 	}
+
 	ResponseHandler::result_type	responseResult = respHandler.getResult();
 	if (responseResult.is_err()) {
 		Logger::log("Error: Response could not be processed", Logger::toConsole);

@@ -22,16 +22,8 @@ ResponseHandler::~ResponseHandler( void )	{
 
 ResponseHandler::result_type		ResponseHandler::processRequest() {
 
-	/*
-	 *  HERE :
-	 * - Get a match between request target and server is_match()
-	 * 		- if no match, use first server from list
-	 * 		- if match ?
-	 *
-	*/
-
 // !---- sleep
-sleep(1);
+// sleep(1);
 	if (_request.is_ok()) {
 		Request req = _request.unwrap();
 
@@ -41,6 +33,9 @@ sleep(1);
 
 		io << "[request #" << ResponseHandler::req_counter++ << "] hello , this is a response body. \nAnd a second line\n";
 		io << "The server used was: " << server.get_name();
+
+		fileHandler::File f("./assets/HTML_pages/index.html");
+		io << f;
 		io >> _response;
 
 		_response.setStatus(status::Ok);
@@ -49,21 +44,13 @@ sleep(1);
 	else
 		_result = result_type (Response(Version('4', '2'), status::BadRequest));
 
-	_status = response_status::Complete;
+	_status = response_status::Ready;
 	return _result;
 }
 
 // safely returns the value of a header if it exists, an empty string otherwise
 std::string		ResponseHandler::getHeader(const Request & req, const std::string& target) {
-
-	Result<std::string>	result = req.get_header(target);
-
-	if (result.is_ok())	{
-		return result.unwrap();
-	}
-	else {
-		return std::string("");
-	}
+	return req.get_header(target).unwrap_or("");
 }
 
 /* ................................. ACCESSOR ................................*/

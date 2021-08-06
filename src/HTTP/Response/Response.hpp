@@ -32,22 +32,21 @@ class Response	{
 		void	clearBody( void );
 		std::vector<char> const&	getBody( void ) const;
 
-		int					getBodyLen( void ) const;
-		std::string const&	getBodyLenStr( void ) const;
+		int				getBodyLen( void ) const;
+		std::string		getBodyLen( void );
+
+		// std::string const&	getBodyLenStr( void ) const;
 		void				update_BodyLen( void );
 
-
-
+		std::string			 	_statusMessage;
 	private:
 
 		Version					_version;
 		status::StatusCode		_statusCode;
-		std::string			 	_statusMessage;
 
 		std::map<std::string, Header>	_headers;
 		std::vector<char>				_body;
 		size_t							_bodyLength;
-		std::string						_bodyLengthStr;
 
 
 		friend std::ostream&	operator<<( std::ostringstream & o, Response const & i );
