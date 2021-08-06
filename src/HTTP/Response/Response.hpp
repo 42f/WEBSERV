@@ -6,11 +6,14 @@
 #include <sstream>
 #include "HTTP/Request/RequestLine.hpp"
 #include "HTTP/Headers/Headers.hpp"
+#include "HTTP/Response/ResponseUtils/File.hpp"
+#include "HTTP/Response/ResponseUtils/ResponseHeader.hpp"
 #include "Config/Directives/Redirect.hpp"
 
-#include "../utils/Logger.hpp"
+#include "utils/Logger.hpp"
 #include "HTTP/Request/Request.hpp"
-#include "../Status.hpp"
+#include "Status.hpp"
+
 
 class Response	{
 
@@ -24,7 +27,7 @@ class Response	{
 		~Response( void );
 
 		void	setVersion( const Version& version );
-		void	setHeader( const Header& header );
+		void	setHeader( ResponseHeader newHeader );
 		void	setStatus( const status::StatusCode& statusCode );
 
 		void	reset( void );
@@ -35,8 +38,7 @@ class Response	{
 		int				getBodyLen( void ) const;
 		std::string		getBodyLen( void );
 
-		// std::string const&	getBodyLenStr( void ) const;
-		void				update_BodyLen( void );
+		void			update_BodyLen( void );
 
 		std::string			 	_statusMessage;
 	private:
@@ -44,7 +46,7 @@ class Response	{
 		Version					_version;
 		status::StatusCode		_statusCode;
 
-		std::map<std::string, Header>	_headers;
+		std::map<std::string, ResponseHeader>	_headers;
 		std::vector<char>				_body;
 		size_t							_bodyLength;
 

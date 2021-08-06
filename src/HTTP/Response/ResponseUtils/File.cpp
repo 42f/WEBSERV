@@ -41,12 +41,11 @@ std::ifstream &		File::get_stream() {
 	}
 	*/
 
-	std::ostream &			operator<<( std::ostream & o, File const & i )	{
-(void)i;
+	std::ostream &			operator<<( std::ostream & o, File & i )	{
+
 		char c;
-		std::ifstream		fs("/tmp/file");
-		while (fs.good()) {
-			fs.get(c);
+		while (i.get_stream().good()) {
+			i.get_stream().get(c);
 			o << c;
 		}
 		return o;

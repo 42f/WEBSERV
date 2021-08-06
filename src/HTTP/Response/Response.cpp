@@ -2,7 +2,7 @@
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-Response::Response() : _version(Version()), _statusCode(status::None) {
+Response::Response() : _version(Version('1', '1')), _statusCode(status::None) {
 }
 
 Response::Response( Version version, status::StatusCode statusCode ) :
@@ -41,16 +41,12 @@ void	Response::clearBody()	{
 
 void	Response::update_BodyLen()  {
 	_bodyLength = _body.size();
-	setHeader( Header(slice("Content-Length"), slice("42")) );
-
-	setHeader(Header(_statusMessage, _statusMessage));
-
 }
 
 void	Response::setVersion( const Version& version )	{ _version = version; }
 
-void	Response::setHeader(const Header& header) {
-	_headers.insert(std::make_pair(header.name(), header));
+void	Response::setHeader(ResponseHeader newHeader) {
+	_headers.insert(std::make_pair(newHeader.field(), newHeader) );
 }
 
 void	Response::setStatus( const status::StatusCode &statusCode )	{
@@ -106,7 +102,7 @@ std::ostream &	operator<<( std::ostringstream & o, Response const & i )	{
 
 	// Writes headers
 	if (i._headers.empty() == false)	{
-		for (std::map<std::string, Header>::const_iterator it = i._headers.begin();
+		for (std::map<std::string, ResponseHeader>::const_iterator it = i._headers.begin();
 													it != i._headers.end(); it++)	{
 			o << it->second << "\r\n";
 		}

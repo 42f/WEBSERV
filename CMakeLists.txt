@@ -29,6 +29,8 @@ set(FILES
         src/HTTP/Response/Response.hpp
         src/HTTP/Response/ResponseHandler.cpp
         src/HTTP/Response/ResponseHandler.hpp
+        src/HTTP/Response/ResponseUtils/ResponseHeader.cpp
+        src/HTTP/Response/ResponseUtils/ResponseHeader.hpp
         src/HTTP/Response/ResponseUtils/File.cpp
         src/HTTP/Response/ResponseUtils/File.hpp
 

@@ -38,6 +38,8 @@ ResponseHandler::result_type		ResponseHandler::processRequest() {
 		io << f;
 		io >> _response;
 
+		_response.setHeader(ResponseHeader(headerTitle::Content_Length, "4242"));
+
 		_response.setStatus(status::Ok);
 		_result = result_type(_response);
 	}

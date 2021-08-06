@@ -21,6 +21,7 @@
 #include "Status.hpp"
 #include "Response.hpp"
 #include "ResponseUtils/File.hpp"
+#include "ResponseUtils/ResponseHeader.hpp"
 
 
 namespace response_status

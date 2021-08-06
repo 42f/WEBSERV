@@ -15,12 +15,10 @@ namespace fileHandler {
 
 	class File	{
 
-		friend std::ostream &	operator<<( std::ostream & o, File const & i );
 
 		public:
 
 			std::ifstream &			get_stream(void);
-			std::ifstream const &	get_stream(void) const;
 
 			File(  std::string const & path  );
 			~File( void );
@@ -36,5 +34,6 @@ namespace fileHandler {
 
 		};
 
+		std::ostream &	operator<<( std::ostream & o, File  & i );
 
 } // --- end of namespace fileHandler

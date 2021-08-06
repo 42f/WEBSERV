@@ -1,0 +1,25 @@
+{
+	// See https://go.microsoft.com/fwlink/?LinkId=733558
+	// for the documentation about the tasks.json format
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "GO_BUILD",
+			"type": "shell",
+			"command": "cmake ${workspaceFolder} ; make ; ./webserv webserv_macm1.config",
+			"presentation": {
+                "reveal": "always"
+                // "panel": "new"
+            }
+		}
+		{
+			"label": "SEND_REQUEST",
+			"type": "shell",
+			"command": "curl -H \"Host: www.patate.fr\" -v localhost:18000",
+			"presentation": {
+                "reveal": "always"
+                // "panel": "new"
+            }
+		}
+	]
+}
