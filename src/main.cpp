@@ -147,6 +147,7 @@ void exit_server(int sig) {
 }
 
 int main(int ac, char **av) {
+    srand (time(NULL));
     signal(SIGINT, &exit_server);
     std::string path;
     switch (ac) {
@@ -171,7 +172,7 @@ int main(int ac, char **av) {
     std::set<int> ports = network::ServerPool::getPorts();
     std::vector<network::ServerSocket> sockets(ports.begin(), ports.end());
 
-    network::Poll p(sockets);
+    network::Poll p(sockets, 6);
     p.run_servers(sockets);
 //---
 

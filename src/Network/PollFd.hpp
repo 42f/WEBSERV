@@ -20,6 +20,7 @@ class PollFd {
     bool is_acceptable(int index);
     bool is_readable(int index);
     bool is_writable(int index);
+    void close(int fd);
 
     int get_nb_ssocket(void) const;
     int get_size(void) const;

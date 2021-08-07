@@ -12,11 +12,12 @@
 
 #include "PollFd.hpp"
 #include "ServerSocket.hpp"
+#include "ThreadPool.hpp"
 
 namespace network {
 class Poll {
    public:
-    Poll(std::vector<network::ServerSocket> s);
+    Poll(std::vector<network::ServerSocket> s, int _size_tpool);
     ~Poll();
 
     void run_servers(std::vector<network::ServerSocket> s);
@@ -28,6 +29,7 @@ class Poll {
    private:
     Poll(void);
     PollFd _fds;
+    ThreadPool _tpool;
 };
 }  // namespace network
 

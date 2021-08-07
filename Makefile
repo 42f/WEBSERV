@@ -969,6 +969,54 @@ src/Network/Socket.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Socket.cpp.s
 .PHONY : src/Network/Socket.cpp.s
 
+src/Network/Thread.o: src/Network/Thread.cpp.o
+.PHONY : src/Network/Thread.o
+
+# target to build an object file
+src/Network/Thread.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Thread.cpp.o
+.PHONY : src/Network/Thread.cpp.o
+
+src/Network/Thread.i: src/Network/Thread.cpp.i
+.PHONY : src/Network/Thread.i
+
+# target to preprocess a source file
+src/Network/Thread.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Thread.cpp.i
+.PHONY : src/Network/Thread.cpp.i
+
+src/Network/Thread.s: src/Network/Thread.cpp.s
+.PHONY : src/Network/Thread.s
+
+# target to generate assembly for a file
+src/Network/Thread.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Thread.cpp.s
+.PHONY : src/Network/Thread.cpp.s
+
+src/Network/ThreadPool.o: src/Network/ThreadPool.cpp.o
+.PHONY : src/Network/ThreadPool.o
+
+# target to build an object file
+src/Network/ThreadPool.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/ThreadPool.cpp.o
+.PHONY : src/Network/ThreadPool.cpp.o
+
+src/Network/ThreadPool.i: src/Network/ThreadPool.cpp.i
+.PHONY : src/Network/ThreadPool.i
+
+# target to preprocess a source file
+src/Network/ThreadPool.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/ThreadPool.cpp.i
+.PHONY : src/Network/ThreadPool.cpp.i
+
+src/Network/ThreadPool.s: src/Network/ThreadPool.cpp.s
+.PHONY : src/Network/ThreadPool.s
+
+# target to generate assembly for a file
+src/Network/ThreadPool.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/ThreadPool.cpp.s
+.PHONY : src/Network/ThreadPool.cpp.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -1491,6 +1539,12 @@ help:
 	@echo "... src/Network/Socket.o"
 	@echo "... src/Network/Socket.i"
 	@echo "... src/Network/Socket.s"
+	@echo "... src/Network/Thread.o"
+	@echo "... src/Network/Thread.i"
+	@echo "... src/Network/Thread.s"
+	@echo "... src/Network/ThreadPool.o"
+	@echo "... src/Network/ThreadPool.i"
+	@echo "... src/Network/ThreadPool.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

@@ -3,14 +3,16 @@
 namespace network {
 PollFd::PollFd(void) {}
 
-PollFd::PollFd(std::vector<network::ServerSocket> s) : _timeout(0), _capacity(0), _size(0), _nb_socket(0), _nb_ready(0), _request_nb(0) {
+PollFd::PollFd(std::vector<network::ServerSocket> s)
+    : _timeout(-1), _capacity(0), _nb_socket(0), _nb_ready(0), _request_nb(0) {
     _fds = new struct pollfd[s.size()];
-    _size = s.size();
+    _size = 0;
     for (std::vector<network::ServerSocket>::iterator it = s.begin();
          it != s.end(); it++) {
         _fds[_size].fd = it->get_id();
         _fds[_size].events = POLLIN;
         _sockets.push_back(Socket(it->get_id(), fd_status::is_listener));
+        _size++;
     }
     _nb_socket = _size;
     _capacity = _size;
@@ -40,12 +42,13 @@ void PollFd::set_status(int index, fd_status::status status) {
 
 void PollFd::add(network::Socket socket) {
     struct pollfd *tmp;
-    if (_size >= _capacity) {
+    if (_size + 1 >= _capacity) {
         if (_capacity == 0) {
             _capacity = 1;
             tmp = new struct pollfd[_capacity];
         } else {
-            tmp = new struct pollfd[_capacity * 2];
+            _capacity *= 2;
+            tmp = new struct pollfd[_capacity];
         }
         for (int i = 0; i < _size; i++) {
             tmp[i] = _fds[i];
@@ -101,5 +104,13 @@ bool PollFd::is_writable(int i) {
         return (true);
     }
     return (false);
+}
+
+void PollFd::close(int fd) {
+    for (int i = 0; i < _size; i++) {
+        if (_sockets[i].get_fd() == fd) {
+            _sockets[i].set_status(fd_status::closed);
+        }
+    }
 }
 }  // namespace network

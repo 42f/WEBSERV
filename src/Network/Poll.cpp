@@ -1,20 +1,33 @@
 #include "Poll.hpp"
 
+#include <stdio.h>
 namespace network {
 
 void *ok(void *args) {
-    struct pollfd *fd = static_cast<struct pollfd *>(args);
-
-    sleep(5);
-    close(fd->fd);
-    fd->fd = -1;
+    network::Thread *self = static_cast<network::Thread *>(args);
+    while (1) {
+        self->thread_sleep();  // sleeps here / wakes up here
+        int ret = send(self->get_fd(), "HTTP/1.1 OK 200\n\n500\n", 21, 0);
+        if (ret > 0) {
+            // int oui = rand() % 10;
+            // if (oui == 1)
+            //     sleep(6);
+            usleep(1000);
+            close(self->get_fd());
+        }
+        self->end_work();  // end sleeps here
+    }
     return (NULL);
 }
 
 /*
  * Constructors and destructor
  */
-Poll::Poll(std::vector<network::ServerSocket> s) : _fds(PollFd(s)) {}
+Poll::Poll(std::vector<network::ServerSocket> s, int tpool_size)
+    : _fds(PollFd(s)) {
+    _tpool.create(tpool_size);
+    _tpool.init(ok);
+}
 Poll::~Poll() {}
 
 /*
@@ -29,11 +42,9 @@ void Poll::check_sockets(std::vector<network::ServerSocket> s) {
             if (_fds.is_acceptable(i)) {
                 int tmp = 0;
                 tmp = s[i].do_accept();
-                // _fds._request_nb++;
+                _fds.set_request_nb(_fds.get_request_nb() + 1);
+//                std::cout << _fds.get_request_nb() << std::endl;
                 _fds.add(Socket(tmp, fd_status::accepted));
-                // std::cout << _request_nb << " request accepted [" << tmp <<
-                // "]"
-                // 		  << std::endl;
                 _fds.set_nb_ready(_fds.get_nb_ready() - 1);
             }
         }
@@ -46,12 +57,10 @@ void Poll::check_requests(void) {
             if (_fds.is_readable(i)) {
                 char buffer[4096];
                 int ret;
-                // std::cout << _request_nb << " reading request" << std::endl;
                 ret = recv(_fds.get_fd(i), buffer, 4096, 0);
                 if (ret <= 0) {
                     _fds.set_status(i, fd_status::error);
                 }
-                // _ready--;
                 _fds.set_status(i, fd_status::read);
                 _fds.set_nb_ready(_fds.get_nb_ready() - 1);
             }
@@ -62,19 +71,45 @@ void Poll::check_requests(void) {
 void Poll::send_response(void) {
     for (int i = _fds.get_nb_ssocket(); i < _fds.get_size(); i++) {
         if (_fds.is_writable(i)) {  // && response is ready)
-            int ret;
-            // std::cout << _request_nb << " writing on request" << std::endl
-            //           << std::endl;
-            ret = send(_fds.get_fd(i), "HTTP/1.1 OK 200\n\n500\n", 21, 0);
-            if (ret > 0) {
-                close(_fds.get_fd(i));
+                                    // while (i < _tpool.size()) {
+            //     if (_tpool[i].get_status() == thread_status::available) {
+            if (_tpool[0].get_status() == thread_status::available) {
+                _tpool[0].set_status(thread_status::busy);
+                std::cout << "thread 0 : " << _fds.get_request_nb() << std::endl;
+                _tpool[0].set_fd(_fds.get_fd(i));
+                _tpool[0].wake();
+                _fds.set_status(i, fd_status::closed);
+            } else if (_tpool[1].get_status() == thread_status::available) {
+                _tpool[1].set_status(thread_status::busy);
+                std::cout << "thread 1 : " << _fds.get_request_nb() << std::endl;
+                _tpool[1].set_fd(_fds.get_fd(i));
+                _tpool[1].wake();
+                _fds.set_status(i, fd_status::closed);
+            } else if (_tpool[2].get_status() == thread_status::available) {
+                _tpool[2].set_status(thread_status::busy);
+                std::cout << "thread 2 : " << _fds.get_request_nb() << std::endl;
+                _tpool[2].set_fd(_fds.get_fd(i));
+                _tpool[2].wake();
+                _fds.set_status(i, fd_status::closed);
+            } else if (_tpool[3].get_status() == thread_status::available) {
+                _tpool[3].set_status(thread_status::busy);
+                std::cout << "thread 3 : " << _fds.get_request_nb() << std::endl;
+                _tpool[3].set_fd(_fds.get_fd(i));
+                _tpool[3].wake();
+                _fds.set_status(i, fd_status::closed);
+            } else if (_tpool[4].get_status() == thread_status::available) {
+                _tpool[4].set_status(thread_status::busy);
+                std::cout << "thread 4 : " << _fds.get_request_nb() << std::endl;
+                _tpool[4].set_fd(_fds.get_fd(i));
+                _tpool[4].wake();
                 _fds.set_status(i, fd_status::closed);
             }
-            // pthread_t t;
-            // pthread_create(&t, NULL, ok, &(_fds.get_fd(i)));
+            //         break ;
+            //     }
+            //     i++;
+            // }
         }
     }
-    _fds.resize();
 }
 
 void Poll::run_servers(std::vector<network::ServerSocket> s) {
@@ -83,6 +118,7 @@ void Poll::run_servers(std::vector<network::ServerSocket> s) {
         check_sockets(s);
         check_requests();
         send_response();
+        _fds.resize();
     }
 }
 

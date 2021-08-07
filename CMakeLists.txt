@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.6)
 project(webserv)
 
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -Wall -Wextra -Werror -g2 -std=c++98")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -g2 -std=c++98")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -g2 -std=c++98 -fsanitize=address -g")
 
 include_directories(
         src
@@ -44,6 +44,10 @@ set(FILES
         src/Network/Poll.cpp
         src/Network/PollFd.hpp
         src/Network/PollFd.cpp
+        src/Network/ThreadPool.hpp
+        src/Network/ThreadPool.cpp
+        src/Network/Thread.hpp
+        src/Network/Thread.cpp
 
         src/parser/combinators.hpp
         src/parser/Error.cpp
