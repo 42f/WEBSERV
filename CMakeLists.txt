@@ -36,6 +36,14 @@ set(FILES
 
         src/Network/ServerPool.hpp
         src/Network/ServerPool.cpp
+        src/Network/ServerSocket.hpp
+        src/Network/ServerSocket.cpp
+        src/Network/Socket.hpp
+        src/Network/Socket.cpp
+        src/Network/Poll.hpp
+        src/Network/Poll.cpp
+        src/Network/PollFd.hpp
+        src/Network/PollFd.cpp
 
         src/parser/combinators.hpp
         src/parser/Error.cpp
