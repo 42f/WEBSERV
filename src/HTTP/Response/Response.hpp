@@ -11,6 +11,7 @@
 #include "Config/Directives/Redirect.hpp"
 
 #include "utils/Logger.hpp"
+#include "HTTP/Response/ResponseUtils/File.hpp"
 #include "HTTP/Request/Request.hpp"
 #include "Status.hpp"
 
@@ -53,5 +54,4 @@ class Response	{
 
 		friend std::ostream&	operator<<( std::ostringstream & o, Response const & i );
 		friend std::istream&	operator>>( std::istream & is, Response& i );
-
 };

@@ -45,7 +45,7 @@ std::set<int>				ServerPool::getPorts( void ) {
 	return ports;
 }
 
-config::Server const&		ServerPool::getMatch( std::string hostHeader ) {
+config::Server const&		ServerPool::getServerMatch( std::string hostHeader ) {
 
 	// clean the host header to get the IP part only
 	std::cout << "header is:    " << hostHeader << std::endl;
@@ -62,6 +62,17 @@ config::Server const&		ServerPool::getMatch( std::string hostHeader ) {
 	return *_serverPool.begin();
 }
 
+static config::Server const&	ServerPool::getLocationMatch( config::Server const & serv,
+															Target const & target ) {
+
+	std::vector<LocationConfig>::const_iterator it = serv.get_locations().begin();
+
+
+
+	for (; it != serv.get_locations().end(); it++ )	{
+		if ( it->path )
+	}
+}
 
 
 /* ................................. OVERLOAD ................................*/

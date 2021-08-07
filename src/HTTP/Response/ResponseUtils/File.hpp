@@ -18,7 +18,8 @@ namespace fileHandler {
 
 		public:
 
-			std::ifstream &			get_stream(void);
+			bool					isGood(void);
+			std::ifstream &			getStream(void);
 
 			File(  std::string const & path  );
 			~File( void );

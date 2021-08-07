@@ -26,8 +26,12 @@ namespace fileHandler {
 
 /* ................................. ACCESSOR ................................*/
 
-std::ifstream &		File::get_stream() {
+std::ifstream &		File::getStream() {
 	return _fileStream;
+}
+
+bool				File::isGood() {
+	return _fileStream.good();
 }
 
 /* ................................. OVERLOAD ................................*/
@@ -44,8 +48,8 @@ std::ifstream &		File::get_stream() {
 	std::ostream &			operator<<( std::ostream & o, File & i )	{
 
 		char c;
-		while (i.get_stream().good()) {
-			i.get_stream().get(c);
+		while (i.getStream().good()) {
+			i.getStream().get(c);
 			o << c;
 		}
 		return o;

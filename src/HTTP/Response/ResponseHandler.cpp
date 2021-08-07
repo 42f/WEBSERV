@@ -27,18 +27,15 @@ ResponseHandler::result_type		ResponseHandler::processRequest() {
 	if (_request.is_ok()) {
 		Request req = _request.unwrap();
 
-		config::Server const& server = network::ServerPool::getMatch(getHeader(req, "Host"));
+		config::Server const& server = network::ServerPool::getServerMatch(getHeader(req, "Host"));
 
 		std::stringstream io;
 
-		io << "[request #" << ResponseHandler::req_counter++ << "] hello , this is a response body. \nAnd a second line\n";
-		io << "The server used was: " << server.get_name();
-
 		fileHandler::File f("./assets/HTML_pages/index.html");
-		io << f;
-		io >> _response;
+		f.getStream() >> _response;
 
-		_response.setHeader(ResponseHeader(headerTitle::Content_Length, "4242"));
+		_response.setHeader(ResponseHeader(headerTitle::Content_Length, _response.getBodyLen()));
+		_response.setHeader(ResponseHeader(headerTitle::Content_Type, "text/html; charset=UTF-8"));
 
 		_response.setStatus(status::Ok);
 		_result = result_type(_response);

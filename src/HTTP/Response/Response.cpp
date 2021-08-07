@@ -79,6 +79,7 @@ Response &		Response::operator=( Response const & rhs )	{
 	return *this;
 }
 
+// TODO opti !!
 // appends the content of istream in the response _body, use clearBody() before if needed.
 std::istream &	operator>>( std::istream & is, Response& inst )	{
 
