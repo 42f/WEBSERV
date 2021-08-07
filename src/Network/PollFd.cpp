@@ -3,15 +3,14 @@
 namespace network {
 PollFd::PollFd(void) {}
 
-PollFd::PollFd(std::vector<network::ServerSocket> s) {
+PollFd::PollFd(std::vector<network::ServerSocket> s) : _timeout(0), _capacity(0), _size(0), _nb_socket(0), _nb_ready(0), _request_nb(0) {
     _fds = new struct pollfd[s.size()];
-    _size = 0;
+    _size = s.size();
     for (std::vector<network::ServerSocket>::iterator it = s.begin();
          it != s.end(); it++) {
         _fds[_size].fd = it->get_id();
         _fds[_size].events = POLLIN;
         _sockets.push_back(Socket(it->get_id(), fd_status::is_listener));
-        _size++;
     }
     _nb_socket = _size;
     _capacity = _size;
@@ -50,6 +49,9 @@ void PollFd::add(network::Socket socket) {
         }
         for (int i = 0; i < _size; i++) {
             tmp[i] = _fds[i];
+        }
+        if (_size > 0) {
+            delete _fds;
         }
         _fds = tmp;
     }
