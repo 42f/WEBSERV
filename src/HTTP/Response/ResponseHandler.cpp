@@ -27,7 +27,7 @@ ResponseHandler::result_type		ResponseHandler::processRequest() {
 	if (_request.is_ok()) {
 		Request req = _request.unwrap();
 
-		config::Server const& server = network::ServerPool::getServerMatch(getHeader(req, "Host"));
+		// config::Server const& server = network::ServerPool::getServerMatch(getHeader(req, "Host"));
 
 		std::stringstream io;
 

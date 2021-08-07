@@ -62,17 +62,19 @@ config::Server const&		ServerPool::getServerMatch( std::string hostHeader ) {
 	return *_serverPool.begin();
 }
 
-static config::Server const&	ServerPool::getLocationMatch( config::Server const & serv,
-															Target const & target ) {
+// config::Server const&	ServerPool::getLocationMatch( config::Server const & serv,
+// 															Target const & target ) {
+//  (void)serv;
+//  (void)target;
 
-	std::vector<LocationConfig>::const_iterator it = serv.get_locations().begin();
+// 	// std::vector<LocationConfig>::const_iterator it = serv.get_locations().begin();
 
 
 
-	for (; it != serv.get_locations().end(); it++ )	{
-		if ( it->path )
-	}
-}
+// 	// for (; it != serv.get_locations().end(); it++ )	{
+// 	// 	if ( it->path )
+// 	// }
+// }
 
 
 /* ................................. OVERLOAD ................................*/
