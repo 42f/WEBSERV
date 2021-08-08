@@ -12,7 +12,7 @@ void *ok(void *args) {
             // int oui = rand() % 10;
             // if (oui == 1)
             //     sleep(6);
-            usleep(1000);
+            // usleep(1000);
             close(self->get_fd());
         }
         self->end_work();  // end sleeps here
@@ -39,14 +39,17 @@ void Poll::do_poll(void) { _fds.do_poll(); }
 void Poll::check_sockets(std::vector<network::ServerSocket> s) {
     if (_fds.get_nb_ready() > 0) {
         for (int i = 0; i < _fds.get_nb_ssocket(); i++) {
-            if (_fds.is_acceptable(i)) {
-                int tmp = 0;
-                tmp = s[i].do_accept();
+            // if (_fds.is_acceptable(i)) {
+            int tmp;
+            tmp = s[i].do_accept();
+            while (tmp > 0) {
+                std::cout << tmp << std::endl;
                 _fds.set_request_nb(_fds.get_request_nb() + 1);
-//                std::cout << _fds.get_request_nb() << std::endl;
                 _fds.add(Socket(tmp, fd_status::accepted));
                 _fds.set_nb_ready(_fds.get_nb_ready() - 1);
+                tmp = s[i].do_accept();
             }
+            // }
         }
     }  // if some sockets are ready
 }
@@ -55,6 +58,8 @@ void Poll::check_requests(void) {
     if (_fds.get_nb_ready() > 0) {
         for (int i = _fds.get_nb_ssocket(); i < _fds.get_size(); i++) {
             if (_fds.is_readable(i)) {
+                // std::cout << _fds.get_request_nb() << " is going to be read"
+                // << std::endl;
                 char buffer[4096];
                 int ret;
                 ret = recv(_fds.get_fd(i), buffer, 4096, 0);
@@ -71,38 +76,44 @@ void Poll::check_requests(void) {
 void Poll::send_response(void) {
     for (int i = _fds.get_nb_ssocket(); i < _fds.get_size(); i++) {
         if (_fds.is_writable(i)) {  // && response is ready)
-                                    // while (i < _tpool.size()) {
+            // std::cout << _fds.get_request_nb() << " is going to be written"
+            // << std::endl; while (i < _tpool.size()) {
             //     if (_tpool[i].get_status() == thread_status::available) {
             if (_tpool[0].get_status() == thread_status::available) {
                 _tpool[0].set_status(thread_status::busy);
-                std::cout << "thread 0 : " << _fds.get_request_nb() << std::endl;
+                _fds.set_status(i, fd_status::closed);
+                // std::cout << "thread 0 : " << _fds.get_request_nb() <<
+                // std::endl;
                 _tpool[0].set_fd(_fds.get_fd(i));
                 _tpool[0].wake();
-                _fds.set_status(i, fd_status::closed);
             } else if (_tpool[1].get_status() == thread_status::available) {
                 _tpool[1].set_status(thread_status::busy);
-                std::cout << "thread 1 : " << _fds.get_request_nb() << std::endl;
+                _fds.set_status(i, fd_status::closed);
+                // std::cout << "thread 1 : " << _fds.get_request_nb() <<
+                // std::endl;
                 _tpool[1].set_fd(_fds.get_fd(i));
                 _tpool[1].wake();
-                _fds.set_status(i, fd_status::closed);
             } else if (_tpool[2].get_status() == thread_status::available) {
                 _tpool[2].set_status(thread_status::busy);
-                std::cout << "thread 2 : " << _fds.get_request_nb() << std::endl;
+                _fds.set_status(i, fd_status::closed);
+                // std::cout << "thread 2 : " << _fds.get_request_nb() <<
+                // std::endl;
                 _tpool[2].set_fd(_fds.get_fd(i));
                 _tpool[2].wake();
-                _fds.set_status(i, fd_status::closed);
             } else if (_tpool[3].get_status() == thread_status::available) {
                 _tpool[3].set_status(thread_status::busy);
-                std::cout << "thread 3 : " << _fds.get_request_nb() << std::endl;
+                _fds.set_status(i, fd_status::closed);
+                // std::cout << "thread 3 : " << _fds.get_request_nb() <<
+                // std::endl;
                 _tpool[3].set_fd(_fds.get_fd(i));
                 _tpool[3].wake();
-                _fds.set_status(i, fd_status::closed);
             } else if (_tpool[4].get_status() == thread_status::available) {
                 _tpool[4].set_status(thread_status::busy);
-                std::cout << "thread 4 : " << _fds.get_request_nb() << std::endl;
+                _fds.set_status(i, fd_status::closed);
+                // std::cout << "thread 4 : " << _fds.get_request_nb() <<
+                // std::endl;
                 _tpool[4].set_fd(_fds.get_fd(i));
                 _tpool[4].wake();
-                _fds.set_status(i, fd_status::closed);
             }
             //         break ;
             //     }

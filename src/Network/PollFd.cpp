@@ -41,6 +41,7 @@ void PollFd::set_status(int index, fd_status::status status) {
 }
 
 void PollFd::add(network::Socket socket) {
+    std::cout << "add has been called" << std::endl;
     struct pollfd *tmp;
     if (_size + 1 >= _capacity) {
         if (_capacity == 0) {
@@ -63,6 +64,8 @@ void PollFd::add(network::Socket socket) {
         _fds[_size].events = POLLIN | POLLOUT;
         _sockets.push_back(Socket(socket.get_fd(), fd_status::accepted));
         _size++;
+    } else {
+        std::cerr << "fd < 0" << std::endl;
     }
 }
 
@@ -77,7 +80,19 @@ void PollFd::resize(void) {
         }
     }
 }
-void PollFd::do_poll(void) { _nb_ready = poll(_fds, _size, _timeout); }
+void PollFd::do_poll(void) {
+    std::cout << "before poll ";
+    for (int i = 0; i < _size; i++) {
+        std::cout << " [" << _fds[i].fd << "] ";
+    }
+    std::cout << "s: " << _size << " c: " << _capacity << " n: " << _request_nb
+              << std::endl;
+    _nb_ready = poll(_fds, _size, _timeout);
+    if (_nb_ready < 0) {
+        perror("Polling");
+    }
+    // std::cout << "Polling done : " << _nb_ready << std::endl;
+}
 
 bool PollFd::is_acceptable(int i) {
     if (i > _size || i < 0) return (false);

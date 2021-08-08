@@ -79,7 +79,7 @@ int ServerSocket::do_bind(void) {
 }
 
 int ServerSocket::do_listen(void) {
-    if (listen(_id, 10) < 0) {
+    if (listen(_id, 10000) < 0) {
         std::cerr << "Error: Listen" << std::endl;
         _is_good = false;
         return (-1);
@@ -93,6 +93,7 @@ int ServerSocket::do_accept(void) {
     struct sockaddr_in client_addr;
     int new_fd;
 
+    // std::cout << "right before being accepted" << std::endl;
     if ((new_fd = accept(get_id(), (struct sockaddr *)&client_addr,
                          &addr_len)) < 0) {
         _is_good = false;
