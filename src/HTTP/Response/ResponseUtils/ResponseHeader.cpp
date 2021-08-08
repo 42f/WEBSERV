@@ -11,17 +11,17 @@ namespace headerTitle {
 
 
 		_fields[headerTitle::Allow] = "Allow";
-		_fields[headerTitle::Content_Language] = "Content_Language";
-		_fields[headerTitle::Content_Length] = "Content_Length";
-		_fields[headerTitle::Content_Location] = "Content_Location";
-		_fields[headerTitle::Content_Type] = "Content_Type";
+		_fields[headerTitle::Content_Language] = "Content-Language";
+		_fields[headerTitle::Content_Length] = "Content-Length";
+		_fields[headerTitle::Content_Location] = "Content-Location";
+		_fields[headerTitle::Content_Type] = "Content-Type";
 		_fields[headerTitle::Date] = "Date";
-		_fields[headerTitle::Last_Modified] = "Last_Modified";
+		_fields[headerTitle::Last_Modified] = "Last-Modified";
 		_fields[headerTitle::Location] = "Location";
-		_fields[headerTitle::Retry_After] = "Retry_After";
+		_fields[headerTitle::Retry_After] = "Retry-After";
 		_fields[headerTitle::Server] = "Server";
-		_fields[headerTitle::Transfer_Encoding] = "Transfer_Encoding";
-		_fields[headerTitle::WWW_Authenticate] = "WWW_Authenticate";
+		_fields[headerTitle::Transfer_Encoding] = "Transfer-Encoding";
+		_fields[headerTitle::WWW_Authenticate] = "WWW-Authenticate";
 
 	}
 
