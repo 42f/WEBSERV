@@ -27,4 +27,13 @@ void Socket::set_has_events(bool value) { _has_events = value; }
 
 void Socket::set_status(fd_status::status status) { _status = status; }
 
+void Socket::manage_raw_request(char *buffer, int size) {
+    std::cout << size << std::endl;
+    Result<Request, status::StatusCode> _res = _handler.update(buffer, size);
+    if (_res.is_ok()) {
+        Request req;
+        req = _res.unwrap();
+    }
+}
+
 }  // namespace network

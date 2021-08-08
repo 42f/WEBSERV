@@ -11,6 +11,7 @@
 
 #include "ServerSocket.hpp"  // network::ServerSockets
 #include "Socket.hpp"        // network::Sockets, fd_status::status
+#include "HTTP/RequestHandler.hpp"
 
 namespace network {
 class EventsManager {

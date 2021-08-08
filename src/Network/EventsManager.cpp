@@ -101,6 +101,7 @@ void EventsManager::do_kevent(void) {
             _sockets.erase(_sockets.begin() + i);
         }
     }
+    delete[] _events;
     _events = new struct kevent[_size];
     _nb_events = kevent(_kq, _monitor, _size, _events, _size, 0);
     if (_nb_events < 0) perror("kevent");
@@ -131,9 +132,7 @@ void EventsManager::add(int fd) {
         for (int i = 0; i < _size; i++) {
             tmp[i] = _monitor[i];
         }
-        if (_size > 0) {
-            delete _monitor;
-        }
+        delete[] _monitor;
         _monitor = tmp;
     }
     if (fd > 0) {
@@ -170,12 +169,16 @@ int EventsManager::recv_request(int index) {
     char buffer[4096];
     int ret;
     ret = recv(_sockets[index].get_fd(), buffer, 4096, 0);
+    _sockets[index].manage_raw_request(buffer, ret);
+    _sockets[index].request = buffer;
     _sockets[index].set_status(fd_status::read);
     return (0);
 }
 
 int EventsManager::send_response(int index) {
-    int ret = send(_sockets[index].get_fd(), "HTTP/1.1 OK 200\n\n500\n", 21, 0);
+    int ret = send(_sockets[index].get_fd(), "HTTP/1.1 OK 200\n\n", 20, 0);
+    ret = send(_sockets[index].get_fd(), _sockets[index].request.c_str(), _sockets[index].request.length(), 0);
+    ret = send(_sockets[index].get_fd(), "\n", 1, 0);
     if (ret > 0) {
         close(_sockets[index].get_fd());
         _sockets[index].set_status(fd_status::closed);
