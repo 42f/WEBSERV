@@ -22,14 +22,15 @@ ResponseHandler::~ResponseHandler( void )	{
 
 ResponseHandler::result_type		ResponseHandler::processRequest() {
 
-// !---- sleep
-// sleep(1);
 	if (_request.is_ok()) {
 		Request req = _request.unwrap();
 
+
+
 		// config::Server const& server = network::ServerPool::getServerMatch(getHeader(req, "Host"));
 
-		std::stringstream io;
+
+
 
 		fileHandler::File f("./assets/HTML_pages/index.html");
 		f.getStream() >> _response;
