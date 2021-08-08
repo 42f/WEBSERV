@@ -144,12 +144,6 @@ void EventsManager::add(int fd) {
         if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
             perror("Set");
         _size++;
-        std::cout << "event_size: " << _size << "event_cap: " << _capacity
-                  << " events : ";
-        for (int i = 0; i < _size; i++) {
-            std::cout << "[" << _monitor[i].ident << " | "
-                      << _sockets[i].get_fd() << "] ";
-        }
         std::cerr << std::endl;
     } else {
         std::cerr << "Error: cannot add fd < 0" << std::endl;
