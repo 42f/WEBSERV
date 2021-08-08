@@ -849,53 +849,53 @@ src/HTTP/Status.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Status.cpp.s
 .PHONY : src/HTTP/Status.cpp.s
 
-src/Network/Poll.o: src/Network/Poll.cpp.o
-.PHONY : src/Network/Poll.o
+src/Network/Core.o: src/Network/Core.cpp.o
+.PHONY : src/Network/Core.o
 
 # target to build an object file
-src/Network/Poll.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Poll.cpp.o
-.PHONY : src/Network/Poll.cpp.o
+src/Network/Core.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Core.cpp.o
+.PHONY : src/Network/Core.cpp.o
 
-src/Network/Poll.i: src/Network/Poll.cpp.i
-.PHONY : src/Network/Poll.i
+src/Network/Core.i: src/Network/Core.cpp.i
+.PHONY : src/Network/Core.i
 
 # target to preprocess a source file
-src/Network/Poll.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Poll.cpp.i
-.PHONY : src/Network/Poll.cpp.i
+src/Network/Core.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Core.cpp.i
+.PHONY : src/Network/Core.cpp.i
 
-src/Network/Poll.s: src/Network/Poll.cpp.s
-.PHONY : src/Network/Poll.s
+src/Network/Core.s: src/Network/Core.cpp.s
+.PHONY : src/Network/Core.s
 
 # target to generate assembly for a file
-src/Network/Poll.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Poll.cpp.s
-.PHONY : src/Network/Poll.cpp.s
+src/Network/Core.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Core.cpp.s
+.PHONY : src/Network/Core.cpp.s
 
-src/Network/PollFd.o: src/Network/PollFd.cpp.o
-.PHONY : src/Network/PollFd.o
+src/Network/EventsManager.o: src/Network/EventsManager.cpp.o
+.PHONY : src/Network/EventsManager.o
 
 # target to build an object file
-src/Network/PollFd.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/PollFd.cpp.o
-.PHONY : src/Network/PollFd.cpp.o
+src/Network/EventsManager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/EventsManager.cpp.o
+.PHONY : src/Network/EventsManager.cpp.o
 
-src/Network/PollFd.i: src/Network/PollFd.cpp.i
-.PHONY : src/Network/PollFd.i
+src/Network/EventsManager.i: src/Network/EventsManager.cpp.i
+.PHONY : src/Network/EventsManager.i
 
 # target to preprocess a source file
-src/Network/PollFd.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/PollFd.cpp.i
-.PHONY : src/Network/PollFd.cpp.i
+src/Network/EventsManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/EventsManager.cpp.i
+.PHONY : src/Network/EventsManager.cpp.i
 
-src/Network/PollFd.s: src/Network/PollFd.cpp.s
-.PHONY : src/Network/PollFd.s
+src/Network/EventsManager.s: src/Network/EventsManager.cpp.s
+.PHONY : src/Network/EventsManager.s
 
 # target to generate assembly for a file
-src/Network/PollFd.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/PollFd.cpp.s
-.PHONY : src/Network/PollFd.cpp.s
+src/Network/EventsManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/EventsManager.cpp.s
+.PHONY : src/Network/EventsManager.cpp.s
 
 src/Network/ServerPool.o: src/Network/ServerPool.cpp.o
 .PHONY : src/Network/ServerPool.o
@@ -1524,12 +1524,12 @@ help:
 	@echo "... src/HTTP/Status.o"
 	@echo "... src/HTTP/Status.i"
 	@echo "... src/HTTP/Status.s"
-	@echo "... src/Network/Poll.o"
-	@echo "... src/Network/Poll.i"
-	@echo "... src/Network/Poll.s"
-	@echo "... src/Network/PollFd.o"
-	@echo "... src/Network/PollFd.i"
-	@echo "... src/Network/PollFd.s"
+	@echo "... src/Network/Core.o"
+	@echo "... src/Network/Core.i"
+	@echo "... src/Network/Core.s"
+	@echo "... src/Network/EventsManager.o"
+	@echo "... src/Network/EventsManager.i"
+	@echo "... src/Network/EventsManager.s"
 	@echo "... src/Network/ServerPool.o"
 	@echo "... src/Network/ServerPool.i"
 	@echo "... src/Network/ServerPool.s"

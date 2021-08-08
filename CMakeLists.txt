@@ -40,10 +40,10 @@ set(FILES
         src/Network/ServerSocket.cpp
         src/Network/Socket.hpp
         src/Network/Socket.cpp
-        src/Network/Poll.hpp
-        src/Network/Poll.cpp
-        src/Network/PollFd.hpp
-        src/Network/PollFd.cpp
+        src/Network/Core.hpp
+        src/Network/Core.cpp
+        src/Network/EventsManager.hpp
+        src/Network/EventsManager.cpp
         src/Network/ThreadPool.hpp
         src/Network/ThreadPool.cpp
         src/Network/Thread.hpp

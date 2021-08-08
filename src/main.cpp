@@ -20,7 +20,7 @@
 #include "HTTP/RequestHandler.hpp"
 #include "HTTP/Response/Response.hpp"
 #include "HTTP/Response/ResponseHandler.hpp"
-#include "Network/Poll.hpp"
+#include "Network/Core.hpp"
 #include "Network/ServerPool.hpp"
 #include "utils/Logger.hpp"
 
@@ -167,13 +167,11 @@ int main(int ac, char **av) {
 
 
 //---
-    network::PollFd fds;
-
     std::set<int> ports = network::ServerPool::getPorts();
     std::vector<network::ServerSocket> sockets(ports.begin(), ports.end());
 
-    network::Poll p(sockets, 6);
-    p.run_servers(sockets);
+    network::Core core(sockets, 6);
+    core.run_servers();
 //---
 
     return 0;

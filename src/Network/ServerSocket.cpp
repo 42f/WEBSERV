@@ -79,7 +79,7 @@ int ServerSocket::do_bind(void) {
 }
 
 int ServerSocket::do_listen(void) {
-    if (listen(_id, 10000) < 0) {
+    if (listen(_id, 1024) < 0) {
         std::cerr << "Error: Listen" << std::endl;
         _is_good = false;
         return (-1);

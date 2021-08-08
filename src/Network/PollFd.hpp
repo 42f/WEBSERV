@@ -1,7 +1,9 @@
 #ifndef NETWORK_POLLFD_HPP
 #define NETWORK_POLLFD_HPP
 
-#include <poll.h>
+#include <sys/event.h>
+#include <sys/time.h>
+#include <sys/types.h>
 
 #include <vector>
 
@@ -23,14 +25,15 @@ class PollFd {
     void close(int fd);
 
     int get_nb_ssocket(void) const;
+    int get_max_ssocket(void) const;
     int get_size(void) const;
     int get_timeout(void) const;
     int get_capacity(void) const;
     int get_nb_ready(void) const;
     int get_request_nb(void) const;
     int get_fd(int index) const;
-    int get_events(int index) const;
-    int get_revents(int index) const;
+    struct kevent get_events(int index) const;
+    // int get_revents(int index) const;
 
     void set_nb_ssocket(int value);
     void set_size(int value);
@@ -47,7 +50,10 @@ class PollFd {
     int _nb_socket;
     int _nb_ready;
     int _request_nb;
-    struct pollfd *_fds;
+    int _kq;
+    int _max_socket;
+    struct kevent *_monitor;
+    struct kevent *_events;
     std::vector<network::Socket> _sockets;
 };
 // int _timeout; 			timeout value for poll()
