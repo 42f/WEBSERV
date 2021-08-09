@@ -1,6 +1,6 @@
 #include "File.hpp"
 
-namespace fileHandler {
+namespace  files {
 
 /* ............................... CONSTRUCTOR ...............................*/
 

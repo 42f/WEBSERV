@@ -1,23 +1,24 @@
 #pragma once
 
-# include "File"
+# include "File.hpp"
 # include <iostream>
 # include <string>
+# include <map>
 
 namespace files {
 
 	class TypesMime	{
 
-			typdef	std::map<std::string, std::string> 	typesMap;
+			typedef	std::map<std::string, std::string> 	typesMap;
 		public:
 
 			static bool	init( File & conf_mime );
 			~TypesMime( void );
 
-			static std::string & const	getMime(std::string & const extension) const;
+			// static std::string & 	getMime(std::string & const extension);
 
 		private:
-			static std::map<std::string, std::string>	types;
+			static typesMap	types;
 
 			TypesMime( void );
 			TypesMime( TypesMime const & src );

@@ -38,7 +38,7 @@ void	ResponseHandler::processRequest() {
 
 
 
-		fileHandler::File f("./assets/HTML_pages/index.html");
+		files::File f("./assets/HTML_pages/index.html");
 		f.getStream() >> _response;
 
 		_response.setHeader(ResponseHeader(headerTitle::Content_Length, _response.getBodyLen()));

@@ -6,7 +6,7 @@ namespace files {
 
 bool	TypesMime::init( File & conf_mine )	{
 
-	if conf_mine.isGood() {
+	if (conf_mine.isGood()) {
 		while (conf_mine.isGood()) {
 			// READ CONF FILE, POPULATE MAP
 		}
@@ -34,14 +34,14 @@ TypesMime::~TypesMime( void )	{
 
 /* ................................. ACCESSOR ................................*/
 
-std::string & const	TypesMine::getMime(std::string & const extension) const {
+// std::string & 	files::TypesMime::getMime(std::string & const extension) {
 
-	typesMap::iterator	it = types.find(extension);
-	if (it == types.end())
-		return "";
-	else
-		return it->second;
-}
+// 	typesMap::iterator	it = types.find(extension);
+// 	if (it == types.end())
+// 		return "";
+// 	else
+// 		return it->second;
+// }
 
 /* ................................. OVERLOAD ................................*/
 
