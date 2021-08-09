@@ -27,6 +27,7 @@ void	ServerPool::init(const std::string & configFilePath) {
 	_serverPool = config::parse(configFilePath);
 }
 
+// ! WIP ------------------------------------------------
 void	ServerPool::locationsInit(config::Server &serv) {
 
 	std::vector<LocationConfig> locations = serv.get_locations();
@@ -36,7 +37,7 @@ void	ServerPool::locationsInit(config::Server &serv) {
 		std::vector<LocationConfig>::iterator it = locations.begin();
 		std::vector<LocationConfig>::iterator ite = locations.end();
 		for (; it != ite; it++) {
-			// it->_root = (it->root.empty()) ? serv.get_root() : it->root;
+			it->_root.assign((it->_root.empty()) ? serv.get_root() : it->_root);
 		}
 
 	}

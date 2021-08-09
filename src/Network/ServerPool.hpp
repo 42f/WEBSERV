@@ -11,8 +11,6 @@ namespace network {
 
 	class ServerPool	{
 
-		friend class LocationConfig;
-
 		public:
 
 			static void		init(const std::string & configFilePath);

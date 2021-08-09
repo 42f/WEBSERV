@@ -21,14 +21,18 @@
 #include "Upload.hpp"
 
 #include "Config/Server.hpp"
-#include "Network/ServerPool.hpp"
 
 #include <limits>
+namespace network {
+	class ServerPool;
+}
 
 class LocationConfig
 {
-	friend void locationsInit(config::Server &serv);
 private:
+
+	friend class network::ServerPool;
+
 	std::string				_path;
 	methods::Methods		_methods;
 	bool					_auto_index;

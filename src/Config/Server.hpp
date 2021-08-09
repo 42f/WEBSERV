@@ -5,6 +5,7 @@
 #ifndef WEBSERV_CONFIG_SERVER_HPP
 #define WEBSERV_CONFIG_SERVER_HPP
 
+class LocationConfig;
 #include "Config/Directives/Location.hpp"
 #include "HTTP/Request/Request.hpp"
 #include <map>
