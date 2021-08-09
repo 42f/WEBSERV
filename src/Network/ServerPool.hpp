@@ -26,17 +26,18 @@ namespace network {
 
 		private:
 
-			void			locationsInit(config::Server &serv);
+			static void		locationsInit(config::Server &serv);
 			static std::vector<config::Server>		_serverPool;
 
 			ServerPool( void );
 			ServerPool( ServerPool const & src );
 			ServerPool &		operator=( ServerPool const & rhs );
 
+			static void 		debugPrint( void ) ;
 
+			// friend std::ostream &	operator<<( std::ostream & o, ServerPool const & i );
 
 		};
 
-		//std::ostream &			operator<<( std::ostream & o, ServerPool const & i );
 
 } // --- end of namespace network
