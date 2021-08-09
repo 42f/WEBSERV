@@ -21,8 +21,10 @@ namespace headerTitle {
 		Transfer_Encoding,
 		WWW_Authenticate
 	};
+}
 
-	class HeaderTitleField {
+// TODO ------------ REMOVE ? --------------------------------------------------
+/*	class HeaderTitleField {
 
 		public:
 			static std::string& get(Title title);
@@ -33,7 +35,6 @@ namespace headerTitle {
 
 			HeaderTitleField();
 
-	};
 
 	class DefaultValues {
 
@@ -61,7 +62,7 @@ class ResponseHeader	{
 		ResponseHeader( headerTitle::Title title, std::string value = "" );
 		ResponseHeader( ResponseHeader const & src );
 
-		header_t&		getData( void );
+		header_t&			getData( void );
 		const std::string&	field( void ) const;
 		const std::string&	value( void ) const;
 
@@ -74,4 +75,4 @@ class ResponseHeader	{
 		ResponseHeader( void );
 		ResponseHeader &		operator=( ResponseHeader const & rhs );
 };
-
+*/

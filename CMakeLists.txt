@@ -33,6 +33,8 @@ set(FILES
         src/HTTP/Response/ResponseUtils/ResponseHeader.hpp
         src/HTTP/Response/ResponseUtils/File.cpp
         src/HTTP/Response/ResponseUtils/File.hpp
+        src/HTTP/Response/ResponseUtils/TypesMime.cpp
+        src/HTTP/Response/ResponseUtils/TypesMime.hpp
 
         src/Network/ServerPool.hpp
         src/Network/ServerPool.cpp
