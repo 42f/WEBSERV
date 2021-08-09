@@ -17,7 +17,8 @@ namespace network {
 
 			static std::vector<config::Server> const &	getPool( void );
 			static std::set<int>						getPorts( void );
-			static config::Server const&	getServerMatch( std::string hostHeader );
+			static config::Server const&	getServerMatch( std::string hostHeader,
+																int receivedPort );
 			// static Result<Target> const&	getLocationMatch( config::Server const & serv,
 			// 												Target const & target );
 

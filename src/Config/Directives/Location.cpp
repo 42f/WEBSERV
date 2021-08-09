@@ -195,7 +195,7 @@ Head::Head() { }
 
 Head::result_type Head::operator()(const slice &input)
 {
-	return preceded(sequence(Tag("Location"), rws), take_until_match(rws))(input);
+	return preceded(sequence(Tag("location"), rws), take_until_match(rws))(input);
 }
 
 /* ************************************************************************** */

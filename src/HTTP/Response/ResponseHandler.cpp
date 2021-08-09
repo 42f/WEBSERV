@@ -4,7 +4,8 @@
 
 int	ResponseHandler::req_counter = 0;
 
-ResponseHandler::ResponseHandler( ReqResult requestResult ) :
+ResponseHandler::ResponseHandler( ReqResult requestResult, int receivedPort ) :
+										_port(receivedPort),
 										_request(requestResult),
 										_status(response_status::Empty) {
 }
@@ -12,6 +13,7 @@ ResponseHandler::ResponseHandler( ReqResult requestResult ) :
 /* ..............................COPY CONSTRUCTOR.............................*/
 
 ResponseHandler::ResponseHandler( void ) :
+									_port(0),
 									_request(ReqResult()),
 									_status(response_status::Empty)	{
 }
@@ -22,7 +24,8 @@ ResponseHandler::~ResponseHandler( void ) {}
 
 /* ................................. METHODS .................................*/
 
-void	ResponseHandler::init( ReqResult requestResult ) {
+void	ResponseHandler::init( ReqResult requestResult, int receivedPort ) {
+	_port = receivedPort;
 	_request = requestResult;
 }
 
@@ -31,12 +34,9 @@ void	ResponseHandler::processRequest() {
 	if (_request.is_ok()) {
 		Request req = _request.unwrap();
 
-
-
-		// config::Server const& server = network::ServerPool::getServerMatch(getHeader(req, "Host"));
-
-
-
+		config::Server const& server = network::ServerPool::getServerMatch(getHeader(req, "Host"), _port);
+		std::cout << "REQUEST MATCHED WITH: " << std::endl;
+		std::cout << server << std::endl;
 
 		files::File f("./assets/HTML_pages/index.html");
 		f.getStream() >> _response;

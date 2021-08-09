@@ -23,7 +23,8 @@
 
 #define BACKLOG		100 //nb of connection queued when listen is called
 #define MAXLINE		1024
-#define SERVER_PORT 18000
+// #define SERVER_PORT 18000
+#define SERVER_PORT 8080
 #define SA struct sockaddr
 
 void	fake_workload( int req_id )	{
@@ -63,7 +64,7 @@ void	conn_reader(int connfd) {
 	std::cout << NC << std::endl;
 
 	// ! Here for Calixte ! //
-	ResponseHandler		respHandler(reqResult);
+	ResponseHandler		respHandler(reqResult, SERVER_PORT);
 
 	//threaded version :
 	pthread_t	t;
@@ -71,7 +72,7 @@ void	conn_reader(int connfd) {
 
 	// Wait for the response to be ready
 	while (respHandler.isReady() == false) {
-		std::cout << "Waiting for response to be processed by thread..." << std::endl;
+		// std::cout << "Waiting for response to be processed by thread..." << std::endl;
 	}
 
 	Response&	responseResult = respHandler.getResponse();

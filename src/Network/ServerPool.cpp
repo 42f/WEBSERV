@@ -72,21 +72,26 @@ std::set<int>				ServerPool::getPorts( void ) {
 	return ports;
 }
 
-config::Server const&		ServerPool::getServerMatch( std::string hostHeader ) {
+config::Server const&		ServerPool::getServerMatch( std::string hostHeader,
+																int receivedPort ) {
 
-	// clean the host header to get the IP part only
-	std::cout << "header is:    " << hostHeader << std::endl;
+	// clean the host header to get the IP/name part only
 	size_t	portPos = hostHeader.find(':');
 	if (portPos != std::string::npos)
 		hostHeader.resize(portPos);
-	std::cout << "trying to match with: " << hostHeader << std::endl;
 
-	std::vector<config::Server>::iterator	it = _serverPool.begin();
-	for (;it != _serverPool.end(); it++)	{
-		if (it->get_address() == hostHeader || it->get_name() == hostHeader)
+	//iterate in reverse order on vector to get the best match
+	std::vector<config::Server>::reverse_iterator	it = _serverPool.rbegin();
+	std::vector<config::Server>::reverse_iterator	bestCandidate = it;
+	for (;it != _serverPool.rend(); it++)	{
+		if (it->get_port() == receivedPort)
+			bestCandidate = it;
+
+		if (it->get_port() == receivedPort
+		&& (it->get_address() == hostHeader || it->get_name() == hostHeader))
 			return *it;
 	}
-	return *_serverPool.begin();
+	return *bestCandidate;
 }
 
 // config::Server const&	ServerPool::getLocationMatch( config::Server const & serv,
@@ -94,13 +99,6 @@ config::Server const&		ServerPool::getServerMatch( std::string hostHeader ) {
 //  (void)serv;
 //  (void)target;
 
-// 	// std::vector<LocationConfig>::const_iterator it = serv.get_locations().begin();
-
-
-
-// 	// for (; it != serv.get_locations().end(); it++ )	{
-// 	// 	if ( it->path )
-// 	// }
 // }
 
 

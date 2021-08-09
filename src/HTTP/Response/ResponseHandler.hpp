@@ -39,18 +39,19 @@ class ResponseHandler	{
 		typedef	RequestHandler::result_type		ReqResult;
 	public:
 
-		void			init( ReqResult requestResult );
+		void			init( ReqResult requestResult, int receivedPort );
 		void	 		processRequest( void );
 		Response & 		getResponse( void );
 		bool		 	isReady( void );
 
 		ResponseHandler( void );
-		ResponseHandler( ReqResult requestResult );
+		ResponseHandler( ReqResult requestResult, int receivedPort );
 		~ResponseHandler( void );
 
 	private:
 
 
+		int		 							_port;
 		ReqResult 							_request;
 		response_status::Status				_status;
 		Response							_response;
