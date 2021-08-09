@@ -57,7 +57,7 @@ struct Version
 	char major;
 	char minor;
 	
-	Version(): major(0), minor(0) { }
+	Version(): major('1'), minor('1') { }
 	Version(char maj, char min): major(maj), minor(min) { }
 	static Version	from_tuple(tuple<char, char> data)
 	{

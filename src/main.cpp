@@ -40,8 +40,9 @@ int main(int ac, char **av)
 		}
 	}
 
-	//tcp::Server	server;
+	tcp::Server	server;
 
-	//server.start();
+	server.start();
 	return 0;
 }
+
