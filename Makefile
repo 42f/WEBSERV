@@ -48,19 +48,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /Users/bvalette/.brew/Cellar/cmake/3.21.1/bin/cmake
+CMAKE_COMMAND = /Users/calide-n/.brew/Cellar/cmake/3.21.1/bin/cmake
 
 # The command to remove a file.
-RM = /Users/bvalette/.brew/Cellar/cmake/3.21.1/bin/cmake -E rm -f
+RM = /Users/calide-n/.brew/Cellar/cmake/3.21.1/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/bvalette/42/REPO
+CMAKE_SOURCE_DIR = /Users/calide-n/Documents/web
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/bvalette/42/REPO
+CMAKE_BINARY_DIR = /Users/calide-n/Documents/web
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -68,7 +68,7 @@ CMAKE_BINARY_DIR = /Users/bvalette/42/REPO
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/Users/bvalette/.brew/Cellar/cmake/3.21.1/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/Users/calide-n/.brew/Cellar/cmake/3.21.1/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -78,7 +78,7 @@ rebuild_cache/fast: rebuild_cache
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/Users/bvalette/.brew/Cellar/cmake/3.21.1/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/Users/calide-n/.brew/Cellar/cmake/3.21.1/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -87,9 +87,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/bvalette/42/REPO/CMakeFiles /Users/bvalette/42/REPO//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/calide-n/Documents/web/CMakeFiles /Users/calide-n/Documents/web//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/bvalette/42/REPO/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/calide-n/Documents/web/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -849,6 +849,54 @@ src/HTTP/Status.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Status.cpp.s
 .PHONY : src/HTTP/Status.cpp.s
 
+src/Network/Core.o: src/Network/Core.cpp.o
+.PHONY : src/Network/Core.o
+
+# target to build an object file
+src/Network/Core.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Core.cpp.o
+.PHONY : src/Network/Core.cpp.o
+
+src/Network/Core.i: src/Network/Core.cpp.i
+.PHONY : src/Network/Core.i
+
+# target to preprocess a source file
+src/Network/Core.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Core.cpp.i
+.PHONY : src/Network/Core.cpp.i
+
+src/Network/Core.s: src/Network/Core.cpp.s
+.PHONY : src/Network/Core.s
+
+# target to generate assembly for a file
+src/Network/Core.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Core.cpp.s
+.PHONY : src/Network/Core.cpp.s
+
+src/Network/EventsManager.o: src/Network/EventsManager.cpp.o
+.PHONY : src/Network/EventsManager.o
+
+# target to build an object file
+src/Network/EventsManager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/EventsManager.cpp.o
+.PHONY : src/Network/EventsManager.cpp.o
+
+src/Network/EventsManager.i: src/Network/EventsManager.cpp.i
+.PHONY : src/Network/EventsManager.i
+
+# target to preprocess a source file
+src/Network/EventsManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/EventsManager.cpp.i
+.PHONY : src/Network/EventsManager.cpp.i
+
+src/Network/EventsManager.s: src/Network/EventsManager.cpp.s
+.PHONY : src/Network/EventsManager.s
+
+# target to generate assembly for a file
+src/Network/EventsManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/EventsManager.cpp.s
+.PHONY : src/Network/EventsManager.cpp.s
+
 src/Network/ServerPool.o: src/Network/ServerPool.cpp.o
 .PHONY : src/Network/ServerPool.o
 
@@ -872,6 +920,102 @@ src/Network/ServerPool.s: src/Network/ServerPool.cpp.s
 src/Network/ServerPool.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/ServerPool.cpp.s
 .PHONY : src/Network/ServerPool.cpp.s
+
+src/Network/ServerSocket.o: src/Network/ServerSocket.cpp.o
+.PHONY : src/Network/ServerSocket.o
+
+# target to build an object file
+src/Network/ServerSocket.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/ServerSocket.cpp.o
+.PHONY : src/Network/ServerSocket.cpp.o
+
+src/Network/ServerSocket.i: src/Network/ServerSocket.cpp.i
+.PHONY : src/Network/ServerSocket.i
+
+# target to preprocess a source file
+src/Network/ServerSocket.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/ServerSocket.cpp.i
+.PHONY : src/Network/ServerSocket.cpp.i
+
+src/Network/ServerSocket.s: src/Network/ServerSocket.cpp.s
+.PHONY : src/Network/ServerSocket.s
+
+# target to generate assembly for a file
+src/Network/ServerSocket.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/ServerSocket.cpp.s
+.PHONY : src/Network/ServerSocket.cpp.s
+
+src/Network/Socket.o: src/Network/Socket.cpp.o
+.PHONY : src/Network/Socket.o
+
+# target to build an object file
+src/Network/Socket.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Socket.cpp.o
+.PHONY : src/Network/Socket.cpp.o
+
+src/Network/Socket.i: src/Network/Socket.cpp.i
+.PHONY : src/Network/Socket.i
+
+# target to preprocess a source file
+src/Network/Socket.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Socket.cpp.i
+.PHONY : src/Network/Socket.cpp.i
+
+src/Network/Socket.s: src/Network/Socket.cpp.s
+.PHONY : src/Network/Socket.s
+
+# target to generate assembly for a file
+src/Network/Socket.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Socket.cpp.s
+.PHONY : src/Network/Socket.cpp.s
+
+src/Network/Thread.o: src/Network/Thread.cpp.o
+.PHONY : src/Network/Thread.o
+
+# target to build an object file
+src/Network/Thread.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Thread.cpp.o
+.PHONY : src/Network/Thread.cpp.o
+
+src/Network/Thread.i: src/Network/Thread.cpp.i
+.PHONY : src/Network/Thread.i
+
+# target to preprocess a source file
+src/Network/Thread.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Thread.cpp.i
+.PHONY : src/Network/Thread.cpp.i
+
+src/Network/Thread.s: src/Network/Thread.cpp.s
+.PHONY : src/Network/Thread.s
+
+# target to generate assembly for a file
+src/Network/Thread.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/Thread.cpp.s
+.PHONY : src/Network/Thread.cpp.s
+
+src/Network/ThreadPool.o: src/Network/ThreadPool.cpp.o
+.PHONY : src/Network/ThreadPool.o
+
+# target to build an object file
+src/Network/ThreadPool.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/ThreadPool.cpp.o
+.PHONY : src/Network/ThreadPool.cpp.o
+
+src/Network/ThreadPool.i: src/Network/ThreadPool.cpp.i
+.PHONY : src/Network/ThreadPool.i
+
+# target to preprocess a source file
+src/Network/ThreadPool.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/ThreadPool.cpp.i
+.PHONY : src/Network/ThreadPool.cpp.i
+
+src/Network/ThreadPool.s: src/Network/ThreadPool.cpp.s
+.PHONY : src/Network/ThreadPool.s
+
+# target to generate assembly for a file
+src/Network/ThreadPool.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/Network/ThreadPool.cpp.s
+.PHONY : src/Network/ThreadPool.cpp.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -1380,9 +1524,27 @@ help:
 	@echo "... src/HTTP/Status.o"
 	@echo "... src/HTTP/Status.i"
 	@echo "... src/HTTP/Status.s"
+	@echo "... src/Network/Core.o"
+	@echo "... src/Network/Core.i"
+	@echo "... src/Network/Core.s"
+	@echo "... src/Network/EventsManager.o"
+	@echo "... src/Network/EventsManager.i"
+	@echo "... src/Network/EventsManager.s"
 	@echo "... src/Network/ServerPool.o"
 	@echo "... src/Network/ServerPool.i"
 	@echo "... src/Network/ServerPool.s"
+	@echo "... src/Network/ServerSocket.o"
+	@echo "... src/Network/ServerSocket.i"
+	@echo "... src/Network/ServerSocket.s"
+	@echo "... src/Network/Socket.o"
+	@echo "... src/Network/Socket.i"
+	@echo "... src/Network/Socket.s"
+	@echo "... src/Network/Thread.o"
+	@echo "... src/Network/Thread.i"
+	@echo "... src/Network/Thread.s"
+	@echo "... src/Network/ThreadPool.o"
+	@echo "... src/Network/ThreadPool.i"
+	@echo "... src/Network/ThreadPool.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

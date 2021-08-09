@@ -36,6 +36,18 @@ set(FILES
 
         src/Network/ServerPool.hpp
         src/Network/ServerPool.cpp
+        src/Network/ServerSocket.hpp
+        src/Network/ServerSocket.cpp
+        src/Network/Socket.hpp
+        src/Network/Socket.cpp
+        src/Network/Core.hpp
+        src/Network/Core.cpp
+        src/Network/EventsManager.hpp
+        src/Network/EventsManager.cpp
+        src/Network/ThreadPool.hpp
+        src/Network/ThreadPool.cpp
+        src/Network/Thread.hpp
+        src/Network/Thread.cpp
 
         src/parser/combinators.hpp
         src/parser/Error.cpp
