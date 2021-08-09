@@ -28,8 +28,6 @@ private:
 	Err		*_err;
 	bool	_is_ok;
 
-	Result() : _err(0), _data(0), _is_ok(false) { }
-
 public:
 
 	~Result()
@@ -40,6 +38,7 @@ public:
 			delete _err;
 	}
 
+	Result() : _data(0), _err(0), _is_ok(false) { }
 	Result(Ok d): _data(new Ok(d)), _err(0), _is_ok(true) { }
 	Result(Err e): _data(0), _err(new Err(e)), _is_ok(false) { }
 

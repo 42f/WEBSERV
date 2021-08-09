@@ -4,31 +4,29 @@
 
 int	ResponseHandler::req_counter = 0;
 
-ResponseHandler::ResponseHandler( RequestHandler::result_type & requestResult ) :
+ResponseHandler::ResponseHandler( ReqResult requestResult ) :
 										_request(requestResult),
-										_status(response_status::Empty),
-										_result(result_type::err(status::None)) {
+										_status(response_status::Empty) {
 }
 
 /* ..............................COPY CONSTRUCTOR.............................*/
 
+ResponseHandler::ResponseHandler( void ) :
+									_request(ReqResult()),
+									_status(response_status::Empty)	{
+}
+
 /* ................................ DESTRUCTOR ...............................*/
 
-ResponseHandler::ResponseHandler( void ) :
-									_request(RequestHandler::result_type::err(status::None)),
-									_status(response_status::Empty),
-									_result(result_type::err(status::None)) {
-}
+ResponseHandler::~ResponseHandler( void ) {}
 
 /* ................................. METHODS .................................*/
 
-void	ResponseHandler::init( RequestHandler::result_type & requestResult ) {
-
-
+void	ResponseHandler::init( ReqResult requestResult ) {
 	_request = requestResult;
 }
 
-ResponseHandler::result_type		ResponseHandler::processRequest() {
+void	ResponseHandler::processRequest() {
 
 	if (_request.is_ok()) {
 		Request req = _request.unwrap();
@@ -47,13 +45,11 @@ ResponseHandler::result_type		ResponseHandler::processRequest() {
 		_response.setHeader(ResponseHeader(headerTitle::Content_Type, "text/html; charset=UTF-8"));
 
 		_response.setStatus(status::Ok);
-		_result = result_type(_response);
 	}
 	else
-		_result = result_type (Response(Version('4', '2'), status::BadRequest));
+		_response = Response(Version('4', '2'), status::BadRequest);	// TODO change 4, 2. debugonly
 
 	_status = response_status::Ready;
-	return _result;
 }
 
 // safely returns the value of a header if it exists, an empty string otherwise
@@ -76,8 +72,8 @@ bool	ResponseHandler::isReady() {
  * Returns the result processed. If no call to processRequest was made prior
  * to a call to getResult, result sould not be unwrapped.
 */
-ResponseHandler::result_type &	ResponseHandler::getResult() {
-	return (_result);
+Response &	ResponseHandler::getResponse() {
+	return (_response);
 }
 
 /* ................................. OVERLOAD ................................*/

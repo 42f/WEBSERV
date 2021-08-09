@@ -59,11 +59,11 @@ void	conn_reader(int connfd) {
 	std::cout << NC << std::endl;
 
 	std::cout << BLUE << std::endl;
-	RequestHandler::result_type result = handler.update(request.c_str(), request.length());
+	RequestHandler::result_type reqResult = handler.update(request.c_str(), request.length());
 	std::cout << NC << std::endl;
 
 	// ! Here for Calixte ! //
-	ResponseHandler		respHandler(result);
+	ResponseHandler		respHandler(reqResult);
 
 	//threaded version :
 	pthread_t	t;
@@ -72,21 +72,14 @@ void	conn_reader(int connfd) {
 	// Wait for the response to be ready
 	while (respHandler.isReady() == false) {
 		std::cout << "Waiting for response to be processed by thread..." << std::endl;
-		usleep(30000);
 	}
 
-	ResponseHandler::result_type	responseResult = respHandler.getResult();
-	if (responseResult.is_err()) {
-		Logger::log("Error: Response could not be processed", Logger::toConsole);
-	}
-	else if (responseResult.is_ok()) {
-		Response	resp = responseResult.unwrap();
-		std::ostringstream output;
-		output << resp;
-		write(connfd, output.str().c_str(), output.str().length());
+	Response&	responseResult = respHandler.getResponse();
+	std::ostringstream output;
+	output << responseResult;
+	write(connfd, output.str().c_str(), output.str().length());
 	// !------------------- //
 
-	}
 	close(connfd);
 }
 
