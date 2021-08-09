@@ -4,11 +4,14 @@
 # include <string>
 # include <vector>
 # include <set>
-# include "../Config/Server.hpp"
+
+# include "Config/Directives/Location.hpp"
 
 namespace network {
 
 	class ServerPool	{
+
+		friend class LocationConfig;
 
 		public:
 
@@ -25,6 +28,7 @@ namespace network {
 
 		private:
 
+			void			locationsInit(config::Server &serv);
 			static std::vector<config::Server>		_serverPool;
 
 			ServerPool( void );

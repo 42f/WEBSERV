@@ -20,10 +20,14 @@
 #include "Redirect.hpp"
 #include "Upload.hpp"
 
+#include "Config/Server.hpp"
+#include "Network/ServerPool.hpp"
+
 #include <limits>
 
 class LocationConfig
 {
+	friend void locationsInit(config::Server &serv);
 private:
 	std::string				_path;
 	methods::Methods		_methods;
