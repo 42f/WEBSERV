@@ -5,7 +5,7 @@ namespace network {
 /*
  * Creates a Thread instance, does nothing else
  */
-Thread::Thread(void) : _status(thread_status::error) {
+Thread::Thread(void) : _status(thread_status::available) {
     pthread_mutex_init(&_lock, NULL);
     pthread_cond_init(&_cond, NULL);
 }
@@ -51,12 +51,13 @@ void Thread::detach() {
 
 void Thread::thread_sleep(void) {
     pthread_mutex_lock(&_lock);
-    _status = thread_status::available;
     pthread_cond_wait(&_cond, &_lock);
-    _status = thread_status::busy;
 }
 
-void Thread::end_work(void) { pthread_mutex_unlock(&_lock); }
+void Thread::end_work(void) {
+    _status = thread_status::available;
+    pthread_mutex_unlock(&_lock);
+}
 
 int Thread::wake(void) {
     pthread_mutex_lock(&_lock);
@@ -69,10 +70,15 @@ int Thread::wake(void) {
  *  Returns true if the current instance is joinable. false otherwise
  */
 bool Thread::is_joinable() const { return (_joinable); }
-void Thread::set_fd(int fd) { _fd = fd; }
+// void Thread::set_fd(int fd) { _fd = fd; }
+void Thread::set_number(int value){_number = value;}
+int Thread::get_number(void){return _number; }
 void Thread::set_status(thread_status::status status) { _status = status; }
 
-int Thread::get_fd(void) const { return _fd; }
+// int Thread::get_fd(void) const { return _fd; }
+void Thread::set_socket_index(int index) { _socket_index = index; }
+int Thread::get_socket_index(void) { return _socket_index; }
+
 pthread_t Thread::get_id(void) const { return _id; }
 thread_status::status Thread::get_status(void) const { return _status; }
 
@@ -82,7 +88,7 @@ Thread &Thread::operator=(Thread const &rhs) {
         _lock = rhs._lock;
         _id = rhs._id;
         _joinable = rhs._joinable;
-        _fd = rhs._fd;
+        // _fd = rhs._fd;
     }
     return *this;
 }

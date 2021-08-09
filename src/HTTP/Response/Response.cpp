@@ -118,7 +118,7 @@ std::ostream &	operator<<( std::ostringstream & o, Response const & i )	{
 	}
 
 	// TODO remove or find a cheap way to cut short the body.
-	Logger::log(std::string("Response sent: \n") + o.str(), Logger::toConsole);
+	// Logger::log(std::string("Response sent: \n") + o.str(), Logger::toConsole);
 	return o;
 }
 

@@ -7,6 +7,8 @@
 
 #include <iostream>
 
+#include "Socket.hpp"
+
 namespace thread_status {
 enum status { available, busy, error };
 }
@@ -32,7 +34,10 @@ class Thread {
     void thread_sleep(void);
     void end_work(void);
     int wake(void);
-    void set_fd(int fd);
+    void set_number(int value);
+    int get_number(void);
+    void set_socket_index(int index);
+    int get_socket_index(void);
 
     Thread &operator=(Thread const &rhs);
 
@@ -42,7 +47,8 @@ class Thread {
     pthread_t _id;
     bool _joinable;
     thread_status::status _status;
-    int _fd;
+    int _socket_index;
+    int _number;
 };
 
 }  // namespace network

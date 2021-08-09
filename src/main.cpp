@@ -6,6 +6,7 @@
 #include "HTTP/Response/ResponseHandler.hpp"
 #include "Network/ServerPool.hpp"
 #include "utils/Logger.hpp"
+#include "Network/Core.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -159,7 +160,11 @@ int main(int ac, char **av)
 	network::ServerPool::init(path);
 	Logger::getInstance("./logg", Logger::toConsole);
 
-	simple_listener();
+	std::set<int> ports = network::ServerPool::getPorts();
+    std::vector<network::ServerSocket> sockets(ports.begin(), ports.end());
+
+    network::Core core(sockets, 6);
+    core.run_servers();
 
 	return 0;
 }

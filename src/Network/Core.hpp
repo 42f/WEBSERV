@@ -14,6 +14,7 @@
 #include "ThreadPool.hpp"
 
 namespace network {
+void *ok(void *args);
 class Core {
    public:
     Core(std::vector<network::ServerSocket> s, int _size_tpool);
@@ -27,7 +28,6 @@ class Core {
 
    private:
     Core(void);
-    EventsManager _e_manager;
     ThreadPool _tpool;
     int _nb_events;
 };

@@ -2,6 +2,7 @@
 #define NETWORK_SOCKET_HPP
 
 #include "HTTP/RequestHandler.hpp"
+#include "HTTP/Response/ResponseHandler.hpp"
 
 namespace fd_status {
 enum status { error, listener, accepted, read, written, closed };
@@ -10,6 +11,8 @@ enum status { error, listener, accepted, read, written, closed };
 namespace network {
 class Socket {
    public:
+    typedef Result<Request, status::StatusCode> result_type;
+
     Socket(int fd, fd_status::status status = fd_status::error);
     ~Socket();
     int get_fd() const;
@@ -24,7 +27,7 @@ class Socket {
     bool is_ready(void) const;
     void set_buffer(std::string const &buffer);
     std::string &get_buffer(void);
-
+    Response get_response();
 
    private:
     Socket(void);
@@ -32,8 +35,10 @@ class Socket {
     bool _has_events;
     int _flags;
     fd_status::status _status;
-    RequestHandler _handler;
+    RequestHandler _request_handler;
+    // ResponseHandler _response_handler;
     std::string _buffer;
+    Result<Request, status::StatusCode> _res;
 };
 
 }  // namespace network
