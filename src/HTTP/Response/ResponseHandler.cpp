@@ -5,20 +5,28 @@
 int	ResponseHandler::req_counter = 0;
 
 ResponseHandler::ResponseHandler( RequestHandler::result_type & requestResult ) :
-									_request(requestResult),
-									_status(response_status::Empty),
-									_result(result_type::err(status::None)) {
+										_request(requestResult),
+										_status(response_status::Empty),
+										_result(result_type::err(status::None)) {
 }
 
 /* ..............................COPY CONSTRUCTOR.............................*/
 
 /* ................................ DESTRUCTOR ...............................*/
 
-ResponseHandler::~ResponseHandler( void )	{
+ResponseHandler::ResponseHandler( void ) :
+									_request(RequestHandler::result_type::err(status::None)),
+									_status(response_status::Empty),
+									_result(result_type::err(status::None)) {
 }
 
 /* ................................. METHODS .................................*/
 
+void	ResponseHandler::init( RequestHandler::result_type & requestResult ) {
+
+
+	_request = requestResult;
+}
 
 ResponseHandler::result_type		ResponseHandler::processRequest() {
 
