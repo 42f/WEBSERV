@@ -42,14 +42,15 @@ class ResponseHandler	{
 
 		bool		 	isReady( void );
 		result_type & 	getResult( void );
+		void			init( RequestHandler::result_type & requestResult );
 		result_type 	processRequest( void );
 
+		ResponseHandler( void );
 		ResponseHandler( RequestHandler::result_type & requestResult );
 		~ResponseHandler( void );
 
 	private:
 
-		ResponseHandler( void );
 
 		config::Server&		matchServer(Request const & req);
 		std::string			getHeader(const Request & req, const std::string& target);
