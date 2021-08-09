@@ -36,32 +36,29 @@ namespace response_status
 
 class ResponseHandler	{
 
+		typedef	RequestHandler::result_type		ReqResult;
 	public:
 
-		typedef Result<Response, status::StatusCode>	result_type;
-
+		void			init( ReqResult requestResult );
+		void	 		processRequest( void );
+		Response & 		getResponse( void );
 		bool		 	isReady( void );
-		result_type & 	getResult( void );
-		void			init( RequestHandler::result_type & requestResult );
-		result_type 	processRequest( void );
 
 		ResponseHandler( void );
-		ResponseHandler( RequestHandler::result_type & requestResult );
+		ResponseHandler( ReqResult requestResult );
 		~ResponseHandler( void );
 
 	private:
 
 
-		config::Server&		matchServer(Request const & req);
-		std::string			getHeader(const Request & req, const std::string& target);
-
-		const RequestHandler::result_type &	_request;
+		ReqResult 							_request;
 		response_status::Status				_status;
 		Response							_response;
-		result_type							_result;
-
 		// ! TODO remove, debug only
-		static int		req_counter;
+		static int							req_counter;
+
+		config::Server&		matchServer(Request const & req);
+		std::string			getHeader(const Request & req, const std::string& target);
 
 		ResponseHandler( ResponseHandler const & src );
 		ResponseHandler &		operator=( ResponseHandler const & rhs );

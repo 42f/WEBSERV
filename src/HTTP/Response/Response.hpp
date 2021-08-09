@@ -20,6 +20,7 @@ class Response	{
 
 	public:
 
+
 		Response( void );
 		Response( Response const & src );
 		Response( Version version, status::StatusCode statusCode );
