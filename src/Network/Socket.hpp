@@ -22,7 +22,9 @@ class Socket {
     void manage_raw_request(char *buffer, int size);
 
     bool is_ready(void) const;
-	std::string request;
+    void set_buffer(std::string const &buffer);
+    std::string &get_buffer(void);
+
 
    private:
     Socket(void);
@@ -31,6 +33,7 @@ class Socket {
     int _flags;
     fd_status::status _status;
     RequestHandler _handler;
+    std::string _buffer;
 };
 
 }  // namespace network

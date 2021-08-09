@@ -36,4 +36,12 @@ void Socket::manage_raw_request(char *buffer, int size) {
     }
 }
 
+void Socket::set_buffer(std::string const &buffer) {
+    _buffer = buffer;
+}
+
+std::string &Socket::get_buffer(void) {
+    return (_buffer);
+}
+
 }  // namespace network
