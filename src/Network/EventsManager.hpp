@@ -3,7 +3,7 @@
 
 #define KQUEUE 0
 #define SELECT 1
-#define POLL_FN KQUEUE
+#define POLL_FN SELECT
 
 #define ACCEPTFL 1
 #define READFL 2
