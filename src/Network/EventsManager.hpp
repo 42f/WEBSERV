@@ -35,6 +35,7 @@ class EventsManager {
     static Socket &get_socket(int index);
     static int get_total_requests(void);
     static unsigned long get_size(void);
+    static s_kevent get_event_struct(int id);
 
    private:
     static void add(int fd);
@@ -45,7 +46,7 @@ class EventsManager {
     static int _total_requests;
     static s_kevent *_events;
     static s_kevent *_monitor;
-    static std::vector<Socket> _sockets;
+    static std::map<int, Socket> _sockets;
 };
 }  // namespace network
 

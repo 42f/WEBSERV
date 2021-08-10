@@ -5,7 +5,7 @@ namespace network {
 /*
  * Creates a Thread instance, does nothing else
  */
-Thread::Thread(void) : _status(thread_status::available) {
+Thread::Thread(void) : _status(thread_status::available), _number(0) {
     pthread_mutex_init(&_lock, NULL);
     pthread_cond_init(&_cond, NULL);
 }
@@ -71,13 +71,14 @@ int Thread::wake(void) {
  */
 bool Thread::is_joinable() const { return (_joinable); }
 // void Thread::set_fd(int fd) { _fd = fd; }
-void Thread::set_number(int value){_number = value;}
-int Thread::get_number(void){return _number; }
+void Thread::set_number(int value) { _number = value; }
+int Thread::get_number(void) { return _number; }
 void Thread::set_status(thread_status::status status) { _status = status; }
 
 // int Thread::get_fd(void) const { return _fd; }
-void Thread::set_socket(Socket const & socket) { _socket = socket; }
-Socket &Thread::get_socket(void) { return _socket; }
+
+void Thread::set_key(int value) {_key = value;}
+int Thread::get_key(void) {return _key;}
 
 pthread_t Thread::get_id(void) const { return _id; }
 thread_status::status Thread::get_status(void) const { return _status; }
