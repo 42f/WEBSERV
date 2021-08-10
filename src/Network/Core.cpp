@@ -74,15 +74,10 @@ void Core::check_responses(void) {
 
 void Core::run_servers(void) {
     for (;;) {
-        std::cout << "update" << std::endl;
         update_events();
-        std::cout << "sockets" << std::endl;
         check_sockets();
-        std::cout << "requests" << std::endl;
         check_requests();
-        std::cout << "responses" << std::endl;
         check_responses();
-        std::cout << "end loop" << std::endl;
     }
 }
 
