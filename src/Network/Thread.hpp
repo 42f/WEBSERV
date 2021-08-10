@@ -36,8 +36,9 @@ class Thread {
     int wake(void);
     void set_number(int value);
     int get_number(void);
-    void set_socket_index(int index);
-    int get_socket_index(void);
+
+    void set_socket(Socket const &socket);
+    Socket &get_socket(void);
 
     Thread &operator=(Thread const &rhs);
 
@@ -47,7 +48,7 @@ class Thread {
     pthread_t _id;
     bool _joinable;
     thread_status::status _status;
-    int _socket_index;
+    Socket _socket;
     int _number;
 };
 

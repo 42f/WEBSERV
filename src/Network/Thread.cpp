@@ -76,8 +76,8 @@ int Thread::get_number(void){return _number; }
 void Thread::set_status(thread_status::status status) { _status = status; }
 
 // int Thread::get_fd(void) const { return _fd; }
-void Thread::set_socket_index(int index) { _socket_index = index; }
-int Thread::get_socket_index(void) { return _socket_index; }
+void Thread::set_socket(Socket const & socket) { _socket = socket; }
+Socket &Thread::get_socket(void) { return _socket; }
 
 pthread_t Thread::get_id(void) const { return _id; }
 thread_status::status Thread::get_status(void) const { return _status; }

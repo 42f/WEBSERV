@@ -21,12 +21,12 @@ class Core {
     ~Core();
 
     void run_servers(void);
+
+   private:
     void update_events(void);
     void check_sockets(void);
     void check_requests(void);
     void check_responses(void);
-
-   private:
     Core(void);
     ThreadPool _tpool;
     int _nb_events;
