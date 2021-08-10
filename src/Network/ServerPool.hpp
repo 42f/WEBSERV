@@ -4,6 +4,7 @@
 # include <string>
 # include <vector>
 # include <set>
+# include <algorithm>
 
 # include "Config/Directives/Location.hpp"
 
@@ -19,8 +20,8 @@ namespace network {
 			static std::set<int>						getPorts( void );
 			static config::Server const&	getServerMatch( std::string hostHeader,
 																int receivedPort );
-			// static Result<Target> const&	getLocationMatch( config::Server const & serv,
-			// 												Target const & target );
+			static LocationConfig const		getLocationMatch( config::Server const & serv,
+															Target const & target );
 
 			~ServerPool( void );
 

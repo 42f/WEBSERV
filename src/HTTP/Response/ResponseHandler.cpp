@@ -4,10 +4,8 @@
 
 int	ResponseHandler::req_counter = 0;
 
-ResponseHandler::ResponseHandler( ReqResult requestResult, int receivedPort ) :
-										_port(receivedPort),
-										_request(requestResult),
-										_status(response_status::Empty) {
+ResponseHandler::ResponseHandler( ReqResult requestResult, int receivedPort ) {
+	this->init(requestResult, receivedPort);
 }
 
 /* ..............................COPY CONSTRUCTOR.............................*/
@@ -15,18 +13,42 @@ ResponseHandler::ResponseHandler( ReqResult requestResult, int receivedPort ) :
 ResponseHandler::ResponseHandler( void ) :
 									_port(0),
 									_request(ReqResult()),
-									_status(response_status::Empty)	{
+									_status(response_status::Empty),
+									_method(NULL)	{
 }
 
 /* ................................ DESTRUCTOR ...............................*/
 
-ResponseHandler::~ResponseHandler( void ) {}
+ResponseHandler::~ResponseHandler( void ) {
+	if (_method != NULL)
+		delete _method;
+}
 
 /* ................................. METHODS .................................*/
 
 void	ResponseHandler::init( ReqResult requestResult, int receivedPort ) {
+
 	_port = receivedPort;
 	_request = requestResult;
+	_status = response_status::Empty;
+	if (requestResult.is_ok())	{
+		switch (requestResult.unwrap().method)
+		{
+			case methods::GET :
+				_method = new GetMethod;
+				break;
+			case methods::POST :
+				_method = new PostMethod;
+				break;
+			case methods::DELETE :
+				_method = new DeleteMethod;
+				break;
+
+			default:
+				_method = new UnsupportedMethod;
+				break;
+		}
+	}
 }
 
 void	ResponseHandler::processRequest() {
@@ -34,20 +56,39 @@ void	ResponseHandler::processRequest() {
 	if (_request.is_ok()) {
 		Request req = _request.unwrap();
 
-		config::Server const& server = network::ServerPool::getServerMatch(getHeader(req, "Host"), _port);
-		std::cout << "REQUEST MATCHED WITH: " << std::endl;
-		std::cout << server << std::endl;
+		config::Server const& serverMatch = network::ServerPool::getServerMatch(getHeader(req, "Host"), _port);
+		LocationConfig const locMatch = network::ServerPool::getLocationMatch(serverMatch, req.target);
 
-		files::File f("./assets/HTML_pages/index.html");
-		f.getStream() >> _response;
+		_response = _method->handler(serverMatch, locMatch, req);
 
-		_response.setHeader(ResponseHeader(headerTitle::Content_Length, _response.getBodyLen()));
-		_response.setHeader(ResponseHeader(headerTitle::Content_Type, "text/html; charset=UTF-8"));
 
-		_response.setStatus(status::Ok);
+		// ! GET -------------------------------------------
+		// std::cout << "LOCATION MATCHED HERE ------------------" << std::endl;
+		// std::cout << locMatch << std::endl;
+		// std::cout << "------------------" << std::endl;
+
+		// std::string	targetFile(locMatch.get_root() + "/");
+		// if (req.target.isFile())
+		// 	targetFile += req.target.decoded_path;
+		// else
+		// 	targetFile += locMatch.get_index();
+		// std::cout << "OPENING FILE FOR REQUEST: " << targetFile << std::endl;
+
+		// // files::File f("./assets/HTML_pages/index.html");
+		// files::File f(targetFile);
+		// if (f.isGood()) {
+		// 	f.getStream() >> _response;
+		// 	_response.setHeader(ResponseHeader(headerTitle::Content_Length, _response.getBodyLen()));
+		// 	_response.setHeader(ResponseHeader(headerTitle::Content_Type, "text/html; charset=UTF-8"));
+		// 	_response.setStatus(status::Ok);
+		// }
+		// else
+		// 	_response = Response(Version(), status::NotFound);
+		// ! GET -------------------------------------------
 	}
-	else
-		_response = Response(Version('4', '2'), status::BadRequest);	// TODO change 4, 2. debugonly
+	else {
+		_response = Response(Version('4', '2'), _request.unwrap_err());	// TODO change 4, 2. debugonly
+	}
 
 	_status = response_status::Ready;
 }

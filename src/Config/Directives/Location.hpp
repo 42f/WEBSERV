@@ -5,6 +5,11 @@
 #ifndef WEBSERV_LOCATION_HPP
 #define WEBSERV_LOCATION_HPP
 
+#include "Config/Server.hpp"
+namespace config {
+	class Server;
+}
+
 #include "parser/export.hpp"
 #include "parsing/Tokens.hpp"
 
@@ -20,7 +25,6 @@
 #include "Redirect.hpp"
 #include "Upload.hpp"
 
-#include "Config/Server.hpp"
 
 #include <limits>
 namespace network {
@@ -51,6 +55,15 @@ public:
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 	LocationConfig();
+
+	private:
+	/*
+	 * Allow to instanciate a location with all server data whenever a server
+	 * has no location to be used by ResponseHandler::locationMatch()
+	 */
+	LocationConfig(config::Server const & parentServer );
+
+	public:
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
@@ -67,6 +80,15 @@ public:
 	static	LocationConfig	*index(slice index);
 	static	LocationConfig	*redirection(redirect ret);
 	static	LocationConfig	*dump(slice unused);
+
+	std::string				get_path() const;
+	methods::Methods		get_methods() const;
+	bool					get_auto_index() const;
+	bool					get_upload() const;
+	size_t					get_body_size() const;
+	std::string				get_root() const;
+	std::string				get_index() const;
+	redirect				get_redirect() const;
 /*
 ** --------------------------------- SETTERS ----------------------------------
 */
@@ -78,6 +100,7 @@ public:
 	LocationConfig	&set_methods(methods::Methods methods);
 	LocationConfig	&set_index(slice index);
 	LocationConfig	&set_redirect(redirect ret);
+
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------

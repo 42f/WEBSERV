@@ -59,6 +59,7 @@ namespace config
 		std::string							get_index() const;
 		size_t								get_body_size() const;
 		std::vector<LocationConfig>&		get_locations();
+		std::vector<LocationConfig> const&	get_locations() const;
 		std::map<int, std::string>			get_error_pages() const; //AVOIR
 
 /*
