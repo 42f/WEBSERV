@@ -1,0 +1,90 @@
+[
+    {
+        "type": "Group",
+        "name": "RESPO",
+        "parent_id": null,
+        "workspaceRoot": null,
+        "workspacePath": null,
+        "id": "Fja8d1XTf6kuQovK"
+    },
+    {
+        "type": "Group",
+        "name": "SERVERPOOL",
+        "parent_id": null,
+        "workspaceRoot": null,
+        "workspacePath": null,
+        "id": "DIe5qPFwczhQM1K8"
+    },
+    {
+        "type": "File",
+        "name": "/Users/brian/42/REPO/src/HTTP/Response/Response.cpp",
+        "parent_id": "Fja8d1XTf6kuQovK",
+        "workspaceRoot": "/Users/brian/42/REPO",
+        "workspacePath": "src/HTTP/Response/Response.cpp",
+        "id": "d81JHLYpTzQfPcXl"
+    },
+    {
+        "type": "File",
+        "name": "/Users/brian/42/REPO/src/HTTP/Response/ResponseHandler.cpp",
+        "parent_id": "Fja8d1XTf6kuQovK",
+        "workspaceRoot": "/Users/brian/42/REPO",
+        "workspacePath": "src/HTTP/Response/ResponseHandler.cpp",
+        "id": "BQVxs5DtbF8y6Tzh"
+    },
+    {
+        "type": "File",
+        "name": "/Users/brian/42/REPO/src/HTTP/Response/ResponseHandler.hpp",
+        "parent_id": "Fja8d1XTf6kuQovK",
+        "workspaceRoot": "/Users/brian/42/REPO",
+        "workspacePath": "src/HTTP/Response/ResponseHandler.hpp",
+        "id": "1tiRdCxk76YwEQF3"
+    },
+    {
+        "type": "File",
+        "name": "/Users/brian/42/REPO/src/HTTP/Response/Response.hpp",
+        "parent_id": "Fja8d1XTf6kuQovK",
+        "workspaceRoot": "/Users/brian/42/REPO",
+        "workspacePath": "src/HTTP/Response/Response.hpp",
+        "id": "sypgZir47kbJ09u2"
+    },
+    {
+        "type": "Directory",
+        "name": "/Users/brian/42/REPO/src/HTTP/Response/ResponseUtils",
+        "parent_id": "Fja8d1XTf6kuQovK",
+        "workspaceRoot": "/Users/brian/42/REPO",
+        "workspacePath": "src/HTTP/Response/ResponseUtils",
+        "id": "comgNrFMSpPuJXzZ"
+    },
+    {
+        "type": "File",
+        "name": "/Users/brian/42/REPO/src/Network/ServerPool.cpp",
+        "parent_id": "DIe5qPFwczhQM1K8",
+        "workspaceRoot": "/Users/brian/42/REPO",
+        "workspacePath": "src/Network/ServerPool.cpp",
+        "id": "vT6xcuQbRj3z1OUl"
+    },
+    {
+        "type": "File",
+        "name": "/Users/brian/42/REPO/src/Network/ServerPool.hpp",
+        "parent_id": "DIe5qPFwczhQM1K8",
+        "workspaceRoot": "/Users/brian/42/REPO",
+        "workspacePath": "src/Network/ServerPool.hpp",
+        "id": "MBhZ12j4pOSkAfnK"
+    },
+    {
+        "type": "Directory",
+        "name": "/Users/brian/42/REPO/src/HTTP/Response",
+        "parent_id": "Fja8d1XTf6kuQovK",
+        "workspaceRoot": "/Users/brian/42/REPO",
+        "workspacePath": "src/HTTP/Response",
+        "id": "8SH6QAFBOdXtJzbl"
+    },
+    {
+        "type": "Directory",
+        "name": "/Users/brian/42/REPO/assets",
+        "parent_id": null,
+        "workspaceRoot": "/Users/brian/42/REPO",
+        "workspacePath": "assets",
+        "id": "uf9YM6GPR8cTgrZD"
+    }
+]
