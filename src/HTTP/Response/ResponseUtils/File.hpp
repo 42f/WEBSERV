@@ -5,7 +5,7 @@
 # include <istream>
 # include <string>
 
-namespace fileHandler {
+namespace files {
 
 	enum Status
 	{
@@ -20,6 +20,7 @@ namespace fileHandler {
 
 			bool					isGood(void);
 			std::ifstream &			getStream(void);
+
 
 			File(  std::string const & path  );
 			~File( void );
@@ -42,10 +43,6 @@ namespace fileHandler {
 
 
 /*
-	types from nginx to be stored:
-
-
-types {
     text/html                                        html htm shtml;
     text/css                                         css;
     text/xml                                         xml;
@@ -90,12 +87,9 @@ types {
     application/vnd.oasis.opendocument.presentation  odp;
     application/vnd.oasis.opendocument.spreadsheet   ods;
     application/vnd.oasis.opendocument.text          odt;
-    application/vnd.openxmlformats-officedocument.presentationml.presentation
-                                                     pptx;
-    application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-                                                     xlsx;
-    application/vnd.openxmlformats-officedocument.wordprocessingml.document
-                                                     docx;
+    application/vnd.openxmlformats-officedocument.presentationml.presentation   pptx;
+    application/vnd.openxmlformats-officedocument.spreadsheetml.sheet           xlsx;
+    application/vnd.openxmlformats-officedocument.wordprocessingml.document     docx;
     application/vnd.wap.wmlc                         wmlc;
     application/x-7z-compressed                      7z;
     application/x-cocoa                              cco;
@@ -140,5 +134,4 @@ types {
     video/x-ms-asf                                   asx asf;
     video/x-ms-wmv                                   wmv;
     video/x-msvideo                                  avi;
-}
 */

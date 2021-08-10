@@ -4,6 +4,7 @@
 # include <string>
 # include <vector>
 # include <set>
+# include <algorithm>
 
 # include "Config/Directives/Location.hpp"
 
@@ -17,26 +18,28 @@ namespace network {
 
 			static std::vector<config::Server> const &	getPool( void );
 			static std::set<int>						getPorts( void );
-			static config::Server const&	getServerMatch( std::string hostHeader );
-			// static Result<Target> const&	getLocationMatch( config::Server const & serv,
-			// 												Target const & target );
+			static config::Server const&	getServerMatch( std::string hostHeader,
+																int receivedPort );
+			static LocationConfig const		getLocationMatch( config::Server const & serv,
+															Target const & target );
 
 			~ServerPool( void );
 
 
 		private:
 
-			void			locationsInit(config::Server &serv);
+			static void		locationsInit(config::Server &serv);
 			static std::vector<config::Server>		_serverPool;
 
 			ServerPool( void );
 			ServerPool( ServerPool const & src );
 			ServerPool &		operator=( ServerPool const & rhs );
 
+			static void 		debugPrint( void ) ;
 
+			// friend std::ostream &	operator<<( std::ostream & o, ServerPool const & i );
 
 		};
 
-		//std::ostream &			operator<<( std::ostream & o, ServerPool const & i );
 
 } // --- end of namespace network

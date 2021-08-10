@@ -8,7 +8,6 @@
 # include <iostream>
 # include <string>
 
-#include "Config/Server.hpp"
 #include "Request/RequestLine.hpp"
 #include "Headers/Headers.hpp"
 #include "Config/Directives/Redirect.hpp"
@@ -22,7 +21,8 @@
 #include "Response.hpp"
 #include "ResponseUtils/File.hpp"
 #include "ResponseUtils/ResponseHeader.hpp"
-
+#include "ResponseUtils/A_Method.hpp"
+#include "Config/Server.hpp"
 
 namespace response_status
 {
@@ -39,21 +39,23 @@ class ResponseHandler	{
 		typedef	RequestHandler::result_type		ReqResult;
 	public:
 
-		void			init( ReqResult requestResult );
+		void			init( ReqResult requestResult, int receivedPort );
 		void	 		processRequest( void );
 		Response & 		getResponse( void );
 		bool		 	isReady( void );
 
 		ResponseHandler( void );
-		ResponseHandler( ReqResult requestResult );
+		ResponseHandler( ReqResult requestResult, int receivedPort );
 		~ResponseHandler( void );
 
 	private:
 
 
+		int		 							_port;
 		ReqResult 							_request;
 		response_status::Status				_status;
 		Response							_response;
+		A_Method *							_method;
 		// ! TODO remove, debug only
 		static int							req_counter;
 
@@ -62,22 +64,4 @@ class ResponseHandler	{
 
 		ResponseHandler( ResponseHandler const & src );
 		ResponseHandler &		operator=( ResponseHandler const & rhs );
-};
-
-class BaseMethode	{
-
-
-
-};
-
-class GetMethode	: public BaseMethode {
-
-};
-
-class PostMethode	: public BaseMethode {
-
-};
-
-class DeleteMethode	: public BaseMethode {
-
 };

@@ -54,8 +54,7 @@ namespace headerTitle {
 	std::string& 	DefaultValues::get(Title title) {
 		return DefaultValues::_instance._fields[title];
 	}
-};
-
+}
 /******************************************************************************/
 /******************************************************************************/
 

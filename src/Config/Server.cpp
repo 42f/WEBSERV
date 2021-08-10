@@ -86,7 +86,8 @@ namespace config
 		std::string							Server::get_root() const { return _root; }
 		std::string							Server::get_index() const { return _index; }
 		size_t								Server::get_body_size() const { return _body_size; }
-		std::vector<LocationConfig>			Server::get_locations() const { return _locations; }
+		std::vector<LocationConfig>&		Server::get_locations() { return _locations; }
+		std::vector<LocationConfig> const&	Server::get_locations() const { return _locations; }
 		std::map<int, std::string>			Server::get_error_pages() const { return _error_pages; }
 
 /*

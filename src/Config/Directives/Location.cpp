@@ -22,6 +22,16 @@ LocationConfig::LocationConfig():
 	_root("")
 	{ }
 
+LocationConfig::LocationConfig(config::Server const & parentServer):
+	_path(""),
+	_methods(methods::Methods::all()),
+	_auto_index(false),
+	_upload(false),
+	_body_size(parentServer.get_body_size()),
+	_root(parentServer.get_root()),
+	_index(parentServer.get_index())
+	{ }
+
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
@@ -136,6 +146,20 @@ LocationConfig	&LocationConfig::set_redirect(redirect ret)
 }
 
 /*
+** --------------------------------- GETTER   ---------------------------------
+*/
+
+std::string				LocationConfig::get_path() const { return _path; }
+methods::Methods		LocationConfig::get_methods() const { return _methods; }
+bool					LocationConfig::get_auto_index() const { return _auto_index; }
+bool					LocationConfig::get_upload() const { return _upload; }
+size_t					LocationConfig::get_body_size() const { return _body_size; }
+std::string				LocationConfig::get_root() const { return _root; }
+std::string				LocationConfig::get_index() const { return _index; }
+redirect				LocationConfig::get_redirect() const { return _redirect; }
+
+
+/*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 std::ostream& operator<<(std::ostream& stream, const LocationConfig& cfg)
@@ -195,7 +219,7 @@ Head::Head() { }
 
 Head::result_type Head::operator()(const slice &input)
 {
-	return preceded(sequence(Tag("Location"), rws), take_until_match(rws))(input);
+	return preceded(sequence(Tag("location"), rws), take_until_match(rws))(input);
 }
 
 /* ************************************************************************** */
