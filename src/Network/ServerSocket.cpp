@@ -34,11 +34,13 @@ ServerSocket::ServerSocket(int const port)
     if (_is_good == true) do_bind();
     if (_is_good == true) do_listen();
     // if (_is_good)
-    //     std::cout << "ServerSocket creation and binding successfull. ServerSocket port :
+    //     std::cout << "ServerSocket creation and binding successfull.
+    //     ServerSocket port :
     //     "
     //               << _port << " with ID : " << get_id() << std::endl;
     // else {
-    //     std::cout << "ServerSocket creation and binding failed. ServerSocket port : "
+    //     std::cout << "ServerSocket creation and binding failed. ServerSocket
+    //     port : "
     //               << _port << std::endl;
     // }
 }
@@ -122,6 +124,8 @@ int ServerSocket::get_addr_len(void) const { return (sizeof(_address)); }
 struct sockaddr_in *ServerSocket::get_addr(void) const {
     return ((struct sockaddr_in *)&_address);
 }
+
+void ServerSocket::set_port(int port) { _port = port; }
 
 }  // namespace network
 

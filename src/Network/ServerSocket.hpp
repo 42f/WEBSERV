@@ -28,6 +28,7 @@ class ServerSocket {
     int get_addr_len(void) const;
     struct sockaddr_in *get_addr(void) const;
 
+    void set_port(int port);
     // Member functions
     int do_listen(void);
     int do_bind(void);

@@ -13,7 +13,8 @@ class Socket {
    public:
     typedef Result<Request, status::StatusCode> result_type;
 
-    Socket(int fd, fd_status::status status = fd_status::error);
+    Socket(int fd, int port,
+                   fd_status::status status = fd_status::error);
     Socket(void);
     ~Socket();
 
@@ -23,8 +24,8 @@ class Socket {
 
     void manage_raw_request(char *buffer, int size);
 
-
-    int get_fd() const;
+    int get_fd(void) const;
+    int get_port(void) const;
     Response get_response();
     int get_flags(void) const;
     bool has_events(void) const;
@@ -40,6 +41,7 @@ class Socket {
     RequestHandler _request_handler;
     std::string _buffer;
     Result<Request, status::StatusCode> _res;
+    int _port;
 };
 
 }  // namespace network

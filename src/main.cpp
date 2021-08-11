@@ -71,8 +71,9 @@ int main(int ac, char **av) {
     std::set<int> ports = network::ServerPool::getPorts();
     std::vector<network::ServerSocket> sockets(ports.begin(), ports.end());
 
-    network::Core core(sockets, 6);
+    network::Core core(sockets);
     core.run_servers();
 
     return 0;
 }
+

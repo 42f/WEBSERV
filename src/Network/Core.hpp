@@ -9,15 +9,14 @@
 #include <iostream>
 #include <vector>
 
-#include "EventsManager.hpp"
+#include "EventManager.hpp"
 #include "ServerSocket.hpp"
-#include "ThreadPool.hpp"
 
 namespace network {
 void *ok(void *args);
 class Core {
    public:
-    Core(std::vector<network::ServerSocket> s, int _size_tpool);
+    Core(std::vector<network::ServerSocket> s);
     ~Core();
 
     void run_servers(void);
@@ -28,7 +27,6 @@ class Core {
     void check_requests(void);
     void check_responses(void);
     Core(void);
-    ThreadPool _tpool;
     int _nb_events;
 };
 }  // namespace network
