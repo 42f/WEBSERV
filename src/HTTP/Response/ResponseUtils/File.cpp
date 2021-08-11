@@ -1,4 +1,5 @@
 #include "File.hpp"
+#include "utils/Logger.hpp"
 
 namespace  files {
 

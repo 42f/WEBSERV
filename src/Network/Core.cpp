@@ -2,8 +2,7 @@
 
 namespace network {
 
-Core::Core(std::vector<network::ServerSocket> s)
-    : _nb_events(0) {
+Core::Core(std::vector<network::ServerSocket> s) : _nb_events(0) {
     EventManager::init(s);
 }
 Core::~Core() {}
@@ -19,46 +18,14 @@ void Core::update_events(void) {
 
 void Core::check_sockets(void) {
     if (EventManager::get_nb_events() > 0) {
-#if POLL_FN == KQUEUE
-        for (int i = 0; i < EventManager::get_nb_events(); i++) {
-            int fd = EventManager::get_event_struct(i).ident;
-            if (EventManager::is_acceptable(fd)) {
-                EventManager::accept_request(fd);
-            }
-        }
-#elif POLL_FN == SELECT
         EventManager::accept_request(0);
-#endif
     }
 }
 
-void Core::check_requests(void) {
-#if POLL_FN == KQUEUE
-
-    if (EventManager::get_nb_events() > 0) {
-        for (int i = 0; i < EventManager::get_nb_events(); i++) {
-            int fd = EventManager::get_event_struct(i).ident;
-            if (EventManager::is_readable(fd)) {
-                EventManager::recv_request(fd);
-            }
-        }
-    }
-#elif POLL_FN == SELECT
-    EventManager::recv_request(0);
-#endif
-}
+void Core::check_requests(void) { EventManager::recv_request(0); }
 
 void Core::check_responses(void) {
-#if POLL_FN == KQUEUE
-    for (int i = 0; i < EventManager::get_nb_events(); i++) {
-        int fd = EventManager::get_event_struct(i).ident;
-        if (EventManager::is_writable(fd)) {
-            EventManager::send_response(fd);
-        }
-    }
-#elif POLL_FN == SELECT
     EventManager::send_response(0);
-#endif
     EventManager::resize();
 }
 

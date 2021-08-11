@@ -37,6 +37,7 @@ namespace response_status
 class ResponseHandler	{
 
 		typedef	RequestHandler::result_type		ReqResult;
+
 	public:
 
 		void			init( ReqResult requestResult, int receivedPort );
@@ -50,16 +51,15 @@ class ResponseHandler	{
 
 	private:
 
-
 		int		 							_port;
 		ReqResult 							_request;
 		response_status::Status				_status;
 		Response							_response;
 		A_Method *							_method;
+
 		// ! TODO remove, debug only
 		static int							req_counter;
 
-		config::Server&		matchServer(Request const & req);
 		std::string			getHeader(const Request & req, const std::string& target);
 
 		ResponseHandler( ResponseHandler const & src );

@@ -43,11 +43,9 @@ void Socket::set_has_events(bool value) { _has_events = value; }
 void Socket::set_status(fd_status::status status) { _status = status; }
 
 void Socket::manage_raw_request(char *buffer, int size) {
-    
     _res = _request_handler.update(buffer, size);
     if (_res.is_ok()) {
-        // Request req;
-        // req = _res.unwrap();
+        set_status(fd_status::read);
     } else {
         std::cout << "req not ok" << std::endl;
     }
@@ -61,6 +59,12 @@ int Socket::get_port(void) const { return _port; }
 
 Response Socket::get_response() {
     ResponseHandler _response_handler;
+
+    if (_res.is_ok()) {
+        std::cout << "RESPONSE OK" << std::endl;
+    } else {
+        std::cout << "RESPONSE non OK" << std::endl;
+    }
     _response_handler.init(_res, _port);
 
     while (_response_handler.isReady() == false) {

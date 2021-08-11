@@ -7,14 +7,12 @@
 class A_Method	{
 
 	public:
-		A_Method() {
-			std::cout << __func__ << std::endl;
-		};
+		A_Method() {};
 		virtual ~A_Method() {};
 
-		virtual Response	handler(config::Server serv, LocationConfig loc, Request req) = 0;
+		virtual void	handler(config::Server serv, LocationConfig loc, Request req, Response & resp) = 0;
 
-		Response	stdResponse(status::StatusCode code, LocationConfig const & loc) {
+		static Response		stdResponse(status::StatusCode code, LocationConfig const & loc) {
 
 			Response output;
 			output.setStatus(code);
@@ -32,12 +30,23 @@ class GetMethod	: public A_Method {
 	GetMethod() {};
 	~GetMethod() {};
 
-	Response	handler(config::Server serv, LocationConfig loc, Request req) {
+	void	handler(config::Server serv, LocationConfig loc, Request req, Response & resp) {
+
 		(void)serv;
-		(void)loc;
-		(void)req;
-		std::cout << __func__ << " of GET." << std::endl;
-		return Response(Version(), status::RequestTimeout);
+
+		std::cout << BLUE << "LOCATION USED: " << loc << NC <<std::endl;
+		std::string	targetFile(loc.get_root() + "/");
+		targetFile += req.target.isFile() ? req.target.getFile() : loc.get_index();
+
+		files::File f(targetFile);
+		if (f.isGood()) {
+			f.getStream() >> resp;
+			resp.setHeader(ResponseHeader(headerTitle::Content_Length, resp.getBodyLen()));
+			resp.setHeader(ResponseHeader(headerTitle::Content_Type, "text/html; charset=UTF-8"));
+			resp.setStatus(status::Ok);
+		}
+		else
+			resp = Response(Version('2', '1'), status::NotFound);
 	}
 };
 
@@ -48,12 +57,12 @@ class PostMethod	: public A_Method {
 	PostMethod() {};
 	~PostMethod() {};
 
-	Response	handler(config::Server serv, LocationConfig loc, Request req) {
+	void	handler(config::Server serv, LocationConfig loc, Request req, Response & resp) {
 		(void)serv;
+		(void)resp;
 		(void)loc;
 		(void)req;
 		std::cout << __func__ << " of POST." << std::endl;
-		return Response(Version(), status::NotImplemented); // TODO REMOVE TEST RETURN
 	}
 };
 
@@ -64,12 +73,12 @@ class DeleteMethod	: public A_Method {
 	DeleteMethod() {};
 	~DeleteMethod() {};
 
-	Response	handler(config::Server serv, LocationConfig loc, Request req) {
+	void	handler(config::Server serv, LocationConfig loc, Request req, Response & resp) {
 		(void)serv;
+		(void)resp;
 		(void)loc;
 		(void)req;
 		std::cout << __func__ << " of DELETE." << std::endl;
-		return Response(Version(), status::PreconditionRequired); // TODO REMOVE TEST RETURN
 	}
 };
 
@@ -80,7 +89,6 @@ class UnsupportedMethod	: public A_Method {
 	UnsupportedMethod() {};
 	~UnsupportedMethod() {};
 
-	Response	handler(config::Server, LocationConfig, Request) {
-		return Response(Version(), status::NotImplemented); // TODO REMOVE TEST RETURN
+	void	handler(config::Server, LocationConfig, Request, Response&) {
 	}
 };

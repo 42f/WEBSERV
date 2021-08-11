@@ -32,6 +32,9 @@ RequestHandler::result_type RequestHandler::update(const char *buff, size_t read
 	if (_status == request_status::Complete || _status == request_status::Error)
 		return _req;
 	size_t offset = _buffer.size();
+
+	std::cout << "of+rd = " << offset + read << std::endl;
+
 	_buffer.reserve(offset + read);
 	std::vector<char>::iterator off = _buffer.begin() + offset;
 	_buffer.insert(off, buff, buff + read);

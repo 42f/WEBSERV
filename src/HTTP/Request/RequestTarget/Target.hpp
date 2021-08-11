@@ -60,6 +60,13 @@ public:
 		return decoded_path.find('.', lastPartHead) != std::string::npos;
 	}
 
+	std::string	getFile() {
+
+		std::string output = decoded_path;
+		size_t lastPartHead = output.find_last_of('/');
+		return output.substr(lastPartHead);
+	}
+
 	static Target from(slice path, slice query)
 	{
 		return Target(path, query);

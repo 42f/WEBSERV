@@ -40,7 +40,7 @@ class Socket {
     bool _has_events;
     RequestHandler _request_handler;
     std::string _buffer;
-    Result<Request, status::StatusCode> _res;
+    RequestHandler::result_type _res;
     int _port;
 };
 

@@ -93,22 +93,39 @@ config::Server const&		ServerPool::getServerMatch( std::string hostHeader,
 	return *bestCandidate;
 }
 
+/*
+ * iterate on location vector, if no suitable one is found, or if no
+ * location exists, a location is made from server data.
+ */
 LocationConfig const ServerPool::getLocationMatch( config::Server const & serv,
 															Target const & target ) {
 
 	std::vector<LocationConfig> const & locs = serv.get_locations();
-	std::vector<LocationConfig>::const_iterator it = locs.begin();
-	std::vector<LocationConfig>::const_iterator ite = locs.end();
-	for (; it != ite; it++)	{
-		if (it->_path == target.path)
-			return *it;
 
-		//TODO debug remove
-		std::cout << "not this location......." << it->_path << std::endl;
+	if (locs.empty() == false) {
+		std::vector<LocationConfig>::const_iterator it = locs.begin();
+		std::vector<LocationConfig>::const_iterator ite = locs.end();
 
+		for (; it != ite; it++)	{
+			if (isPathMatch(*it, target))
+				return *it;
+		}
 	}
 	return (LocationConfig(serv));
 }
+
+bool		ServerPool::isPathMatch( LocationConfig const & loc,
+															Target const & target ) {
+
+	std::string targetPath = target.decoded_path;
+	while (targetPath.empty() == false) {
+		if (targetPath == loc.get_path())
+			return true;
+		targetPath.resize(targetPath.find_last_of('/'));
+	}
+	return false;
+}
+
 
 /* ................................. OVERLOAD ................................*/
 
