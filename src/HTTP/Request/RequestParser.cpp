@@ -26,9 +26,8 @@ RequestParser::result_type	RequestParser::operator()(const slice& input)
 			return RequestParser::result_type::err(line.left(), error("Unsupported version", status::HTTPVersionNotSupported));
 		req = Request(info.first, info.second, info.third);
 	}
-	else {
-		return result_type::err(line.left(), error("Failed to parse request line"));
-	}
+	else
+		return line.convert<Request>().unwind(input, "Failed to parse request line");
 	ParserResult<std::vector<Header> >	res =
 			terminated(many(terminated(Headers(), newline)), Newline())(line.left());
 	if (res.is_ok())

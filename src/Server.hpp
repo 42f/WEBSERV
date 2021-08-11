@@ -25,6 +25,11 @@
 #include <vector>
 #include "HTTP/RequestHandler.hpp"
 
+class ResponseData {
+	std::map<std::string, std::string>	headers;
+
+};
+
 struct Response {
 	int		status;
 	//char 	buf[];

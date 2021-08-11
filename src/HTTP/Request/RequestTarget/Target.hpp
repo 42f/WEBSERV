@@ -18,7 +18,7 @@ public:
 
 private:
 
-	static std::string 	decode(std::string input)
+	static std::string 	decode(const std::string &input)
 	{
 		std::string		out;
 
@@ -43,7 +43,7 @@ public:
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 	Target(): scheme(""), path(""), query(""), decoded_path("") { }
-	Target(slice path, slice query): scheme("http"), path(path.to_string()), query(query.to_string()) {
+	Target(std::string &path, slice query): scheme("http"), path(path), query(query.to_string()) {
 		decoded_path = decode(this->path);
 		decoded_query = decode(this->query);
 	}

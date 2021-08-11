@@ -13,7 +13,7 @@ Upload::result_type Upload::operator()(const slice &input)
 {
 	ParserResult<slice> res = preceded(sequence(Tag("upload"), rws), alt(Tag("on"), Tag("off")))(input);
 	if (res.is_ok())
-		return res.map(res.unwrap() == "on");
+		return res.map(res.unwrap().ieq("on"));
 	return res.convert<bool>();
 }
 
