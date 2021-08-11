@@ -109,6 +109,9 @@ std::ostream &	operator<<( std::ostringstream & o, Response const & i )	{
 		}
 	}
 
+	// TODO remove or find a cheap way to cut short the body.
+	LogStream stream; stream << "Response sent:" << o.str();
+
 	// Writes empty line separation
 	o << "\r\n";
 
@@ -117,8 +120,6 @@ std::ostream &	operator<<( std::ostringstream & o, Response const & i )	{
 		o.write(i._body.data(), i._body.size());
 	}
 
-	// TODO remove or find a cheap way to cut short the body.
-	Logger::log(std::string("Response sent: \n") + o.str(), Logger::toConsole);
 	return o;
 }
 
