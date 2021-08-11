@@ -34,10 +34,23 @@ class GetMethod	: public A_Method {
 
 		(void)serv;
 
-		std::cout << BLUE << "LOCATION USED: " << loc << NC <<std::endl;
+		if (loc.get_root().empty())	{
+			resp = Response(Version('2', '1'), status::Unauthorized);
+			return ;
+		}
 		std::string	targetFile(loc.get_root() + "/");
-		targetFile += req.target.isFile() ? req.target.getFile() : loc.get_index();
+		if (req.target.isFile()) {
+			targetFile += req.target.getFile();
+		}
+		else if (loc.get_index().empty() == false)	{
+			targetFile += loc.get_index();
+		}
+		else {
+			resp = Response(Version('1', '1'), status::NotFound);
+			return ;
+		}
 
+		LogStream s; s << "FILE TARGETED PATH:" << targetFile;
 		files::File f(targetFile);
 		if (f.isGood()) {
 			f.getStream() >> resp;

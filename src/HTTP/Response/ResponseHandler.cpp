@@ -57,7 +57,11 @@ void	ResponseHandler::processRequest() {
 		Request req = _request.unwrap();
 
 		config::Server const& serverMatch = network::ServerPool::getServerMatch(getHeader(req, "Host"), _port);
+		std::cout << RED << "SEVRER MATCHED: " << std::endl;
+		std::cout << serverMatch << std::endl;
 		LocationConfig const locMatch = network::ServerPool::getLocationMatch(serverMatch, req.target);
+		std::cout << RED << "LOC MATCHED: " << std::endl;
+		std::cout << locMatch << std::endl;
 
 		_method->handler(serverMatch, locMatch, req, _response);
 

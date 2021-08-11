@@ -30,5 +30,13 @@
         "workspaceRoot": "/Users/brian/42/REPO",
         "workspacePath": "src/main.cpp",
         "id": "VRohjQ7DkIWSlzAc"
+    },
+    {
+        "type": "File",
+        "name": "/Users/brian/42/REPO/assets/conf_MAC/locationTest.conf",
+        "parent_id": null,
+        "workspaceRoot": "/Users/brian/42/REPO",
+        "workspacePath": "assets/conf_MAC/locationTest.conf",
+        "id": "Q4Dzb8OVSlek52IB"
     }
 ]
