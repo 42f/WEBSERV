@@ -31,17 +31,17 @@ public:
 class Header
 {
 private:
-	slice		_name;
-	slice		_value;
+	std::string		_name;
+	std::string		_value;
 
 public:
 	Header(slice name, slice value);
 
-	std::string	value();
-	std::string	value() const;
+	const std::string	&value();
+	const std::string	&value() const;
 
-	std::string	name();
-	std::string	name() const;
+	const std::string	&name();
+	const std::string	&name() const;
 
 	friend std::ostream &operator<<(std::ostream& stream, const Header& header);
 };

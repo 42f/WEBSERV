@@ -32,23 +32,23 @@ FieldValue::result_type	FieldValue::operator()(const slice &input)
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
-Header::Header(slice name, slice value): _name(name), _value(value) { }
+Header::Header(slice name, slice value): _name(name.to_string()), _value(value.to_string()) { }
 
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
-std::string	Header::value() { return this->_value.to_string(); }
-std::string	Header::value() const { return this->_value.to_string(); }
+const std::string	&Header::value() { return this->_value; }
+const std::string	&Header::value() const { return this->_value; }
 
-std::string	Header::name() { return this->_name.to_string(); }
-std::string	Header::name() const { return this->_name.to_string(); }
+const std::string	&Header::name() { return this->_name; }
+const std::string	&Header::name() const { return this->_name; }
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 std::ostream &operator<<(std::ostream& stream, const Header& header)
 {
-	stream << header._name.to_string() << ": " << header._value.to_string();
+	stream << header._name << ": " << header._value;
 	return stream;
 }
 
