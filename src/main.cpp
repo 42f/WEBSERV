@@ -24,7 +24,7 @@ int main(int ac, char **av)
 
 	RequestHandler	handler;
 
-	std::string		request = "GET / HTTP/1.1\r\nHost:		localhost	 	\r\nContent-Length: 12		\r\n\r\nHello world!GET ";
+	std::string		request = "GET /files/../../index.html HTTP/1.1\r\nHost:		localhost	 	\r\nContent-Length: 12		\r\n\r\nHello world!GET ";
 	Result<Request, status::StatusCode> res = handler.update(request.c_str(), request.length());
 	if (res.is_ok()) {
 		Request req = res.unwrap();

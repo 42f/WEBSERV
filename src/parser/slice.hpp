@@ -150,21 +150,28 @@ public:
 		return 0;
 	}
 
+	bool 	ieq(const std::string &other) const
+	{
+		return other.length() == this->size && !icontains(other);
+	}
+
+	bool 		operator==(const std::string &s) const
+	{
+		return s.length() == this->size && !contains(s);
+	}
+
 	bool 		operator==(const char *str) const
 	{
 		std::string 	s(str);
-
-		if (s.length() != this->size)
-			return false;
-		return !this->icontains(s);
+		return operator==(s);
 	}
 
-	bool		operator==(const slice &other)
+	bool		operator==(const slice &other) const
 	{
 		return other.p == p && other.size == size;
 	}
 
-	bool		operator!=(const slice &other)
+	bool		operator!=(const slice &other) const
 	{
 		return !operator==(other);
 	}

@@ -15,10 +15,9 @@
  * AbsolutePath = 1*( "/" segment )
  */
 
-class AbsolutePath : public Parser<slice>
+class AbsolutePath : public Parser<std::string>
 {
 public :
-	typedef ParserResult<slice>		result_type;
 
 	AbsolutePath();
 

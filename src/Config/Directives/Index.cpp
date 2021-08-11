@@ -26,7 +26,7 @@ AutoIndex::result_type AutoIndex::operator()(const slice &input)
 {
 	ParserResult<slice> res = preceded(sequence(Tag("autoindex"), rws), alt(Tag("on"), Tag("off")))(input);
 	if (res.is_ok())
-		return res.map(res.unwrap() == "on");
+		return res.map(res.unwrap().ieq("on"));
 	return res.convert<bool>();
 }
 
