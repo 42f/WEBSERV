@@ -8,9 +8,9 @@ Core::Core(std::vector<network::ServerSocket> s) : _nb_events(0) {
 Core::~Core() {}
 
 void Core::update_events(void) {
-    EventManager::do_kevent();
+    EventManager::do_select();
     if (EventManager::get_nb_events() < 0) {
-        std::cerr << "Error Kevent : system failure" << std::endl;
+        std::cerr << "Error Select : system failure" << std::endl;
     } else {
         _nb_events = EventManager::get_nb_events();
     }

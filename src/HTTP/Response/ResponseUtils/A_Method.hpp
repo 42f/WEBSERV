@@ -34,7 +34,7 @@ class GetMethod	: public A_Method {
 
 		(void)serv;
 
-		std::cout << BLUE << "LOCATION USED: " << loc << NC <<std::endl;
+		// std::cout << BLUE << "LOCATION USED: " << loc << NC <<std::endl;
 		std::string	targetFile(loc.get_root() + "/");
 		targetFile += req.target.isFile() ? req.target.getFile() : loc.get_index();
 

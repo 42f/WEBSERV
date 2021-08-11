@@ -3,22 +3,22 @@
 namespace network {
 int EventManager::_kq = 0;
 int EventManager::_timeout = 0;
-int EventManager::_nb_Event = 0;
+int EventManager::_nb_events = 0;
 int EventManager::_max_ssocket = 0;
 int EventManager::_total_requests = 0;
-#if POLL_FN == KQUEUE
-struct kevent *EventManager::_monitor;
-struct kevent *EventManager::_Event;
-#elif POLL_FN == SELECT
 fd_set EventManager::_read_set;
 fd_set EventManager::_write_set;
 int EventManager::_max_fd = 0;
-#endif
 std::vector<Socket> EventManager::_sockets;
 
+/***************************************************
+    Getters
+***************************************************/
+
 /*
- *	Initializes the vector of sockets and the kevent monitor list with the
- *listening sockets Also, sets the maximum listening socket number
+ *	init() initializes the vector of active sockets and the first select
+ *  read & write sets with the listening sockets. Also, init() sets the maximum
+ *  listening socket number
  */
 
 void EventManager::init(std::vector<network::ServerSocket> s) {
@@ -38,11 +38,15 @@ void EventManager::init(std::vector<network::ServerSocket> s) {
 
 EventManager::~EventManager() {}
 
+/***************************************************
+    Getters
+***************************************************/
+
 unsigned long EventManager::get_size(void) {
     return EventManager::_sockets.size();
 }
 
-int EventManager::get_nb_events(void) { return EventManager::_nb_Event; }
+int EventManager::get_nb_events(void) { return EventManager::_nb_events; }
 
 int EventManager::get_total_requests(void) { return _total_requests; }
 
@@ -52,7 +56,17 @@ Socket &EventManager::get_socket(int index) {
     return _sockets[index];
 }
 
-void EventManager::do_kevent(void) {
+/***************************************************
+    Functions
+***************************************************/
+
+/*
+ *  do_select() clears select write & read sets, populate them with the file
+ *  descriptors from the active sockets vector and calls the select() function
+ * on all active sockets (listeners or not)
+ */
+
+void EventManager::do_select(void) {
     struct timeval tv = {1, 0};
     FD_ZERO(&EventManager::_read_set);
     FD_ZERO(&EventManager::_write_set);
@@ -66,11 +80,21 @@ void EventManager::do_kevent(void) {
         } else
             FD_SET(itr->get_fd(), &EventManager::_read_set);
     }
-    EventManager::_nb_Event =
+    EventManager::_nb_events =
         select(EventManager::_max_fd + 1, &EventManager::_read_set,
                &EventManager::_write_set, NULL, &tv);
-    if (EventManager::_nb_Event < 0) perror("kevent");
+    if (EventManager::_nb_events < 0) {
+        perror("select");
+        std::cerr << EventManager::_max_fd + 1 << std::endl;
+    }
 }
+
+/*
+ *  add creates a socket giving it an fd and a port, pushes it in the Active
+ *  Socket vector and adds the fd into select read & write sets
+ *
+ *  add() only adds non-listening soccket
+ */
 
 void EventManager::add(int fd, int port) {
     if (fd > 0) {
@@ -86,7 +110,19 @@ void EventManager::add(int fd, int port) {
     }
 }
 
-int EventManager::accept_request(int fd) {
+/*
+ *  accept_request loops on all the active requests and tries to accept an
+ *  incoming request if and only if :
+ *      - there is something to accept (select event)
+ *      - the socket is readable
+ *      - the socket is a listening socket
+ *
+ *  upon successful and complete acceptance of the request, the corresponding
+ *  socket will be set as 'accepted' and added to the Socket vector to be later
+ *  used by accept_request() and send_response()
+ */
+
+void EventManager::accept_request(int fd) {
     (void)fd;
     for (unsigned long i = 0; i < EventManager::_sockets.size(); i++) {
         if (EventManager::_sockets[i].get_fd() <= _max_ssocket &&
@@ -108,68 +144,79 @@ int EventManager::accept_request(int fd) {
             }
         }
     }
-    return (0);
 }
 
-int EventManager::recv_request(int index) {
+/*
+ *  recv_request loops on all the active requests and tries to read and store
+ *  the data if and only if :
+ *      - there is something to read (select event)
+ *      - the socket is readable
+ *      - the socket has been previously accepted by a listening socket
+ *      - the socket is not a listening socket
+ *
+ *  upon successful and complete receiving of the response, the corresponding
+ *  socket will be set as 'read' to be later used by send_response()
+ */
+
+void EventManager::recv_request(int index) {
     (void)index;
     for (unsigned long i = 0; i < EventManager::_sockets.size(); i++) {
-        //  std::cout << "fd to read = " << itr->second.get_fd() << " max socket
-        //  = " << _max_ssocket << std::endl; std::cout << "isset = " <<
-        //  FD_ISSET(itr->second.get_fd(), &_read_set) << std::endl; std::cout
-        //  << "status accepted = " << std::boolalpha <<
-        //  (itr->second.get_status() == fd_status::accepted)<< std::endl;
         if (EventManager::_sockets[i].get_fd() > _max_ssocket &&
             FD_ISSET(EventManager::_sockets[i].get_fd(), &_read_set) &&
             EventManager::_sockets[i].get_status() == fd_status::accepted) {
             char buffer[4096];
             int ret;
 
-            std::cout << "L'INDEX EST " << i << std::endl;
-
             ret = recv(EventManager::_sockets[i].get_fd(), buffer, 4096,
                        MSG_DONTWAIT);
-            std::cout << "ret read = " << ret
-                      << " on fd: " << EventManager::_sockets[i].get_fd()
-                      << " on port: " << EventManager::_sockets[i].get_port()
-                      << std::endl;
-            if (ret == 0) {
-                return (-1);
-            } else if (ret > 0) {
+            if (ret > 0) {
                 EventManager::_sockets[i].manage_raw_request(buffer, ret);
             }
         }
     }
-    return (0);
 }
 
-int EventManager::send_response(int index) {
+/*
+ *  send_reponse loops on all the active requests, gets the reponses if it is
+ *  ready and sends it (fully or partially) if and only if :
+ *      - there is something to send (select event)
+ *      - the socket is writable
+ *      - the socket has been fully read
+ *      - the socket is not a listening socket
+ *
+ *  upon successful and complete sending of the response, the corresponding
+ *  socket will be closed and set as 'closed' to be later delete by resize()
+ */
+
+void EventManager::send_response(int index) {
     (void)index;
-     for (unsigned long i = 0; i < EventManager::_sockets.size(); i++) {
+    for (unsigned long i = 0; i < EventManager::_sockets.size(); i++) {
         if (EventManager::_sockets[i].get_fd() > _max_ssocket &&
             FD_ISSET(EventManager::_sockets[i].get_fd(), &_write_set) &&
             EventManager::_sockets[i].get_status() == fd_status::read) {
             std::ostringstream buffer;
 
-            buffer << EventManager::_sockets[i].get_response();
+            buffer << EventManager::_sockets[i].manage_response();
 
-            unsigned long ret = send(EventManager::_sockets[i].get_fd(), buffer.str().c_str(),
-                                     buffer.str().length(), 0);
+            unsigned long ret =
+                send(EventManager::_sockets[i].get_fd(), buffer.str().c_str(),
+                     buffer.str().length(), 0);
             // Change condition to (if nothing else to send)
-            std::cout << "ret = " << ret << " | buffer len = " << buffer.str().length() << std::endl;
-            if (ret > 0) {
-                std::cout << "closed " << EventManager::_sockets[i].get_fd() << std::endl;
+            if (ret >= buffer.str().length()) {
                 close(EventManager::_sockets[i].get_fd());
                 EventManager::_sockets[i].set_status(fd_status::closed);
             }
         }
     }
-    return (0);
 }
+
+/*
+ *  Resize is used to delete closed sockets from the Socket vector and file
+ *  descriptors from select read/write sets
+ */
 
 void EventManager::resize(void) {
     for (unsigned long i = 0; i < EventManager::_sockets.size(); i++) {
-        std::cout << i << ": " << EventManager::_sockets[i].get_fd() << std::endl;
         if (EventManager::_sockets[i].get_status() == fd_status::closed) {
             FD_CLR(EventManager::_sockets[i].get_fd(),
                    &EventManager::_read_set);
