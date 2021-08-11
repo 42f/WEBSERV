@@ -40,7 +40,15 @@ class GetMethod	: public A_Method {
 		}
 		std::string	targetFile(loc.get_root() + "/");
 		if (req.target.isFile()) {
-			targetFile += req.target.getFile();
+			if (req.target.decoded_path.find(loc.get_path()) == 0) {
+				LogStream s; s << "old targetfile is : " << targetFile << "\n";
+				targetFile += req.target.decoded_path.substr(loc.get_path().length()) ;
+				s << "new targetfile is : " << targetFile  ;
+			}
+			else {
+				targetFile += req.target.decoded_path ;
+			}
+
 		}
 		else if (loc.get_index().empty() == false)	{
 			targetFile += loc.get_index();

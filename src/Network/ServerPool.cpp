@@ -47,10 +47,17 @@ void	ServerPool::locationsInit(config::Server &serv) {
 										? serv.get_index() : it->_index);
 			it->_body_size = (it->_body_size == LocationConfig::SIZE_UNSET)
 										? serv.get_body_size() : it->_body_size;
+			cleanLocationPath(it->_path);
 		}
 	}
 }
 
+void	ServerPool::cleanLocationPath(std::string &locPath) {
+	if (locPath.front() != '/')
+		locPath = '/' + locPath;
+	if (locPath.back() != '/')
+		locPath.push_back('/');
+}
 
 
 /* ................................. ACCESSOR ................................*/
@@ -94,8 +101,9 @@ config::Server const&		ServerPool::getServerMatch( std::string hostHeader,
 }
 
 /*
- * iterate on location vector, if no suitable one is found, or if no
- * location exists, a location is made from server data.
+ * Try to match the target with any location path, if none, reduce one element
+ * of the path and try again, until the target is empty, then no location can
+ * be resolved so a location is created with the parent server infos.
  */
 LocationConfig const ServerPool::getLocationMatch( config::Server const & serv,
 															Target const & target ) {
@@ -103,29 +111,20 @@ LocationConfig const ServerPool::getLocationMatch( config::Server const & serv,
 	std::vector<LocationConfig> const & locs = serv.get_locations();
 
 	if (locs.empty() == false) {
-		std::vector<LocationConfig>::const_iterator it = locs.begin();
+		std::vector<LocationConfig>::const_iterator it;
 		std::vector<LocationConfig>::const_iterator ite = locs.end();
-
-		for (; it != ite; it++)	{
-			if (isPathMatch(*it, target))
-				return *it;
+		std::string targetPath = target.decoded_path;
+		while (targetPath.empty() == false) {
+			LogStream s; s << "Try target... " << targetPath;
+			for (it = locs.begin(); it != ite; it++)	{
+				if (targetPath == it->get_path() || targetPath + '/' == it->get_path())
+					return *it;
+			}
+			targetPath.resize(targetPath.find_last_of('/'));
 		}
 	}
 	return (LocationConfig(serv));
 }
-
-bool		ServerPool::isPathMatch( LocationConfig const & loc,
-															Target const & target ) {
-
-	std::string targetPath = target.decoded_path;
-	while (targetPath.empty() == false) {
-		if (targetPath == loc.get_path())
-			return true;
-		targetPath.resize(targetPath.find_last_of('/'));
-	}
-	return false;
-}
-
 
 /* ................................. OVERLOAD ................................*/
 

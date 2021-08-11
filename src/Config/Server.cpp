@@ -112,6 +112,7 @@ namespace config
 				<< "AdresseIP/Port : " << cfg._address << ":" << cfg._port << std::endl
 				<< "Server_name : " << cfg._name << std::endl
 				<< "Root : " << cfg._root << std::endl
+				<< "Index : " << cfg._index << std::endl
 				<< "Client_max_body_size : " << cfg._body_size << " bytes" << std::endl;
 		for (std::map<std::string, std::string>::const_iterator it = cfg._cgis.begin();
 			 it != cfg._cgis.end(); it++) {
