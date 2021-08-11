@@ -67,7 +67,7 @@ public:
 		return output.substr(lastPartHead);
 	}
 
-	static Target from(slice path, slice query)
+	static Target from(std::string path, slice query)
 	{
 		return Target(path, query);
 	}
