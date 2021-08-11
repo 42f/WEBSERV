@@ -20,7 +20,7 @@ namespace config
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
-	Server::Server() : _port(0), _address(""), _name(""), _body_size(1048576) { }
+	Server::Server() : _port(80), _address("0.0.0.0"), _name(""), _body_size(1048576) { }
 
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
