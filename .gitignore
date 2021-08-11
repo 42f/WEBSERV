@@ -2,6 +2,8 @@
 /build
 /objs
 
+.DS_Store
+
 #binaries
 webserv
 webserv98
