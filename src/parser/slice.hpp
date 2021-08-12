@@ -5,13 +5,14 @@
 #ifndef WEBSERV_SLICE_HPP
 #define WEBSERV_SLICE_HPP
 
-#include <string>
 #include <cstddef>
-#include <ostream>
 #include <iostream>
+#include <ostream>
+#include <string>
 
 /*
- * Allows to convert std::string in to slice, for practicality reasons such as preventing deep copy
+ * Allows to convert std::string in to slice, for practicality reasons such as
+ * preventing deep copy
  */
 
 struct slice
@@ -183,4 +184,4 @@ public:
 	}
 };
 
-#endif //WEBSERV_SLICE_HPP
+#endif  // WEBSERV_SLICE_HPP

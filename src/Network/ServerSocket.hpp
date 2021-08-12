@@ -12,14 +12,9 @@ namespace network {
 class ServerSocket {
    public:
     ServerSocket(int port);
-    ServerSocket(void);
     ServerSocket(ServerSocket const &src);
     ~ServerSocket();
 
-    // Overload
-    ServerSocket &operator=(ServerSocket const &rhs);
-
-    // Getters and Setters
     int get_id(void) const;
     int get_port(void) const;
     int get_type(void) const;
@@ -28,14 +23,15 @@ class ServerSocket {
     int get_addr_len(void) const;
     struct sockaddr_in *get_addr(void) const;
 
-    // Member functions
-    int do_listen(void);
-    int do_bind(void);
-    int do_accept(void);
-    bool is_good(void) const;
-    int unblock(void);
+    void set_port(int port);
+
+    ServerSocket &operator=(ServerSocket const &rhs);
 
    private:
+    int unblock(void);
+    void do_bind(void);
+    void do_listen(void);
+
     int _id;
     int _port;
     int _type;
@@ -43,7 +39,6 @@ class ServerSocket {
     int _addrlen;
     int _protocol;
     struct sockaddr_in _address;
-    bool _is_good;
 };
 
 }  // namespace network
