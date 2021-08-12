@@ -19,6 +19,7 @@ class Socket {
     typedef Result<Request, status::StatusCode> result_type;
 
     Socket(int fd, int port, fd_status::status status = fd_status::error);
+    Socket(Socket const & src);
     Socket(void);
     ~Socket();
 
@@ -30,9 +31,11 @@ class Socket {
     int get_port(void) const;
     int get_flags(void) const;
     bool has_events(void) const;
-    fd_status::status get_status() const;
+    fd_status::status get_status(void) const;
+    Response get_response(void) const;
+    bool response_is_ready(void);
 
-    Response manage_response();
+    void manage_response();
     void manage_raw_request(char *buffer, int size);
 
     Socket &operator=(Socket const &rhs);

@@ -179,8 +179,8 @@ void EventManager::recv_request(int index) {
 /*
  *  send_reponse loops on all the active requests, gets the reponses if it is
  *  ready and sends it (fully or partially) if and only if :
- *      - there is something to send (select event)
- *      - the socket is writable
+ *      - the response is ready
+ *      - the socket is writable (select event)
  *      - the socket has been fully read
  *      - the socket is not a listening socket
  *
@@ -194,17 +194,19 @@ void EventManager::send_response(int index) {
         if (EventManager::_sockets[i].get_fd() > _max_ssocket &&
             FD_ISSET(EventManager::_sockets[i].get_fd(), &_write_set) &&
             EventManager::_sockets[i].get_status() == fd_status::read) {
-            std::ostringstream buffer;
+            EventManager::_sockets[i].manage_response();
+            if (EventManager::_sockets[i].response_is_ready() == true) {
+                std::ostringstream buffer;
+                buffer << EventManager::_sockets[i].get_response();
 
-            buffer << EventManager::_sockets[i].manage_response();
-
-            unsigned long ret =
-                send(EventManager::_sockets[i].get_fd(), buffer.str().c_str(),
-                     buffer.str().length(), 0);
-            // Change condition to (if nothing else to send)
-            if (ret >= buffer.str().length()) {
-                close(EventManager::_sockets[i].get_fd());
-                EventManager::_sockets[i].set_status(fd_status::closed);
+                unsigned long ret =
+                    send(EventManager::_sockets[i].get_fd(),
+                         buffer.str().c_str(), buffer.str().length(), 0);
+                // Change condition to (if nothing else to send)
+                if (ret >= buffer.str().length()) {
+                    close(EventManager::_sockets[i].get_fd());
+                    EventManager::_sockets[i].set_status(fd_status::closed);
+                }
             }
         }
     }
