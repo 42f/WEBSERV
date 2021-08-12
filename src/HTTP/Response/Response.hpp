@@ -4,22 +4,19 @@
 #include <istream>
 #include <iostream>
 #include <sstream>
-#include "HTTP/Request/RequestLine.hpp"
-#include "HTTP/Headers/Headers.hpp"
-#include "HTTP/Response/ResponseUtils/File.hpp"
-#include "HTTP/Response/ResponseUtils/ResponseHeader.hpp"
+
 #include "Config/Directives/Redirect.hpp"
+#include "RequestLine.hpp"
+#include "Headers.hpp"
+#include "ResponseHeader.hpp"
+#include "File.hpp"
 
 #include "utils/Logger.hpp"
-#include "HTTP/Response/ResponseUtils/File.hpp"
-#include "HTTP/Request/Request.hpp"
 #include "Status.hpp"
-
 
 class Response	{
 
 	public:
-
 
 		Response( void );
 		Response( Response const & src );
@@ -29,30 +26,25 @@ class Response	{
 		~Response( void );
 
 		void	setVersion( const Version& version );
-		void	setHeader( ResponseHeader newHeader );
+		void	setHeader( std::string const& field, std::string const& value );
+		void	setHeader( std::string const& field, int value );
 		void	setStatus( const status::StatusCode& statusCode );
 
-		void	reset( void );
+		files::File & 	getFile( void );
 
-		void	clearBody( void );
-		std::vector<char> const&	getBody( void ) const;
-
-		int				getBodyLen( void ) const;
-		std::string		getBodyLen( void );
-
-		void			update_BodyLen( void );
+		void	reset( Version const & vers = Version(), status::StatusCode code = status::None );
 
 		std::string			 	_statusMessage;
 	private:
 
-		Version					_version;
-		status::StatusCode		_statusCode;
+		typedef	std::pair<std::string const, std::string>		header_t;
+		typedef	std::map<std::string const, header_t>			headerMap_t;
 
-		std::map<std::string, ResponseHeader>	_headers;
-		std::vector<char>				_body;
-		size_t							_bodyLength;
 
+		Version										_version;
+		status::StatusCode							_statusCode;
+		headerMap_t									_headers;
+		files::File									_file;
 
 		friend std::ostream&	operator<<( std::ostringstream & o, Response const & i );
-		friend std::istream&	operator>>( std::istream & is, Response& i );
 };

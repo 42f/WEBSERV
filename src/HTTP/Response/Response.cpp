@@ -2,7 +2,8 @@
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-Response::Response() : _version(Version('1', '1')), _statusCode(status::None) {}
+Response::Response() : _version(Version('1', '1')), _statusCode(status::None) {
+}
 
 Response::Response(Version version, status::StatusCode statusCode)
     : _version(version) {
@@ -21,25 +22,24 @@ Response::~Response() {}
 
 /* ................................. METHODS .................................*/
 
-void Response::reset() {
-    _version = Version();
-    _statusCode = status::None;
+void Response::reset( Version const & vers, status::StatusCode code ) {
+    _version = vers;
+    _statusCode = code;
     _statusMessage = status::StatusMessage::get(_statusCode);
     _headers.clear();
-    clearBody();
 }
-
-void Response::clearBody() {
-    _body.clear();
-    update_BodyLen();
-}
-
-void Response::update_BodyLen() { _bodyLength = _body.size(); }
 
 void Response::setVersion(const Version& version) { _version = version; }
 
-void Response::setHeader(ResponseHeader newHeader) {
-    _headers.insert(std::make_pair(newHeader.field(), newHeader));
+void Response::setHeader( std::string const& field, std::string const& value ) {
+    _headers.insert(std::make_pair(field, std::make_pair(field, value)) );
+    // _headers.insert(std::make_pair(field, value));
+}
+
+void Response::setHeader( std::string const& field, int value ) {
+	std::stringstream strValue;
+	strValue << value;
+    setHeader(field, strValue.str());
 }
 
 void Response::setStatus(const status::StatusCode& statusCode) {
@@ -47,17 +47,11 @@ void Response::setStatus(const status::StatusCode& statusCode) {
     _statusMessage = status::StatusMessage::get(statusCode);
 }
 
+files::File &   Response::getFile( void ) { return _file; }
+
+
 /* ................................. ACCESSOR ................................*/
 
-std::vector<char> const& Response::getBody() const { return _body; }
-
-int Response::getBodyLen() const { return _bodyLength; }
-
-std::string Response::getBodyLen() {
-    std::stringstream len;
-    len << _bodyLength;
-    return len.str().c_str();
-}
 
 /* ................................. OVERLOAD ................................*/
 
@@ -67,26 +61,9 @@ Response& Response::operator=(Response const& rhs) {
         this->_statusCode = rhs._statusCode;
         this->_statusMessage = rhs._statusMessage;
         this->_headers = rhs._headers;
-        this->_body = rhs._body;
+        this->_file = rhs._file;
     }
     return *this;
-}
-
-// TODO opti !!
-// appends the content of istream in the response _body, use clearBody() before
-// if needed.
-std::istream& operator>>(std::istream& is, Response& inst) {
-    std::string buffer;
-
-    while (is.good()) {
-        std::getline(is, buffer);
-        if (is.eof() == false)
-            buffer +=
-                '\n';  // add back the newline removed by getline as a delimiter
-        inst._body.insert(inst._body.end(), buffer.begin(), buffer.end());
-    }
-    inst.update_BodyLen();
-    return is;
 }
 
 // Writes the response's content to the client's connection fd
@@ -97,10 +74,10 @@ std::ostream& operator<<(std::ostringstream& o, Response const& i) {
 
     // Writes headers
     if (i._headers.empty() == false) {
-        for (std::map<std::string, ResponseHeader>::const_iterator it =
-                 i._headers.begin();
-             it != i._headers.end(); it++) {
-            o << it->second << "\r\n";
+
+        Response::headerMap_t::const_iterator it = i._headers.begin();
+        for (; it != i._headers.end(); it++) {
+            o << it->first << ": " << it->second.second << "\r\n";
         }
     }
 
@@ -110,11 +87,6 @@ std::ostream& operator<<(std::ostringstream& o, Response const& i) {
 
     // Writes empty line separation
     o << "\r\n";
-
-    // Writes body's content
-    if (i._body.empty() == false) {
-        o.write(i._body.data(), i._body.size());
-    }
 
     return o;
 }

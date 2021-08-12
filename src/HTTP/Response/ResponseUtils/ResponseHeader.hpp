@@ -1,5 +1,6 @@
 #pragma once
 
+# include <sstream>
 # include <iostream>
 # include <string>
 # include <map>
@@ -49,28 +50,30 @@ namespace headerTitle {
 	};
 }
 
-class ResponseHeader	{
+// class ResponseHeader	{
 
-	friend std::ostream &	operator<<( std::ostream & o, ResponseHeader const & i );
+// 	friend std::ostream &	operator<<( std::ostream & o, ResponseHeader const & i );
 
-	public:
+// 	public:
 
-		typedef std::pair<const std::string, std::string>  			header_t;
+// 		typedef std::pair<const std::string, std::string>  			header_t;
 
-		ResponseHeader( std::string const customHeader, std::string value = "");
-		ResponseHeader( headerTitle::Title title, std::string value = "" );
-		ResponseHeader( ResponseHeader const & src );
+// 		ResponseHeader( std::string const& customHeader, std::string const& value = "");
+// 		ResponseHeader( std::string const& customHeader, int value);
+// 		ResponseHeader( headerTitle::Title const& title, std::string const& value = "" );
+// 		ResponseHeader( headerTitle::Title const& title, int value);
+// 		ResponseHeader( ResponseHeader const & src );
 
-		header_t&			getData( void );
-		const std::string&	field( void ) const;
-		const std::string&	value( void ) const;
+// 		header_t&			getData( void );
+// 		const std::string&	field( void ) const;
+// 		const std::string&	value( void ) const;
 
-		~ResponseHeader( void );
+// 		~ResponseHeader( void );
 
-	private:
+// 	private:
 
-		header_t			_header;
+// 		header_t			_header;
 
-		ResponseHeader( void );
-		ResponseHeader &		operator=( ResponseHeader const & rhs );
-};
+// 		ResponseHeader( void );
+// 		ResponseHeader &		operator=( ResponseHeader const & rhs );
+// };

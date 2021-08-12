@@ -58,7 +58,7 @@ int Socket::get_port(void) const { return _port; }
 int Socket::get_flags(void) const { return _flags; }
 bool Socket::has_events(void) const { return _has_events; }
 fd_status::status Socket::get_status(void) const { return _status; }
-Response Socket::get_response(void) const { return _response; }
+Response const & Socket::get_response(void) const { return _response; }
 bool Socket::response_is_ready(void) { return _resp_is_ready; }
 
 /***************************************************
@@ -74,7 +74,7 @@ void Socket::manage_raw_request(char *buffer, int size) {
 }
 
 void Socket::manage_response() {
-    if (_response_handler.isReady() == false) {
+    if (_response_handler.isHeadReady() == false) {
         _resp_is_ready = false;
         _response_handler.processRequest();
     } else {

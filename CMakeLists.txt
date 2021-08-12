@@ -32,7 +32,6 @@ set(FILES
         src/HTTP/Response/ResponseHandler.hpp
         src/HTTP/Response/ResponseUtils/ResponseHeader.cpp
         src/HTTP/Response/ResponseUtils/ResponseHeader.hpp
-        src/HTTP/Response/ResponseUtils/A_Method.hpp
         src/HTTP/Response/ResponseUtils/File.cpp
         src/HTTP/Response/ResponseUtils/File.hpp
         src/HTTP/Response/ResponseUtils/TypesMime.cpp

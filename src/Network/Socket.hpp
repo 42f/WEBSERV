@@ -32,7 +32,7 @@ class Socket {
     int get_flags(void) const;
     bool has_events(void) const;
     fd_status::status get_status(void) const;
-    Response get_response(void) const;
+    Response const & get_response(void) const;
     bool response_is_ready(void);
 
     void manage_response();

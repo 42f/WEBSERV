@@ -15,6 +15,7 @@ namespace files {
 
 	class File	{
 
+        friend class GetMethod;
 
 		public:
 
@@ -22,17 +23,21 @@ namespace files {
 			std::ifstream &			getStream(void);
 
 
-			File(  std::string const & path  );
+			File( void );
+			File( std::string const & path );
+			File( File const & src );
 			~File( void );
 
+			File &		operator=( File const & rhs );
 
+			// Private to avoid disrupting the index pos if called in between read
+            size_t		getSize(void);
 
 		private:
 
 			std::ifstream		_fileStream;
+			std::string 		_path;
 
-			File( File const & src );
-			File &		operator=( File const & rhs );
 
 		};
 

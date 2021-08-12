@@ -24,6 +24,7 @@ namespace config {
 #include "Methods.hpp"
 #include "Redirect.hpp"
 #include "Upload.hpp"
+#include "ServerPool.hpp"
 
 
 #include <limits>

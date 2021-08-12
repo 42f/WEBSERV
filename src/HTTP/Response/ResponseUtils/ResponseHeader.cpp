@@ -61,71 +61,85 @@ namespace headerTitle {
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-ResponseHeader::ResponseHeader( std::string customHeader, std::string value) :
-									_header(customHeader, value) {
+// ResponseHeader::ResponseHeader( std::string const& customHeader, std::string const& value) :
+// 									_header(customHeader, value) {
+// }
 
-}
+// ResponseHeader::ResponseHeader( std::string const& customHeader, int value){
 
-ResponseHeader::ResponseHeader( headerTitle::Title title, std::string value ) :
-				_header(headerTitle::HeaderTitleField::get(title) , value) {
+// 	std::stringstream strValue;
+// 	strValue << value;
+// 	std::string str(strValue.str());
+// 	// _header = std::make_pair(customHeader, str);
+// 	_header = std::make_pair("HELLO", "HELLO");
+// }
+
+// ResponseHeader::ResponseHeader( headerTitle::Title const& title, std::string const& value ) :
+// 				_header(headerTitle::HeaderTitleField::get(title) , value) {
+
+// }
+
+// ResponseHeader::ResponseHeader( headerTitle::Title const& title, int value){
+
+// 	std::stringstream strValue;
+// 	strValue << value;
+// 	_header = std::make_pair(headerTitle::HeaderTitleField::get(title), strValue.str());
+// }
+
+// ResponseHeader::ResponseHeader( void )	{ }
+
+// /* ..............................COPY CONSTRUCTOR.............................*/
+
+// ResponseHeader::ResponseHeader( const ResponseHeader & src ) :
+// 											_header(src.field(), src.value()) {
+// }
+
+// /* ................................ DESTRUCTOR ...............................*/
+
+// ResponseHeader::~ResponseHeader( void )	{
+// }
+
+// /* ................................. METHODS .................................*/
 
 
-}
 
-ResponseHeader::ResponseHeader( void )	{ }
+// /* ................................. ACCESSOR ................................*/
 
-/* ..............................COPY CONSTRUCTOR.............................*/
+// ResponseHeader::header_t&			ResponseHeader::getData( void ) {
+// 	return _header;
+// }
 
-ResponseHeader::ResponseHeader( const ResponseHeader & src ) :
-											_header(src.field(), src.value()) {
-}
+// const std::string&	ResponseHeader::field( void ) const {
+// 	return _header.first;
+// }
 
-/* ................................ DESTRUCTOR ...............................*/
+// const std::string&		ResponseHeader::value( void ) const {
+// 	return _header.second;
+// }
 
-ResponseHeader::~ResponseHeader( void )	{
-}
+// /* ................................. OVERLOAD ................................*/
 
-/* ................................. METHODS .................................*/
+// /*
+// ResponseHeader &				ResponseHeader::operator=( ResponseHeader const & rhs )	{
+// 	if ( this != &rhs )	{
+// 		this->_value = rhs.getValue();
+// 	}
+// 	return *this;
+// }
+// */
 
+// std::ostream &			operator<<( std::ostream & o, ResponseHeader const & i )	{
 
+// 	o << i.field() << ": " << i.value();
+// 	return o;
+// }
 
-/* ................................. ACCESSOR ................................*/
+// /* ................................... DEBUG .................................*/
 
-ResponseHeader::header_t&			ResponseHeader::getData( void ) {
-	return _header;
-}
+// /*
+// void ResponseHeader::debugPrint( void ) const {
 
-const std::string&	ResponseHeader::field( void ) const {
-	return _header.first;
-}
+// }
+// */
 
-const std::string&		ResponseHeader::value( void ) const {
-	return _header.second;
-}
-
-/* ................................. OVERLOAD ................................*/
-
-/*
-ResponseHeader &				ResponseHeader::operator=( ResponseHeader const & rhs )	{
-	if ( this != &rhs )	{
-		this->_value = rhs.getValue();
-	}
-	return *this;
-}
-*/
-
-std::ostream &			operator<<( std::ostream & o, ResponseHeader const & i )	{
-
-	o << i.field() << ": " << i.value();
-	return o;
-}
-
-/* ................................... DEBUG .................................*/
-
-/*
-void ResponseHeader::debugPrint( void ) const {
-
-}
-*/
-
-/* ................................. END CLASS................................*/
+// /* ................................. END CLASS................................*/

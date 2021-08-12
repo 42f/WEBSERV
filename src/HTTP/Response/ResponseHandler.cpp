@@ -2,8 +2,6 @@
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-int	ResponseHandler::req_counter = 0;
-
 ResponseHandler::ResponseHandler( ReqResult requestResult, int receivedPort ) {
 	this->init(requestResult, receivedPort);
 }
@@ -49,10 +47,6 @@ void	ResponseHandler::init( ReqResult const & requestResult, int receivedPort ) 
 				break;
 		}
 	}
-	// else
-	// {
-	// 	_method = new UnsupportedMethod; // TODO leak, just for debug!:
-	// }
 }
 
 void	ResponseHandler::processRequest() {
@@ -78,22 +72,29 @@ std::string		ResponseHandler::getHeader(const Request & req, const std::string& 
 	return req.get_header(target).unwrap_or("");
 }
 
+std::string const &	ResponseHandler::getBodyPart( size_t nBytes ) {
+
+	_bodyBuffer.reserve(nBytes);
+	// _bodyBuffer.assign( (std::istreambuf_iterator<char>(_response.getFile()) ),
+    //          			(std::istreambuf_iterator<char>() ) );
+	return _bodyBuffer;
+}
 /* ................................. ACCESSOR ................................*/
 
 
-/*
- * Returns the status of the response treatment, yet the
- * result itself has to be checked before unwraped.
- */
-bool	ResponseHandler::isReady() {
+bool	ResponseHandler::isHeadReady() {
 	return (_status == response_status::Ready);
+}
+
+bool	ResponseHandler::isBodyReadable() {
+	return (_status == response_status::Ready && _response.getFile().isGood());
 }
 
 /*
  * Returns the result processed. If no call to processRequest was made prior
  * to a call to getResult, result sould not be unwrapped.
 */
-Response &	ResponseHandler::getResponse() {
+Response const &	ResponseHandler::getResponse() {
 	return (_response);
 }
 
