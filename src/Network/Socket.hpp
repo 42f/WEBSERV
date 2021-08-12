@@ -45,6 +45,7 @@ class Socket {
     int _port;
     int _flags;
     bool _has_events;
+    bool _resp_is_ready;
     std::string _buffer;
     fd_status::status _status;
     RequestHandler _request_handler;
