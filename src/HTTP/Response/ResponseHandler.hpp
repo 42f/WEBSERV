@@ -40,7 +40,7 @@ class ResponseHandler	{
 
 	public:
 
-		void			init( ReqResult requestResult, int receivedPort );
+		void			init( ReqResult const & requestResult, int receivedPort );
 		void	 		processRequest( void );
 		Response & 		getResponse( void );
 		bool		 	isReady( void );

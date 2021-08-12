@@ -26,13 +26,13 @@ ResponseHandler::~ResponseHandler( void ) {
 
 /* ................................. METHODS .................................*/
 
-void	ResponseHandler::init( ReqResult requestResult, int receivedPort ) {
+void	ResponseHandler::init( ReqResult const & requestResult, int receivedPort ) {
 
+	_status = response_status::Empty;
 	_port = receivedPort;
 	_request = requestResult;
-	_status = response_status::Empty;
-	if (requestResult.is_ok())	{
-		switch (requestResult.unwrap().method)
+	if (_request.is_ok())	{
+		switch (_request.unwrap().method)
 		{
 			case methods::GET :
 				_method = new GetMethod;
@@ -49,6 +49,10 @@ void	ResponseHandler::init( ReqResult requestResult, int receivedPort ) {
 				break;
 		}
 	}
+	// else
+	// {
+	// 	_method = new UnsupportedMethod; // TODO leak, just for debug!:
+	// }
 }
 
 void	ResponseHandler::processRequest() {
