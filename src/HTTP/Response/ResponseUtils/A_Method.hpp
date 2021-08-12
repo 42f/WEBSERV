@@ -34,11 +34,12 @@ class GetMethod	: public A_Method {
 
 		(void)serv;
 
+		// Case where no location was resolved, and parent server has no root
 		if (loc.get_root().empty())	{
-			resp = Response(Version('2', '1'), status::Unauthorized);
+			resp = Response(Version('r', 'n'), status::Unauthorized); // TODO Version debug only
 			return ;
 		}
-		std::string	targetFile(loc.get_root() + "/");
+		std::string	targetFile(loc.get_root());
 		if (req.target.isFile()) {
 			if (req.target.decoded_path.find(loc.get_path()) == 0) {
 				LogStream s; s << "old targetfile is : " << targetFile << "\n";
@@ -48,7 +49,6 @@ class GetMethod	: public A_Method {
 			else {
 				targetFile += req.target.decoded_path ;
 			}
-
 		}
 		else if (loc.get_index().empty() == false)	{
 			targetFile += loc.get_index();
@@ -111,5 +111,6 @@ class UnsupportedMethod	: public A_Method {
 	~UnsupportedMethod() {};
 
 	void	handler(config::Server, LocationConfig, Request, Response&) {
+		std::cout << __func__ << " of UNSUPPORTED." << std::endl;
 	}
 };

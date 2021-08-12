@@ -6,15 +6,7 @@ std::vector<config::Server>		ServerPool::_serverPool;
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-ServerPool::ServerPool( void )	{
-}
-
 /* ..............................COPY CONSTRUCTOR.............................*/
-
-/*
-ServerPool::ServerPool( const ServerPool & src ) {
-}
-*/
 
 /* ................................ DESTRUCTOR ...............................*/
 
@@ -47,16 +39,22 @@ void	ServerPool::locationsInit(config::Server &serv) {
 										? serv.get_index() : it->_index);
 			it->_body_size = (it->_body_size == LocationConfig::SIZE_UNSET)
 										? serv.get_body_size() : it->_body_size;
-			cleanLocationPath(it->_path);
+			cleanPath(it->_path);
+			cleanRoot(it->_root);
 		}
 	}
 }
 
-void	ServerPool::cleanLocationPath(std::string &locPath) {
+void	ServerPool::cleanPath(std::string &locPath) {
 	if (locPath.front() != '/')
 		locPath = '/' + locPath;
 	if (locPath.back() != '/')
 		locPath.push_back('/');
+}
+
+void	ServerPool::cleanRoot(std::string &locRoot) {
+	if (locRoot.size() > 1 && locRoot.back() != '/')
+		locRoot.push_back('/');
 }
 
 
@@ -115,8 +113,8 @@ LocationConfig const ServerPool::getLocationMatch( config::Server const & serv,
 		std::vector<LocationConfig>::const_iterator ite = locs.end();
 		std::string targetPath = target.decoded_path;
 		while (targetPath.empty() == false) {
-			LogStream s; s << "Try target... " << targetPath;
 			for (it = locs.begin(); it != ite; it++)	{
+				LogStream s; s << "Try target... " << targetPath << " vs " << it->get_path();  // TODO remove log
 				if (targetPath == it->get_path() || targetPath + '/' == it->get_path())
 					return *it;
 			}
@@ -128,33 +126,8 @@ LocationConfig const ServerPool::getLocationMatch( config::Server const & serv,
 
 /* ................................. OVERLOAD ................................*/
 
-/*
-ServerPool &				ServerPool::operator=( ServerPool const & rhs )	{
-	if ( this != &rhs )	{
-		this->_value = rhs.getValue();
-	}
-	return *this;
-}
-*/
-
-/*
-std::ostream &			operator<<( std::ostream & o, ServerPool const & i )	{
-	o << "Value = " << i.getValue();
-	return o;
-}
-*/
-
-
 /* ................................... DEBUG .................................*/
 
-void ServerPool::debugPrint( void )  {
-
-	std::cout << "___________DEBUG" << std::endl;
-	std::vector<config::Server>::iterator it = _serverPool.begin();
-	for (; it != _serverPool.end(); it++) {
-		std::cout << *it;
-	}
-}
-
 /* ................................. END CLASS................................*/
+
 } // end namespace network

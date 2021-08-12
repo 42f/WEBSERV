@@ -32,15 +32,14 @@ namespace network {
 
 			static void		locationsInit(config::Server &serv);
 			static bool		isPathMatch( LocationConfig const & loc, Target const & target);
-			static void		cleanLocationPath(std::string &locPath);
+			static void		cleanPath(std::string &locPath);
+			static void		cleanRoot(std::string &locRoot);
 
-			ServerPool( void );
+			ServerPool( void ) {};
 			ServerPool( ServerPool const & src );
 			ServerPool &		operator=( ServerPool const & rhs );
 
-			static void 		debugPrint( void ) ;
 
-			// friend std::ostream &	operator<<( std::ostream & o, ServerPool const & i );
 
 		};
 
