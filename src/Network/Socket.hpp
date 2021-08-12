@@ -47,6 +47,7 @@ class Socket {
     RequestHandler _request_handler;
     RequestHandler::result_type _res;
     ResponseHandler _response_handler;
+    Response _response;
 };
 
 }  // namespace network

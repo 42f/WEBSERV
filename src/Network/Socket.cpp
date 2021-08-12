@@ -8,10 +8,10 @@ namespace network {
 
 Socket::Socket(int fd, int port, fd_status::status status)
     : _fd(fd),
-      _status(status),
+      _port(port),
       _has_events(false),
-      _res(result_type::err(status::None)),
-      _port(port) {
+      _status(status),
+      _res(result_type::err(status::None)) {
     if (fd < 0) {
         _status = fd_status::error;
     }
@@ -73,7 +73,7 @@ Response Socket::manage_response() {
     if (_response_handler.isReady() == false) {
         _response_handler.processRequest();
     } else {
-        return (_response_handler.getResponse());
+        _response = _response_handler.getResponse();
     }
 }
 
