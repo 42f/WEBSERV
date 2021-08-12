@@ -18,6 +18,8 @@ TakeWhile::result_type	TakeWhile::operator()(const slice &input)
 	slice	left = input.from(0);
 	int 	n = _max;
 
+	if (input.size == 0)
+		return result_type::fail(input, error("incomplete", status::Incomplete));
 	while (left.size && _fn(*left.p) && n--)
 	{
 		res = input.take(res.size + 1);

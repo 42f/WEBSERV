@@ -24,5 +24,18 @@ public:
 	result_type		operator()(const slice& input);
 };
 
+namespace streaming {
+	class HexChar: public Parser<char>
+	{
+	private:
+		int		_l;
+		int		_h;
+
+	public:
+		HexChar(int low, int high);
+
+		result_type		operator()(const slice& input);
+	};
+}
 
 #endif //WEBSERV_HEXCHAR_HPP

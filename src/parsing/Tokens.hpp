@@ -40,16 +40,12 @@ public:
 class Newline: public Parser<slice>
 {
 private:
-	Tag		_both;
-	Tag		_n;
+	Tag	_both;
+	Tag	_n;
 public:
 	Newline();
 	result_type 	operator()(const slice& input);
 };
-
-/* ************************************************************************** */
-
-const Newline newline = Newline();
 
 /*
  * Token = 1 * tchar = "!" | "#" | "$" | "%" | "&" | "'" | "*"| "+" | "-" | "." | "^" | "_" | "`" | "|" | "~" | DIGIT | ALPHA
@@ -61,8 +57,6 @@ public:
 	result_type		operator()(const slice &input);
 };
 
-/* ************************************************************************** */
-
 /*
  * quoted-string  = DQUOTE *( qdtext / quoted-pair ) DQUOTE
  */
@@ -73,14 +67,51 @@ public:
 	result_type	operator()(const slice &input);
 };
 
-/* ************************************************************************** */
-
 const Char	single_space = Char(' ');
 const RWS rws = RWS();
 const OWS ows = OWS();
-const Match		vchar = Match(isprint);
-const HexChar obs = HexChar('\x80', '\xFF');
-const Token token = Token();
-const QuotedText quoted_text = QuotedText();
+const Newline newline = Newline();
+
+/* ************************************************************************** */
+
+const streaming::Match			vchar = streaming::Match(isprint);
+const streaming::HexChar		obs = streaming::HexChar('\x80', '\xFF');
+const Token						token = Token();
+const QuotedText				quoted_text = QuotedText();
+
+namespace streaming {
+
+	class OWS: public Parser<slice>
+	{
+	public:
+		OWS();
+
+		result_type		operator()(const slice &input);
+	};
+
+	class RWS: public Parser<slice>
+	{
+	public:
+		RWS();
+
+		result_type		operator()(const slice &input);
+	};
+
+	class Newline: public Parser<slice>
+	{
+	private:
+		streaming::Tag	_both;
+		streaming::Tag	_n;
+	public:
+		Newline();
+		result_type 	operator()(const slice& input);
+	};
+
+	const Char	single_space = streaming::Char(' ');
+	const RWS rws = streaming::RWS();
+	const OWS ows = streaming::OWS();
+	const Newline newline = streaming::Newline();
+
+}
 
 #endif //WEBSERV_TOKENS_HPP

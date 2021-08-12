@@ -22,7 +22,7 @@ public:
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 	HeaderParser(): _field(FieldValue()), _name(FieldName()) { }
-	HeaderParser(std::string name, P parser): _field(parser), _name(Tag(name)) { }
+	HeaderParser(std::string name, P parser): _field(parser), _name(streaming::Tag(name)) { }
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
@@ -32,13 +32,13 @@ public:
 */
 	result_type		operator()(const slice &input)
 	{
-		typename Name::result_type name = terminated(_name, sequence(Char(':'), ows))(input);
+		typename Name::result_type name = terminated(_name, sequence(streaming::Char(':'), streaming::ows))(input);
 		if (name.is_err())
 			return name.template convert<Header>();
 		slice	left = name.left();
-		typename P::result_type	value = terminated(as_slice(_field), ows)(left);
+		typename P::result_type	value = terminated(as_slice(_field), streaming::ows)(left);
 		if (value.is_err())
-			return value.failure().map_err(left.size ? status::BadRequest : status::None).template convert<Header>();
+			return value.template convert<Header>();
 		return result_type::ok(value.left(), Header(name.unwrap(), value.unwrap()));
 	}
 };
@@ -46,9 +46,9 @@ public:
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 template<typename Value>
-HeaderParser<Tag, Value>	header(std::string name, Value parser)
+HeaderParser<streaming::Tag, Value>	header(std::string name, Value parser)
 {
-	return HeaderParser<Tag, Value>(name, parser);
+	return HeaderParser<streaming::Tag, Value>(name, parser);
 }
 
 /* ************************************************************************** */

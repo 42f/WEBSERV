@@ -11,7 +11,8 @@ AbsolutePath::AbsolutePath() { }
 
 AbsolutePath::result_type	AbsolutePath::operator()(const slice &input)
 {
-	ParserResult<std::vector<slice> >	res = many(preceded(Char('/'), Segment()))(input);
+	ParserResult<std::vector<slice> >	res = many(preceded(streaming::Char('/'),
+		Segment()))(input);
 	if (res.is_err())
 		return res.convert<std::string>();
 	std::vector<slice>	v = res.unwrap();

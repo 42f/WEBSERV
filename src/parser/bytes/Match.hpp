@@ -26,4 +26,21 @@ public:
 	result_type		operator()(const slice& input);
 };
 
+namespace streaming {
+	class Match: public Parser<char>
+	{
+	private:
+		typedef int		(*match_fn)(int c);
+
+	private:
+		match_fn 	_fn;
+
+	public:
+		Match(match_fn fn);
+
+		result_type		operator()(const slice& input);
+	};
+
+}
+
 #endif //WEBSERV_CHAR_HPP

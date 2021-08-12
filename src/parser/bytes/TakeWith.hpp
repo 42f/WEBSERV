@@ -24,15 +24,20 @@ public:
 	{
 		slice	res = input.take(0);
 		slice	left = input.from(0);
+		typename P::result_type	r = P::result_type::err(input, error("", status::None));
 
-		while (left.size)
+		do
 		{
-			typename P::result_type	r = _p(left);
+			r = _p(left);
 			if (r.is_err())
 				break ;
 			left = r.left();
 			res = input.take(left.p - input.p);
-		}
+		} while (left.size);
+		if (res.size == 0 && _empty && input.size == 0)
+			return result_type::ok(left, res);
+		if (r.is_failure())
+			return r.template convert<data_type>().unwind(input, "Take with: failure while parsing");
 		if (res.size == 0 && !_empty)
 			return result_type::err(input, error("TakeWith: no match"));
 		return result_type::ok(left, res);

@@ -25,4 +25,19 @@ public:
 
 const Digit	digit = Digit();
 
+namespace streaming {
+	class Digit: public Parser<char>
+	{
+	public:
+		typedef Parser::result_type		result_type;
+
+		Digit();
+
+		result_type		operator()(const slice& input);
+
+	};
+
+	const Digit	digit = Digit();
+}
+
 #endif //WEBSERV_DIGIT_HPP

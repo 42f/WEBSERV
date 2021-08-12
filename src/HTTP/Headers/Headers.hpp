@@ -9,11 +9,11 @@
 #include "Header.hpp"
 #include "HeaderParser.hpp"
 
-typedef Tag				TransferEncoding;
-const TransferEncoding	TRANSFER_ENCODING = Tag("chunked");
+typedef Fail<streaming::Tag>	TransferEncoding;
+const TransferEncoding			TRANSFER_ENCODING = fail(streaming::Tag("chunked"), true);
 
-typedef TakeWhile		ContentLength;
-const ContentLength		CONTENT_LENGTH =TakeWhile(std::isdigit);
+typedef Fail<TakeWhile>		ContentLength;
+const ContentLength		CONTENT_LENGTH = fail(TakeWhile(std::isdigit), true);
 
 class Headers: public Parser<Header>
 {

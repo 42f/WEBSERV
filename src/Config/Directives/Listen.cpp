@@ -30,9 +30,11 @@ AddressIP::AddressIP() { }
 
 AddressIP::result_type AddressIP::operator()(const slice &input)
 {
-	return map(as_slice(sequence(DecOctet(), Char('.'),
-					DecOctet(), Char('.'),
-					DecOctet(), Char('.'), DecOctet())), slice::to_string_static)(input);
+	return map(as_slice(sequence(
+				DecOctet(), Char('.'),
+				DecOctet(), Char('.'),
+				DecOctet(), Char('.'),
+				DecOctet())), slice::to_string_static)(input);
 }
 
 /* ************************************************************************** */
@@ -67,8 +69,8 @@ Listen::result_type Listen::operator()(const slice &input)
 {
 	return preceded(sequence(Tag("listen"), rws), alt(
 			separated(AddressIP(), Tag(":"), Port()),
-			map(Port(), with_port),
-			map(AddressIP(), with_addr)
+			map(AddressIP(), with_addr),
+			map(Port(), with_port)
 	))(input);
 }
 

@@ -17,3 +17,16 @@ Digit::result_type		Digit::operator()(const slice& input)
 		return result_type::ok(input.from(1), *input.p);
 	return result_type::err(input, error("Digit: no match"));
 }
+
+namespace streaming {
+	Digit::Digit() { }
+
+	Digit::result_type		Digit::operator()(const slice& input)
+	{
+		if (input.size == 0)
+			return result_type::fail(input, error("incomplete", status::Incomplete));
+		if (std::isdigit(*input.p))
+			return result_type::ok(input.from(1), *input.p);
+		return result_type::err(input, error("Digit: no match"));
+	}
+}

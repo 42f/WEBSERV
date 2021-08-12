@@ -25,4 +25,19 @@ public:
 	result_type		operator()(const slice& input);
 };
 
+namespace streaming {
+	class OneOf: public Parser<char>
+	{
+	private:
+		std::string	_m;
+
+	public:
+		typedef Parser::result_type		result_type;
+
+		OneOf(std::string s);
+
+		result_type		operator()(const slice& input);
+	};
+}
+
 #endif //WEBSERV_CHAR_HPP

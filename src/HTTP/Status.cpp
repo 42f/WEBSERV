@@ -11,6 +11,8 @@ namespace status
 
 	StatusMessage::StatusMessage()
 	{
+		_msgs[status::None] = "Parsing:Error";
+		_msgs[status::Incomplete] = "Parsing:Incomplete";
 		_msgs[status::Continue] = "Continue";
 		_msgs[status::SwitchingProtocols] = "Switching Protocols";
 		_msgs[status::Processing] = "Processing";
