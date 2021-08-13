@@ -4,6 +4,7 @@
 # include <iostream>
 # include <istream>
 # include <string>
+# include <fcntl.h>
 
 namespace files {
 
@@ -19,29 +20,25 @@ namespace files {
 
 		public:
 
-			bool					isGood(void);
-			std::ifstream &			getStream(void);
-
 
 			File( void );
-			File( std::string const & path );
-			File( File const & src );
+			File( std::string const & path, int flags = O_RDONLY );
 			~File( void );
 
 			File &		operator=( File const & rhs );
 
-			// Private to avoid disrupting the index pos if called in between read
-            size_t		getSize(void);
+			bool		isGood(void) const;
+            int         getFD( void ) const;
+            size_t		getSize( void ) const;
 
 		private:
 
-			std::ifstream		_fileStream;
+			File( File const & src );
+            int                 _fd;
 			std::string 		_path;
-
+			int          		_error;
 
 		};
-
-		std::ostream &	operator<<( std::ostream & o, File  & i );
 
 } // --- end of namespace fileHandler
 

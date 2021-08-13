@@ -2,7 +2,7 @@
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-ResponseHandler::ResponseHandler( ReqResult requestResult, int receivedPort ) {
+ResponseHandler::ResponseHandler( ReqResult requestResult, int receivedPort ) : _method(NULL) {
 	this->init(requestResult, receivedPort);
 }
 
@@ -28,6 +28,7 @@ void	ResponseHandler::init( ReqResult const & requestResult, int receivedPort ) 
 
 	_status = response_status::Empty;
 	_port = receivedPort;
+	_method = NULL;
 	_request = requestResult;
 	if (_request.is_ok())	{
 		switch (_request.unwrap().method)
@@ -60,7 +61,6 @@ void	ResponseHandler::processRequest() {
 		std::cout << locMatch << std::endl;
 
 		_method->handler(serverMatch, locMatch, req, _response);
-		getBodyPart(42);
 	}
 	else {
 		_response = Response(Version('D', 'B'), _request.unwrap_err());	// TODO change version debugonly
@@ -73,31 +73,11 @@ std::string		ResponseHandler::getHeader(const Request & req, const std::string& 
 	return req.get_header(target).unwrap_or("");
 }
 
-std::string const &	ResponseHandler::getBodyPart( size_t nBytes ) {
-
-	Timer	time;	// TODO remove debug
-	std::ifstream & file = _response.getFile().getStream();
-    char c;
-	_bodyBuffer.clear(); // TODO useful ?...
-
-	time.start();
-    file.get(c);
-    for (size_t i = 0; file.good() && i < nBytes - 1; i++) {
-        _bodyBuffer.push_back(c);
-        file.get(c);
-    }
-	LogStream s; s << "time to read file: " << time.getTimeElapsed() << "ms. Body size: " << _bodyBuffer.size();	// TODO remove debug
-	return _bodyBuffer;
-}
 /* ................................. ACCESSOR ................................*/
 
 
 bool	ResponseHandler::isHeadReady() {
 	return (_status == response_status::Ready);
-}
-
-bool	ResponseHandler::isBodyReadable() {
-	return (_status == response_status::Ready && _response.getFile().isGood());
 }
 
 /*

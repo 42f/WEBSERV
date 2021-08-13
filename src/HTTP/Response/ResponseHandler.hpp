@@ -44,9 +44,6 @@ class ResponseHandler	{
 		void	 		processRequest( void );
 		Response const&	getResponse( void );
 		bool		 	isHeadReady( void );
-		bool		 	isBodyReadable( void );
-
-		std::string const&	getBodyPart( size_t nBytes );
 
 		ResponseHandler( void );
 		ResponseHandler( ReqResult requestResult, int receivedPort );
@@ -59,7 +56,6 @@ class ResponseHandler	{
 		response_status::Status				_status;
 		Response							_response;
 		A_Method *							_method;
-		std::string							_bodyBuffer;
 
 		std::string			getHeader(const Request & req, const std::string& target);
 
@@ -127,13 +123,13 @@ class ResponseHandler	{
 
 				LogStream s; s << "FILE TARGETED PATH:" << targetFile;
 
-				files::File f(targetFile);
-				if (f.isGood()) {
 
-					resp.setHeader(headerTitle::HeaderTitleField::get(headerTitle::Content_Length), f.getSize());
+				resp.setFile(targetFile);
+				if (resp.getFile().isGood()) {
+
+					resp.setHeader(headerTitle::HeaderTitleField::get(headerTitle::Content_Length), resp.getFile().getSize());
 					// TODO function to get the right type MIME
 					resp.setHeader(headerTitle::HeaderTitleField::get(headerTitle::Content_Type), "text/html; charset=UTF-8");
-
 					resp.setStatus(status::Ok);
 				}
 				else

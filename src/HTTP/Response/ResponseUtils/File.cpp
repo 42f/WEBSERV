@@ -1,14 +1,23 @@
 #include "File.hpp"
-#include "utils/Logger.hpp"
+#include "Logger.hpp"
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+
+#define FD_UNSET -1
 
 namespace  files {
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-	File::File( void ) : _fileStream() {
+	File::File( void ) : _fd(FD_UNSET), _error(0) {
 	}
 
-	File::File( std::string const & path ) : _fileStream(path)	{
+	File::File( std::string const & path, int flags) : _fd(FD_UNSET), _path(path), _error(0) {
+
+		_fd = open(path.c_str(), flags);
+		if (_fd < 0)
+			_error = errno;
 	}
 
 /* ..............................COPY CONSTRUCTOR.............................*/
@@ -20,7 +29,7 @@ namespace  files {
 /* ................................ DESTRUCTOR ...............................*/
 
 	File::~File( void )	{
-		_fileStream.close();
+		close(_fd);
 	}
 
 /* ................................. METHODS .................................*/
@@ -29,46 +38,43 @@ namespace  files {
 
 /* ................................. ACCESSOR ................................*/
 
-size_t				File::getSize() {
+size_t				File::getSize() const {
 
-	// ignore extacts characters from file and discard them, until the end of file
-	_fileStream.ignore( std::numeric_limits<std::streamsize>::max() );
-	// returns the amount of bytes of the last read (in this case, ignore() )
-	std::streamsize size = _fileStream.gcount();
-
-	// Reset the EOF flag and index to 0
-	_fileStream.clear();
-	_fileStream.seekg( 0, std::ios_base::beg );
-	return size;
+	if (_fd > FD_UNSET)	{
+		struct stat st;
+		if(stat(_path.c_str(), &st) != 0) {
+			return 0;
+		}
+		return st.st_size;
+	}
+	return 0;
 }
 
-std::ifstream &		File::getStream() {
-	return _fileStream;
+int 		File::getFD() const {
+	return _fd;
 }
 
-bool				File::isGood() {
-	return _fileStream.good();
+bool		File::isGood() const {
+	// struct stat st;
+	// return _fd > FD_UNSET && fstat(_fd, &st) == 0;
+	return _fd > FD_UNSET;
 }
 
 /* ................................. OVERLOAD ................................*/
 
 	File &				File::operator=( File const & rhs )	{
 		if ( this != &rhs )	{
-			// this->_fileStream = rhs._fileStream;
-			this->_path = rhs._path;
-			_fileStream.open(_path);
+			_fd = open(rhs._path.c_str(), O_RDONLY);
+			_path = rhs._path;
+			_error = rhs._error;
 		}
+
+		// if ( this != &rhs )	{
+		// 	_fd = rhs._fd;
+		// 	_path = rhs._path;
+		// 	_error = rhs._error;
+		// }
 		return *this;
-	}
-
-	std::ostream &			operator<<( std::ostream & o, File & i )	{
-
-		char c;
-		while (i.getStream().good()) {
-			i.getStream().get(c);
-			o << c;
-		}
-		return o;
 	}
 
 /* ................................... DEBUG .................................*/

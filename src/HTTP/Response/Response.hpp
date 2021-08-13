@@ -29,8 +29,10 @@ class Response	{
 		void	setHeader( std::string const& field, std::string const& value );
 		void	setHeader( std::string const& field, int value );
 		void	setStatus( const status::StatusCode& statusCode );
+		void	setFile( std::string const & filePath );
 
-		files::File & 	getFile( void );
+		files::File const & 	getFile( void ) const;
+		int						getFileFD( void ) const;
 
 		void	reset( Version const & vers = Version(), status::StatusCode code = status::None );
 

@@ -42,12 +42,17 @@ void Response::setHeader( std::string const& field, int value ) {
     setHeader(field, strValue.str());
 }
 
+void Response::setFile( std::string const & filePath ) {
+    _file = files::File(filePath);
+}
+
 void Response::setStatus(const status::StatusCode& statusCode) {
     _statusCode = statusCode;
     _statusMessage = status::StatusMessage::get(statusCode);
 }
 
-files::File &   Response::getFile( void ) { return _file; }
+files::File const &   Response::getFile( void ) const { return _file; }
+int                   Response::getFileFD( void ) const { return _file.getFD(); }
 
 
 /* ................................. ACCESSOR ................................*/

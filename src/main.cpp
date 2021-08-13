@@ -21,6 +21,7 @@
 #include <utility>
 #include <pthread.h>
 
+#define BUFF_SIZE	128
 #define BACKLOG		100 //nb of connection queued when listen is called
 #define MAXLINE		1024
 #define SERVER_PORT 18000
@@ -80,8 +81,21 @@ void	conn_reader(int connfd) {
 	std::ostringstream output;
 	output << responseResult;
 	send(connfd, output.str().c_str(), output.str().length(), 0);
-	std::string const & buff = respHandler.getBodyPart(SIZE_T_MAX);
-	send(connfd, buff.c_str(), buff.length(), 0);
+
+	files::File const &file = responseResult.getFile();
+	if (file.isGood()) {
+		int fd = file.getFD();
+		char buff[BUFF_SIZE];
+		bzero(buff, BUFF_SIZE);
+
+		int ret = 1;
+		while (ret > 0) {
+			ret = read(fd, buff, BUFF_SIZE);
+			send(connfd, buff, ret, 0);
+			if (ret > 0)
+				bzero(buff, BUFF_SIZE);
+		}
+	}
 	// !------------------- //
 
 	close(connfd);
