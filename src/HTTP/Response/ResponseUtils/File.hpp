@@ -30,13 +30,16 @@ namespace files {
 			bool		isGood(void) const;
             int         getFD( void ) const;
             size_t		getSize( void ) const;
+            int         getError( void ) const;
 
 		private:
 
+            void        openFile( void );
 			File( File const & src );
             int                 _fd;
 			std::string 		_path;
 			int          		_error;
+			int          		_flags;
 
 		};
 

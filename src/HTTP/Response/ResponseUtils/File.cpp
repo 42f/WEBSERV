@@ -10,14 +10,12 @@ namespace  files {
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-	File::File( void ) : _fd(FD_UNSET), _error(0) {
+	File::File( void ) :  _fd(FD_UNSET), _error(0), _flags(0) {
 	}
 
-	File::File( std::string const & path, int flags) : _fd(FD_UNSET), _path(path), _error(0) {
+	File::File( std::string const & path, int flags) : _fd(FD_UNSET), _path(path), _error(0), _flags(flags) {
 
-		_fd = open(path.c_str(), flags);
-		if (_fd < 0)
-			_error = errno;
+		openFile();
 	}
 
 /* ..............................COPY CONSTRUCTOR.............................*/
@@ -29,7 +27,8 @@ namespace  files {
 /* ................................ DESTRUCTOR ...............................*/
 
 	File::~File( void )	{
-		close(_fd);
+		if (_fd > FD_UNSET)
+			close(_fd);
 	}
 
 /* ................................. METHODS .................................*/
@@ -37,6 +36,15 @@ namespace  files {
 
 
 /* ................................. ACCESSOR ................................*/
+
+void				File::openFile() {
+		_error = 0;
+		errno = 0;
+		_fd = open(_path.c_str(), _flags);
+		if (_fd < 0)
+			_error = errno;
+
+}
 
 size_t				File::getSize() const {
 
@@ -54,26 +62,25 @@ int 		File::getFD() const {
 	return _fd;
 }
 
+int 		File::getError() const {
+	return _error;
+}
+
 bool		File::isGood() const {
-	// struct stat st;
-	// return _fd > FD_UNSET && fstat(_fd, &st) == 0;
-	return _fd > FD_UNSET;
+	struct stat st;
+	return _fd > FD_UNSET && fstat(_fd, &st) == 0;
 }
 
 /* ................................. OVERLOAD ................................*/
 
 	File &				File::operator=( File const & rhs )	{
 		if ( this != &rhs )	{
-			_fd = open(rhs._path.c_str(), O_RDONLY);
+			_flags = rhs._flags;
 			_path = rhs._path;
-			_error = rhs._error;
-		}
+			_error = 0;
 
-		// if ( this != &rhs )	{
-		// 	_fd = rhs._fd;
-		// 	_path = rhs._path;
-		// 	_error = rhs._error;
-		// }
+			openFile();
+		}
 		return *this;
 	}
 

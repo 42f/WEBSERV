@@ -6,6 +6,7 @@
 #include "Response.hpp"
 #include "ResponseHandler.hpp"
 #include "utils/Logger.hpp"
+#include "utils/Timer.hpp"
 #include <sys/socket.h>
 #include <fstream>
 #include <sstream>
@@ -89,12 +90,15 @@ void	conn_reader(int connfd) {
 		bzero(buff, BUFF_SIZE);
 
 		int ret = 1;
+		Timer t;
+		t.start();
 		while (ret > 0) {
 			ret = read(fd, buff, BUFF_SIZE);
 			send(connfd, buff, ret, 0);
 			if (ret > 0)
 				bzero(buff, BUFF_SIZE);
 		}
+		std::cout << "timer: " << t.getTimeElapsed() << std::endl;
 	}
 	// !------------------- //
 

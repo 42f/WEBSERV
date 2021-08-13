@@ -76,7 +76,7 @@ std::string		ResponseHandler::getHeader(const Request & req, const std::string& 
 /* ................................. ACCESSOR ................................*/
 
 
-bool	ResponseHandler::isHeadReady() {
+bool	ResponseHandler::isReady() {
 	return (_status == response_status::Ready);
 }
 

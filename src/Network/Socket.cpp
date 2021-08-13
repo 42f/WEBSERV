@@ -74,7 +74,7 @@ void Socket::manage_raw_request(char *buffer, int size) {
 }
 
 void Socket::manage_response() {
-    if (_response_handler.isHeadReady() == false) {
+    if (_response_handler.isReady() == false) {
         _resp_is_ready = false;
         _response_handler.processRequest();
     } else {

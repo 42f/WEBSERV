@@ -42,8 +42,9 @@ class ResponseHandler	{
 
 		void			init( ReqResult const & requestResult, int receivedPort );
 		void	 		processRequest( void );
+
+		bool		 	isReady( void );
 		Response const&	getResponse( void );
-		bool		 	isHeadReady( void );
 
 		ResponseHandler( void );
 		ResponseHandler( ReqResult requestResult, int receivedPort );
