@@ -89,16 +89,16 @@ void	conn_reader(int connfd) {
 		char buff[BUFF_SIZE];
 		bzero(buff, BUFF_SIZE);
 
-		int ret = 1;
 		Timer t;
 		t.start();
+		int ret = 1;
 		while (ret > 0) {
 			ret = read(fd, buff, BUFF_SIZE);
 			send(connfd, buff, ret, 0);
 			if (ret > 0)
 				bzero(buff, BUFF_SIZE);
 		}
-		std::cout << "timer: " << t.getTimeElapsed() << std::endl;
+		std::cout << "timer: " << t.getTimeElapsed() << "ms. "<< std::endl;
 	}
 	// !------------------- //
 
@@ -178,6 +178,7 @@ int main(int ac, char **av)
 			return -1;
 	}
 
+	files::File::initContentTypes(TYPES_MIME_CONF_PATH);
 	network::ServerPool::init(path);
 	Logger::getInstance("./logg", Logger::toConsole);
 

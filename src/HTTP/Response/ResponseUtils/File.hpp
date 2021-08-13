@@ -1,10 +1,16 @@
 #pragma once
 
-# include <fstream>
 # include <iostream>
-# include <istream>
+# include <fstream>
 # include <string>
+# include <map>
 # include <fcntl.h>
+# include <fcntl.h>
+# include <unistd.h>
+# include <sys/stat.h>
+
+# include "Logger.hpp"
+# include "Constants.hpp"
 
 namespace files {
 
@@ -32,15 +38,24 @@ namespace files {
             size_t		getSize( void ) const;
             int         getError( void ) const;
 
+            std::string         getType( void ) const;
+            static bool	        isFile( std::string const & path );
+            static std::string	getFile( std::string const & path );
+
+            static void initContentTypes( char const * pathTypesConf );
+
 		private:
 
-            void        openFile( void );
-			File( File const & src );
+            typedef std::map<std::string, std::string>   typesMap_t;
+
+            static typesMap_t   _types;
             int                 _fd;
 			std::string 		_path;
 			int          		_error;
 			int          		_flags;
 
+            void        openFile( void );
+			File( File const & src );
 		};
 
 } // --- end of namespace fileHandler

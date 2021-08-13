@@ -54,18 +54,6 @@ public:
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
-	bool	isFile() {
-
-		size_t lastPartHead = decoded_path.find_last_of('/');
-		return decoded_path.find('.', lastPartHead) != std::string::npos;
-	}
-
-	std::string	getFile() {
-
-		std::string output = decoded_path;
-		size_t lastPartHead = output.find_last_of('/');
-		return output.substr(lastPartHead);
-	}
 
 	static Target from(std::string path, slice query)
 	{

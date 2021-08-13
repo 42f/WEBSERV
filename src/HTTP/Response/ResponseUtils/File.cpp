@@ -1,12 +1,11 @@
 #include "File.hpp"
-#include "Logger.hpp"
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/stat.h>
 
 #define FD_UNSET -1
 
 namespace  files {
+
+	std::map<std::string, std::string>   files::File::_types;
+
 
 /* ............................... CONSTRUCTOR ...............................*/
 
@@ -69,6 +68,76 @@ int 		File::getError() const {
 bool		File::isGood() const {
 	struct stat st;
 	return _fd > FD_UNSET && fstat(_fd, &st) == 0;
+}
+
+bool	File::isFile( std::string const & path) {
+
+	size_t lastPartHead = path.find_last_of('/');
+	return path.find('.', lastPartHead) != std::string::npos;
+}
+
+std::string	File::getFile(std::string const & path) {
+
+	if (isFile(path)) {
+		std::string output = path;
+		size_t lastPartHead = output.find_last_of('/');
+		return output.substr(lastPartHead);
+	}
+	else
+		return std::string();
+}
+
+std::string	File::getType( void ) const {
+
+	if (isFile(_path)) {
+		size_t extPos = _path.find_last_of('.');
+		extPos += (extPos != std::string::npos) ? 1 : 0;
+		typesMap_t::iterator ext = _types.find(_path.substr(extPos));
+		if (ext != _types.end())
+			return ext->second;
+	}
+	return std::string(DEFAULT_CONTENT_TYPE);
+}
+
+void		File::initContentTypes( char const * pathTypesConf ) {
+
+	std::ifstream	file(pathTypesConf);
+
+	if (file.good() == false) {
+		std::cout << RED << "Error: Could not read Types MIME config files in " << pathTypesConf << NC << std::endl;
+		exit(1);
+	}
+
+	size_t const sizeBuff = 1024;
+	char buff[sizeBuff];
+	std::string value;
+	std::string format;
+
+	while (file.good()) {
+		value.clear();
+		bzero(buff, sizeBuff);
+		file.getline(buff, sizeBuff - 1, ';' );
+		size_t i = 0;
+		while (buff[i] != '\0') {
+
+			if (isblank(buff[i]) == false && buff[i] != '\n') {
+				if (value.empty()) {
+					while (buff[i] != '\0' && isblank(buff[i]) == false) {
+						value += buff[i++];
+					}
+				}
+				else {
+					while (buff[i] != '\0' && isblank(buff[i]) == false) {
+						format += buff[i++];
+					}
+					_types[format] = value;
+					format.clear();
+				}
+			}
+			else
+				i++;
+		}
+	}
 }
 
 /* ................................. OVERLOAD ................................*/

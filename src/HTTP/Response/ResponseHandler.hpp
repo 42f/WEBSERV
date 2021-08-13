@@ -104,7 +104,7 @@ class ResponseHandler	{
 					return ;
 				}
 				std::string	targetFile(loc.get_root());
-				if (req.target.isFile()) {
+				if (files::File::isFile(req.target.decoded_path)) {
 					if (req.target.decoded_path.find(loc.get_path()) == 0) {
 						LogStream s; s << "old targetfile is : " << targetFile << "\n";
 						targetFile += req.target.decoded_path.substr(loc.get_path().length()) ;
@@ -129,8 +129,7 @@ class ResponseHandler	{
 				if (resp.getFile().isGood()) {
 
 					resp.setHeader(headerTitle::HeaderTitleField::get(headerTitle::Content_Length), resp.getFile().getSize());
-					// TODO function to get the right type MIME
-					resp.setHeader(headerTitle::HeaderTitleField::get(headerTitle::Content_Type), "text/html; charset=UTF-8");
+					resp.setHeader(headerTitle::HeaderTitleField::get(headerTitle::Content_Type), resp.getFile().getType());
 					resp.setStatus(status::Ok);
 				}
 				else

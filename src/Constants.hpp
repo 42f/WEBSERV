@@ -26,4 +26,12 @@
 #define WHITE	"\033[0;37m"
 #define NC		"\033[0m"
 
+#ifndef TYPES_MIME_CONF_PATH
+# define TYPES_MIME_CONF_PATH "./assets/conf_types/types_mime.conf"
+#endif
+
+#ifndef DEFAULT_CONTENT_TYPE
+# define DEFAULT_CONTENT_TYPE "application/octet-stream"
+#endif
+
 #endif //WEBSERV_CONSTANTS_HPP
