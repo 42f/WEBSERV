@@ -20,6 +20,7 @@
 #include "Status.hpp"
 #include "Response.hpp"
 #include "Config/Server.hpp"
+#include "Timer.hpp"
 
 
 namespace response_status

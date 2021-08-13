@@ -136,6 +136,13 @@ namespace config
 */
 	std::vector<Server> parse(const std::string &path)
 	{
+		struct stat tmpBuff;
+ 	 	if (stat(path.c_str(), &tmpBuff) != 0) {
+			  std::cerr << RED;
+			  perror(("Error reading " + path).c_str());
+			  std::cerr << NC;
+			  exit(1);
+		}
 		std::ifstream t(path.c_str());
 		std::stringstream buffer;
 		buffer << t.rdbuf();

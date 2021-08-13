@@ -1,1 +1,26 @@
-[]
+[
+    {
+        "type": "File",
+        "name": "/Users/bvalette/42/REPO/src/Network/ServerPool.cpp",
+        "parent_id": null,
+        "workspaceRoot": "/Users/bvalette/42/REPO",
+        "workspacePath": "src/Network/ServerPool.cpp",
+        "id": "BaptUnYrl7RE14Wq"
+    },
+    {
+        "type": "File",
+        "name": "/Users/bvalette/42/REPO/src/Network/ServerPool.hpp",
+        "parent_id": null,
+        "workspaceRoot": "/Users/bvalette/42/REPO",
+        "workspacePath": "src/Network/ServerPool.hpp",
+        "id": "Ex1Zt3Qk0WcjgUa7"
+    },
+    {
+        "type": "Directory",
+        "name": "/Users/bvalette/42/REPO/src/HTTP/Response",
+        "parent_id": null,
+        "workspaceRoot": "/Users/bvalette/42/REPO",
+        "workspacePath": "src/HTTP/Response",
+        "id": "kGxpPCyARWiLHYBE"
+    }
+]

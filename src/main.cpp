@@ -6,7 +6,7 @@
 #include "Response.hpp"
 #include "ResponseHandler.hpp"
 #include "utils/Logger.hpp"
-
+#include <sys/socket.h>
 #include <fstream>
 #include <sstream>
 #include <sys/socket.h>
@@ -79,7 +79,9 @@ void	conn_reader(int connfd) {
 	Response const&	responseResult = respHandler.getResponse();
 	std::ostringstream output;
 	output << responseResult;
-	write(connfd, output.str().c_str(), output.str().length());
+	send(connfd, output.str().c_str(), output.str().length(), 0);
+	std::string const & buff = respHandler.getBodyPart(SIZE_T_MAX);
+	send(connfd, buff.c_str(), buff.length(), 0);
 	// !------------------- //
 
 	close(connfd);

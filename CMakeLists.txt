@@ -23,6 +23,7 @@ set(FILES
         src/main.cpp
         src/Constants.hpp
 
+        src/utils/Timer.hpp
         src/utils/logger.hpp
         src/utils/logger.cpp
 
