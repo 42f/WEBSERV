@@ -12,9 +12,9 @@ RequestMethod::RequestMethod() { }
 RequestMethod::result_type RequestMethod::operator()(const slice &input)
 {
 	return alt(
-			map(streaming::Tag("GET"), methods::as_get),
-			map(streaming::Tag("POST"), methods::as_post),
-			map(streaming::Tag("DELETE"), methods::as_delete),
+			map(Tag("GET"), methods::as_get),
+			map(Tag("POST"), methods::as_post),
+			map(Tag("DELETE"), methods::as_delete),
 			map(TakeWhile(std::isalpha), methods::as_other))(input);
 }
 
@@ -60,8 +60,8 @@ RequestVersion::RequestVersion() { }
 RequestVersion::result_type	RequestVersion::operator()(const slice &input)
 {
 	return map(preceded(
-		streaming::Tag("HTTP/"),
-		separated(streaming::digit, streaming::Char('.'), streaming::digit)),
+		Tag("HTTP/"),
+		separated(digit, Char('.'), digit)),
 			Version::from_tuple)(input);
 }
 

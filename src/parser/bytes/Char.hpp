@@ -25,21 +25,4 @@ public:
 	result_type		operator()(const slice& input);
 
 };
-
-namespace streaming {
-	class Char: public Parser<char>
-	{
-	private:
-		char	_m;
-
-	public:
-		typedef Parser::result_type		result_type;
-
-		Char(char c);
-
-		result_type		operator()(const slice& input);
-
-	};
-}
-
 #endif //WEBSERV_CHAR_HPP

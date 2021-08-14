@@ -8,8 +8,8 @@
 #include "Parser.hpp"
 
 /*
- * Matches everything until given string
- * Eg: TakeUntil("123") ("Hello world123")
+ * Matches exactly the given size
+ * Eg: TakeExact("123") ("Hello world123")
  *  => result: Ok("Hello world", left : "123")
  */
 class TakeExact: public Parser<slice>

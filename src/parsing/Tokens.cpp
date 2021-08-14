@@ -11,7 +11,10 @@ OWS::OWS() { }
 
 OWS::result_type	OWS::operator()(const slice &input)
 {
-	return take_with(alt(Char(' '), Char('\t')), true)(input);
+	return take_with(alt(
+			Char(' '),
+			Char('\t')),
+					 true)(input);
 }
 
 /*
@@ -40,13 +43,13 @@ Newline::result_type	Newline::operator()(const slice& input)
 /*
  * Token = 1 * tchar = "!" | "#" | "$" | "%" | "&" | "'" | "*"| "+" | "-" | "." | "^" | "_" | "`" | "|" | "~" | DIGIT | ALPHA
  */
-static const streaming::OneOf charset = streaming::OneOf("!#$%&'*+-.^_`|~");
+static const OneOf charset = OneOf("!#$%&'*+-.^_`|~");
 
 Token::Token() { }
 
 Token::result_type	Token::operator()(const slice &input)
 {
-	return take_with(alt(charset, streaming::digit, streaming::alpha))(input);
+	return take_with(alt(charset, digit, alpha))(input);
 }
 
 /*
@@ -57,53 +60,23 @@ Token::result_type	Token::operator()(const slice &input)
  */
 QuotedText::QuotedText() { }
 
-static const streaming::OneOf QD_TEXT_CHARSET = streaming::OneOf("\t \x21");
+static const OneOf QD_TEXT_CHARSET = OneOf("\t \x21");
 
 QuotedText::result_type QuotedText::operator()(const slice &input)
 {
-	static const streaming::Char DQUOTE = streaming::Char('\"');
-	static const Alt<streaming::OneOf, streaming::HexChar, streaming::HexChar, streaming::HexChar>
+	static const Char DQUOTE = Char('\"');
+	static const Alt<OneOf, HexChar, HexChar, HexChar>
 		QD_TEXT = alt(
 				QD_TEXT_CHARSET,
-				streaming::HexChar(0x23, 0x5B),
-				streaming::HexChar(0x5D, 0x7E),
+				HexChar(0x23, 0x5B),
+				HexChar(0x5D, 0x7E),
 			obs);
-	static const Preceded<streaming::Char, Alt<streaming::OneOf, streaming::Match, streaming::HexChar> >
+	static const Preceded<Char, Alt<OneOf, Match, HexChar> >
 		QD_PAIR = preceded(
-				streaming::Char('\\'),
+				Char('\\'),
 				alt(QD_TEXT_CHARSET, vchar, obs));
 
 	return as_slice(delimited(DQUOTE, take_with(alt(QD_TEXT, QD_PAIR)), DQUOTE))(input);
 }
 
 /* ************************************************************************** */
-
-namespace streaming {
-	OWS::OWS() { }
-
-	OWS::result_type	OWS::operator()(const slice &input)
-	{
-		return take_with(alt(
-				streaming::Char(' '),
-				streaming::Char('\t')),
-						 true)(input);
-	}
-
-	RWS::RWS() { }
-
-	RWS::result_type	RWS::operator()(const slice &input)
-	{
-		return take_with(alt(streaming::Char(' '), streaming::Char('\t')))(input);
-	}
-
-	Newline::Newline(): _both(streaming::Tag("\r\n")), _n(streaming::Tag("\n")) { }
-
-	Newline::result_type	Newline::operator()(const slice& input)
-	{
-		result_type		res = _both(input);
-		if (res.is_err())
-			return _n(input);
-		return (res);
-	}
-
-}

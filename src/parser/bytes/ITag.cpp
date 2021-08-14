@@ -14,7 +14,11 @@ ITag::ITag(const std::string &tag) : _tag(tag) { }
 ITag::result_type	ITag::operator()(const slice &input)
 {
 	size_t 	len = _tag.length();
-	if (input.icontains(_tag) == 0)
-		return result_type::ok( input.from(len), input.take(len));
-	return result_type::err(input, error("ITag: no match for |" + _tag + "|"));
+
+	for (size_t i = 0; i < len && i < input.size; i++)
+		if (std::tolower(input.p[i]) != std::tolower(_tag[i]))
+			return result_type::err(input, error("ITag: no match for |" + _tag + "|"));
+	if (input.size < len)
+		return result_type::fail(input, error("incomplete", status::Incomplete));
+	return result_type::ok( input.from(len), input.take(len));
 }

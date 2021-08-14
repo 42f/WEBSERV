@@ -35,6 +35,8 @@ namespace config
 */
 		Server();
 
+		static Server	invalid(slice input);
+
 /*
 ** --------------------------------- SETTERS ----------------------------------
 */
@@ -68,6 +70,7 @@ namespace config
 		Result<std::string>			error_page(int status_code);
 		Result<std::string>			cgi_binary(std::string ext);
 
+		bool 	is_invalid();
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */

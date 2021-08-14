@@ -23,7 +23,7 @@ Comment::Comment() { }
 
 Comment::result_type Comment::operator()(const slice &input)
 {
-	return preceded(many(newline, true), delimited(sequence(ows, Tag("#")), take_until_match(newline, true), empty_line))(input);
+	return delimited(sequence(ows, Tag("#")), take_until_match(newline, true), empty_line)(input);
 }
 
 /* ************************************************************************** */

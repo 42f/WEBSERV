@@ -17,7 +17,7 @@ FieldValue::FieldValue() { }
 */
 FieldValue::result_type	FieldValue::operator()(const slice &input)
 {
-	ParserResult<slice> res = take_until_match(streaming::newline)(input);
+	ParserResult<slice> res = take_until_match(newline)(input);
 	if (res.is_err())
 		return res.unwind(input, "Field value");
 	slice	s = res.unwrap();

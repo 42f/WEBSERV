@@ -24,20 +24,4 @@ public:
 };
 
 const Alpha	alpha = Alpha();
-
-namespace streaming {
-
-	class Alpha: public Parser<char>
-	{
-	public:
-		typedef Parser::result_type		result_type;
-
-		Alpha();
-
-		result_type		operator()(const slice& input);
-	};
-
-	const Alpha	alpha = Alpha();
-}
-
 #endif //WEBSERV_ALPHA_HPP

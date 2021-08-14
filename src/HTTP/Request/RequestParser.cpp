@@ -29,8 +29,8 @@ RequestParser::result_type	RequestParser::operator()(const slice& input)
 	else
 		return line.convert<Request>().unwind(input, "Failed to parse request line");
 	ParserResult<std::vector<Header> >	res = terminated(many(
-			terminated(Headers(), streaming::newline)),
-			streaming::newline)(line.left());
+			terminated(Headers(), newline)),
+			newline)(line.left());
 	if (res.is_ok())
 	{
 		std::vector<Header>	&v = res.unwrap();

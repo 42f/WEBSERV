@@ -28,10 +28,11 @@ namespace config
 */
 		result_type operator()(const slice &input)
 		{
-			return preceded(many(newline, true), sequence(
+			return sequence(
 					delimited(ows, _header, rws),
-					delimited(sequence(Char('{'), newline), _content, sequence(many(newline, true), ows, Char('}'), newline)))
-			)(input);
+					delimited(sequence(Char('{'), newline),
+					_content, sequence(many(newline, true),
+					ows, Char('}'), newline)))(input);
 		}
 	};
 }

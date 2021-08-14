@@ -23,18 +23,4 @@ public:
 	result_type operator()(const slice &input);
 };
 
-namespace streaming {
-	class Tag: public Parser<slice>
-	{
-	private:
-		std::string		_tag;
-
-	public:
-		Tag(const std::string &tag);
-
-		result_type operator()(const slice &input);
-	};
-}
-
-
 #endif //WEBSERV_TAG_HPP

@@ -9,8 +9,8 @@
 #include "Header.hpp"
 #include "HeaderParser.hpp"
 
-typedef Fail<streaming::Tag>	TransferEncoding;
-const TransferEncoding			TRANSFER_ENCODING = fail(streaming::Tag("chunked"), true);
+typedef Fail<Tag>	TransferEncoding;
+const TransferEncoding			TRANSFER_ENCODING = fail(Tag("chunked"), true);
 
 typedef Fail<TakeWhile>		ContentLength;
 const ContentLength		CONTENT_LENGTH = fail(TakeWhile(std::isdigit), true);
