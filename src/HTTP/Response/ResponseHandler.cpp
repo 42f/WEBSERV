@@ -73,6 +73,10 @@ std::string		ResponseHandler::getHeader(const Request & req, const std::string& 
 	return req.get_header(target).unwrap_or("");
 }
 
+void	 		ResponseHandler::doSend( int fdDest, size_t sendLen, int flags)	{
+
+}
+
 /* ................................. ACCESSOR ................................*/
 
 

@@ -42,6 +42,7 @@ class ResponseHandler	{
 
 		void			init( ReqResult const & requestResult, int receivedPort );
 		void	 		processRequest( void );
+		void	 		doSend( int fdDest, size_t sendLen = 1024, int flags = 0);
 
 		bool		 	isReady( void );
 		Response const&	getResponse( void );
@@ -104,7 +105,7 @@ class ResponseHandler	{
 					return ;
 				}
 				std::string	targetFile(loc.get_root());
-				if (files::File::isFile(req.target.decoded_path)) {
+				if (files::File::isFileFromPath(req.target.decoded_path)) {
 					if (req.target.decoded_path.find(loc.get_path()) == 0) {
 						LogStream s; s << "old targetfile is : " << targetFile << "\n";
 						targetFile += req.target.decoded_path.substr(loc.get_path().length()) ;
@@ -126,14 +127,15 @@ class ResponseHandler	{
 
 
 				resp.setFile(targetFile);
-				if (resp.getFile().isGood()) {
+				if (resp.getFileInst().isGood()) {
 
-					resp.setHeader(headerTitle::HeaderTitleField::get(headerTitle::Content_Length), resp.getFile().getSize());
-					resp.setHeader(headerTitle::HeaderTitleField::get(headerTitle::Content_Type), resp.getFile().getType());
+					resp.setHeader(headerTitle::HeaderTitleField::get(headerTitle::Content_Length), resp.getFileInst().getSize());
+					resp.setHeader(headerTitle::HeaderTitleField::get(headerTitle::Content_Type), resp.getFileInst().getType());
 					resp.setStatus(status::Ok);
 				}
-				else
-					resp = Response(Version('2', '1'), status::NotFound);
+				else {
+					Response(Version('2', '1'), status::NotFound);
+				}
 			}
 		};
 

@@ -83,7 +83,7 @@ void	conn_reader(int connfd) {
 	output << responseResult;
 	send(connfd, output.str().c_str(), output.str().length(), 0);
 
-	files::File const &file = responseResult.getFile();
+	files::File const &file = responseResult.getFileInst();
 	if (file.isGood()) {
 		int fd = file.getFD();
 		char buff[BUFF_SIZE];

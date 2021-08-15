@@ -19,6 +19,11 @@ namespace files {
 		Waiting,
 		Ready		// Ready to be sent to be streamed
 	};
+	enum typeFd
+	{
+		file = 0,
+		pipe = 1
+	};
 
 	class File	{
 
@@ -39,8 +44,8 @@ namespace files {
             int         getError( void ) const;
 
             std::string         getType( void ) const;
-            static bool	        isFile( std::string const & path );
-            static std::string	getFile( std::string const & path );
+            static bool	        isFileFromPath( std::string const & path );
+            static std::string	getFileFromPath( std::string const & path );
 
             static void initContentTypes( char const * pathTypesConf );
 
@@ -53,6 +58,7 @@ namespace files {
 			std::string 		_path;
 			int          		_error;
 			int          		_flags;
+			bool          		_typefd;
 
             void        openFile( void );
 			File( File const & src );

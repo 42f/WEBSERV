@@ -31,7 +31,7 @@ class Response	{
 		void	setStatus( const status::StatusCode& statusCode );
 		void	setFile( std::string const & filePath );
 
-		files::File const & 	getFile( void ) const;
+		files::File const & 	getFileInst( void ) const;
 		int						getFileFD( void ) const;
 
 		void	reset( Version const & vers = Version(), status::StatusCode code = status::None );

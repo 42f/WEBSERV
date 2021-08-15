@@ -70,15 +70,15 @@ bool		File::isGood() const {
 	return _fd > FD_UNSET && fstat(_fd, &st) == 0;
 }
 
-bool	File::isFile( std::string const & path) {
+bool	File::isFileFromPath( std::string const & path) {
 
 	size_t lastPartHead = path.find_last_of('/');
 	return path.find('.', lastPartHead) != std::string::npos;
 }
 
-std::string	File::getFile(std::string const & path) {
+std::string	File::getFileFromPath(std::string const & path) {
 
-	if (isFile(path)) {
+	if (isFileFromPath(path)) {
 		std::string output = path;
 		size_t lastPartHead = output.find_last_of('/');
 		return output.substr(lastPartHead);

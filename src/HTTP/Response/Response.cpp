@@ -51,7 +51,7 @@ void Response::setStatus(const status::StatusCode& statusCode) {
     _statusMessage = status::StatusMessage::get(statusCode);
 }
 
-files::File const &   Response::getFile( void ) const { return _file; }
+files::File const &   Response::getFileInst( void ) const { return _file; }
 int                   Response::getFileFD( void ) const { return _file.getFD(); }
 
 
