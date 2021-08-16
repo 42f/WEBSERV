@@ -39,6 +39,7 @@ void Response::reset( Version const & vers, status::StatusCode code ) {
 }
 
 void Response::setVersion(const Version& version) { _version = version; }
+void Response::setStatus( status::StatusCode code) { _statusCode = code; }
 
 void Response::setHeader( std::string const& field, std::string const& value ) {
     _headers.insert(std::make_pair(field, std::make_pair(field, value)) );
@@ -119,16 +120,11 @@ std::ostream& operator<<(std::ostream& o, Response const& i) {
 
     // Writes headers
     if (i._headers.empty() == false) {
-
         Response::headerMap_t::const_iterator it = i._headers.begin();
         for (; it != i._headers.end(); it++) {
             o << it->first << ": " << it->second.second << "\r\n";
         }
     }
-
-    LogStream stream;
-
-    stream << "Response sent: " << o;
 
     // Writes empty line separation
     o << "\r\n";

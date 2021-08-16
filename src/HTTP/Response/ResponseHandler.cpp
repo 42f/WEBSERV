@@ -132,14 +132,6 @@ int			ResponseHandler::sendHeaders(int fdDest, int flags) {
 
 
 
-int			ResponseHandler::sendFromPipe(int fdDest, int flags) {
-	if (sendHeaders(fdDest, flags) < 0)
-		return (-1);
-	return 21; // TODO debug
-}
-
-
-
 bool		ResponseHandler::isReady() {
 
 	return _response.getState() &= (respState::fileResp
@@ -149,10 +141,19 @@ bool		ResponseHandler::isReady() {
 
 
 
+int			ResponseHandler::sendFromPipe(int fdDest, int flags) {
+	if (sendHeaders(fdDest, flags) < 0)
+		return (-1);
+	return -1; // TODO implement
+}
+
+
+
 int			ResponseHandler::sendFromFile(int fdDest, int flags) {
 	if (sendHeaders(fdDest, flags) < 0)
 		return (-1);
-	int retSend = doSendFromFD(_response.getFileInst().getFD(), fdDest, flags);
+	int retSend = 1;
+	retSend = doSendFromFD(_response.getFileInst().getFD(), fdDest, flags);
 	switch ( retSend ) {
 		case 0:
 			_response.getState() = respState::entirelySent;
@@ -184,6 +185,10 @@ int			ResponseHandler::sendErrorBuffer(int fdDest, int flags) {
 
 
 int			ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
+
+	//TODO remove after Calixte code integration
+	int set = 1;
+	setsockopt(fdDest, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
 
 	char buff[DEFAULT_SEND_SIZE + 2];
 	bzero(buff, DEFAULT_SEND_SIZE + 2);

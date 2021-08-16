@@ -70,9 +70,11 @@ class ResponseHandler	{
 				A_Method() {};
 				virtual ~A_Method() {};
 
-				virtual void	handler(config::Server const& serv, LocationConfig const & loc, Request const & req, Response & resp) = 0;
+				virtual void	handler(config::Server const& serv,
+						LocationConfig const & loc, Request const & req, Response & resp) = 0;
 
-				static void	makeErrorResponse(Response & resp, status::StatusCode code, config::Server const &serv)	{
+				static void	makeErrorResponse(Response & resp,
+						status::StatusCode code, config::Server const &serv)	{
 
 					resp.reset(Version(), code);
 
@@ -128,8 +130,10 @@ class ResponseHandler	{
 				resp.setFile(targetFile);
 				LogStream s; s << "File targeted: " << targetFile;
 
-				if (resp.getFileInst().isGood())
+				if (resp.getFileInst().isGood()) {
 					setRespForFile(resp, resp.getFileInst());
+					resp.setStatus(status::Ok);
+				}
 				else
 					makeErrorResponse(resp, status::NotFound, serv);
 			}
