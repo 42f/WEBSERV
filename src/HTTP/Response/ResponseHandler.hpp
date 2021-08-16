@@ -44,10 +44,10 @@ class ResponseHandler	{
 
 	private:
 
-		int		 							_port;
-		ReqResult 							_request;
-		Response							_response;
-		A_Method *							_method;
+		int		 	 	_port;
+		ReqResult 	 	_request;
+		Response	 	_response;
+		A_Method *	 	_method;
 
 		std::string		getHeader(const Request & req, const std::string& target);
 		int				sendHeaders( int fdDest, int flags );

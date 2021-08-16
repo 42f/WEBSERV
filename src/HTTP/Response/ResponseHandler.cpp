@@ -86,7 +86,7 @@ int	 		ResponseHandler::doSend( int fdDest, int flags)	{
 	int state = _response.getState();
 
 	if (state == respState::emptyResp) {
-		// std::cout << "doSend -> emptyResp" << std::endl;
+		// std::cout << "doSend -> emptyResp" << std::endl; // TODO cleanup
 		return RESPONSE_IS_EMPTY;
 	}
 	if (state & respState::entirelySent) {
@@ -195,11 +195,17 @@ int			ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
 	if (_response.getState() & respState::chunkedResp) {
 		std::stringstream chunkData;
 		chunkData << std::hex << retRead << "\r\n";
+
 		if (send(fdDest, chunkData.str().c_str(), chunkData.str().length(), flags) < 0) {
 			return (-1);
 		}
 		buff[retRead + 0] = '\r';
 		buff[retRead + 1] = '\n';
+		struct stat st;
+		if(fstat(fdDest, &st) != 0) {
+			perror("error: send():");
+			exit(1);
+		}
 		if (send(fdDest, buff, retRead + 2 , flags) < 0) {
 			return (-1);
 		}

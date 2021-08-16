@@ -57,17 +57,7 @@ std::string			File::getLastModified() const {
 		timeModified = gmtime(&(st.st_mtime));
 		std::string date = asctime(timeModified);
 		return date.substr(0, date.find('\n'));
-		// std::stringstream output;
-		// output << timeMod->tm_wday << ", ";
-		// output << timeMod->tm_mday << " ";
-		// output << timeMod->tm_mon << " ";
-		// output << timeMod->tm_year << " ";
-		// output << timeMod->tm_hour << ":";
-		// output << timeMod->tm_min << ":";
-		// output << timeMod->tm_sec << " ";
-		// output << timeMod->tm_zone << " ";
-
-		// Mon, 02 Mar 2020 19:24:48 GMT
+		// TODO change format so it is: Mon, 02 Mar 2020 19:24:48 GMT
 	}
 	return std::string();
 }

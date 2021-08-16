@@ -127,6 +127,7 @@ std::ostream& operator<<(std::ostream& o, Response const& i) {
     }
 
     LogStream stream;
+
     stream << "Response sent: " << o;
 
     // Writes empty line separation
