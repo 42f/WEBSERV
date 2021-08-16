@@ -81,14 +81,14 @@ namespace config
 ** --------------------------------- GETTERS ----------------------------------
 */
 		int									Server::get_port() const { return _port; }
-		std::string							Server::get_address() const { return _address; }
-		std::string							Server::get_name() const { return _name; }
-		std::string							Server::get_root() const { return _root; }
-		std::string							Server::get_index() const { return _index; }
+		std::string const&					Server::get_address() const { return _address; }
+		std::string const&					Server::get_name() const { return _name; }
+		std::string const&					Server::get_root() const { return _root; }
+		std::string const&					Server::get_index() const { return _index; }
 		size_t								Server::get_body_size() const { return _body_size; }
 		std::vector<LocationConfig>&		Server::get_locations() { return _locations; }
 		std::vector<LocationConfig> const&	Server::get_locations() const { return _locations; }
-		std::map<int, std::string>			Server::get_error_pages() const { return _error_pages; }
+		std::map<int, std::string> const&	Server::get_error_pages() const { return _error_pages; }
 
 /*
 ** --------------------------------- METHODS ----------------------------------

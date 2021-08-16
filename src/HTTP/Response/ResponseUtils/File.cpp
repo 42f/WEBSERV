@@ -45,6 +45,33 @@ void				File::openFile() {
 
 }
 
+std::string			File::getLastModified() const {
+
+	if (_path.empty() == false)	{
+
+		struct stat st;
+		if(stat(_path.c_str(), &st) != 0) {
+			return std::string();
+		}
+		struct tm *timeModified;
+		timeModified = gmtime(&(st.st_mtime));
+		std::string date = asctime(timeModified);
+		return date.substr(0, date.find('\n'));
+		// std::stringstream output;
+		// output << timeMod->tm_wday << ", ";
+		// output << timeMod->tm_mday << " ";
+		// output << timeMod->tm_mon << " ";
+		// output << timeMod->tm_year << " ";
+		// output << timeMod->tm_hour << ":";
+		// output << timeMod->tm_min << ":";
+		// output << timeMod->tm_sec << " ";
+		// output << timeMod->tm_zone << " ";
+
+		// Mon, 02 Mar 2020 19:24:48 GMT
+	}
+	return std::string();
+}
+
 size_t				File::getSize() const {
 
 	if (_fd > FD_UNSET)	{
@@ -89,13 +116,19 @@ std::string	File::getFileFromPath(std::string const & path) {
 
 std::string	File::getType( void ) const {
 
-	if (isFile(_path)) {
+	if (isFileFromPath(_path)) {
 		size_t extPos = _path.find_last_of('.');
 		extPos += (extPos != std::string::npos) ? 1 : 0;
-		typesMap_t::iterator ext = _types.find(_path.substr(extPos));
-		if (ext != _types.end())
-			return ext->second;
+		return (getTypeFromExt(_path.substr(extPos)));
 	}
+	return std::string(DEFAULT_CONTENT_TYPE);
+}
+
+std::string	File::getTypeFromExt( std::string const & extSrc ) const {
+
+	typesMap_t::iterator ext = _types.find(extSrc);
+	if (ext != _types.end())
+		return ext->second;
 	return std::string(DEFAULT_CONTENT_TYPE);
 }
 

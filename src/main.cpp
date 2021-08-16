@@ -78,28 +78,32 @@ void	conn_reader(int connfd) {
 	// }
 
 	respHandler.processRequest();
-	Response const&	responseResult = respHandler.getResponse();
-	std::ostringstream output;
-	output << responseResult;
-	send(connfd, output.str().c_str(), output.str().length(), 0);
-
-	files::File const &file = responseResult.getFileInst();
-	if (file.isGood()) {
-		int fd = file.getFD();
-		char buff[BUFF_SIZE];
-		bzero(buff, BUFF_SIZE);
-
-		Timer t;
-		t.start();
-		int ret = 1;
-		while (ret > 0) {
-			ret = read(fd, buff, BUFF_SIZE);
-			send(connfd, buff, ret, 0);
-			if (ret > 0)
-				bzero(buff, BUFF_SIZE);
-		}
-		std::cout << "timer: " << t.getTimeElapsed() << "ms. "<< std::endl;
+	int ret = 0;
+	while ( (ret = respHandler.doSend(connfd, 0)) >= 0) {
 	}
+
+	// Response const&	responseResult = respHandler.getResponse();
+	// std::ostringstream output;
+	// output << responseResult;
+	// send(connfd, output.str().c_str(), output.str().length(), 0);
+
+	// files::File const &file = responseResult.getFileInst();
+	// if (file.isGood()) {
+	// 	int fd = file.getFD();
+	// 	char buff[BUFF_SIZE];
+	// 	bzero(buff, BUFF_SIZE);
+
+	// 	Timer t;
+	// 	t.start();
+	// 	int ret = 1;
+	// 	while (ret > 0) {
+	// 		ret = read(fd, buff, BUFF_SIZE);
+	// 		send(connfd, buff, ret, 0);
+	// 		if (ret > 0)
+	// 			bzero(buff, BUFF_SIZE);
+	// 	}
+	// 	std::cout << "timer: " << t.getTimeElapsed() << "ms. "<< std::endl;
+	// }
 	// !------------------- //
 
 	close(connfd);

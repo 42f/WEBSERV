@@ -34,4 +34,12 @@
 # define DEFAULT_CONTENT_TYPE "application/octet-stream"
 #endif
 
+#ifndef DEFAULT_SEND_SIZE
+# define DEFAULT_SEND_SIZE 5096
+// # define DEFAULT_SEND_SIZE 100024 // TODO cleanup
+#endif
+
+#define RESPONSE_SENT_ENTIRELY	-2
+#define RESPONSE_IS_EMPTY		-3
+
 #endif //WEBSERV_CONSTANTS_HPP

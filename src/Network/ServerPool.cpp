@@ -114,7 +114,6 @@ LocationConfig const ServerPool::getLocationMatch( config::Server const & serv,
 		std::string targetPath = target.decoded_path;
 		while (targetPath.empty() == false) {
 			for (it = locs.begin(); it != ite; it++)	{
-				LogStream s; s << "Try target... " << targetPath << " vs " << it->get_path();  // TODO remove log
 				if (targetPath == it->get_path() || targetPath + '/' == it->get_path())
 					return *it;
 			}
