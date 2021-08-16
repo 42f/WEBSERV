@@ -166,29 +166,20 @@ void exit_server(int sig) {
 	exit(0);
 }
 
-	Params(): config_file("webserv.config"), request("request.test") { }
-};
-
-Result<Params>	parse(int ac, char **av)
+int main(int ac, char **av)
 {
 	signal(SIGINT, &exit_server);
 	std::string 	path;
-	Params			params;
-
-	for (int i = 0; i < ac; i++) {
-		std::string arg = std::string(av[i]);
-		if (arg == "-c")
-		{
-			if (i == ac - 1)
-				return Result<Params>::err(DefaultError("missing argument"));
-			params.config_file = std::string(av[++i]);
-		}
-		if (arg == "-r")
-		{
-			if (i == ac - 1)
-				return Result<Params>::err(DefaultError("missing argument"));
-			params.request = std::string(av[++i]);
-		}
+	switch (ac) {
+		case 1:
+			path = "webserv.config";
+			break;
+		case 2:
+			path = av[1];
+			break;
+		default:
+			std::cerr << "./webserv [ConfigServerv]" << std::endl;
+			return -1;
 	}
 
 	files::File::initContentTypes(TYPES_MIME_CONF_PATH);
