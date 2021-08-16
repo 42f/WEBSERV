@@ -24,5 +24,4 @@ public:
 };
 
 const Alpha	alpha = Alpha();
-
 #endif //WEBSERV_ALPHA_HPP

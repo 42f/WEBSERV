@@ -84,7 +84,7 @@ std::ostream &operator<<(std::ostream & stream, const Request &req)
 {
 	stream << req.method << " " << req.target << " HTTP/" << req.version << std::endl;
 	for (std::map<std::string, Header>::const_iterator it = req._headers.begin(); it != req._headers.end(); it++) {
-		stream << it->second << std::endl;
+		stream << "|" << it->second << "|" << std::endl;
 	}
 	for (std::vector<char>::const_iterator it = req._body.begin(); it != req._body.end(); it++) {
 		stream << *it;

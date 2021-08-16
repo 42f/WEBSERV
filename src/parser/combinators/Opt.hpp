@@ -27,7 +27,9 @@ public:
 	{
 		result_type		res = _parser(input);
 
-		if (res.is_err())
+		if (res.is_failure())
+			return res;
+		else if (res.is_err())
 			return result_type::ok(input,typename P::data_type());
 		return res;
 	}

@@ -24,7 +24,7 @@ RequestHandler::result_type RequestHandler::receive()
 		_status = request_status::Complete;
 		return _req;
 	}
-	return result_type::err(status::None);
+	return result_type::err(status::Incomplete);
 }
 
 RequestHandler::result_type RequestHandler::update(const char *buff, size_t read)
@@ -85,10 +85,11 @@ void	RequestHandler::parse()
 		else
 			_status = request_status::Complete;
 	}
-	else if (req.unwrap_err().content() != status::None)
+	else
 	{
-		_status = request_status::Error;
-		_req = result_type::err(req.unwrap_err().content());
+		status::StatusCode code = req.unwrap_err().content();
+		_status = code == status::Incomplete ? request_status::Incomplete : request_status::Error;
+		_req = result_type::err(code == status::None ? status::BadRequest : code);
 	}
 }
 

@@ -13,6 +13,8 @@ Alpha::Alpha() { }
 
 Alpha::result_type		Alpha::operator()(const slice& input)
 {
+	if (input.size == 0)
+		return result_type::fail(input, error("incomplete", status::Incomplete));
 	if (std::isalpha(*input.p))
 		return result_type::ok(input.from(1), *input.p);
 	return result_type::err(input, error("Alpha: no match"));

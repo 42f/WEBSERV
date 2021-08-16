@@ -20,8 +20,14 @@ namespace config
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
-	Server::Server() : _port(0), _address(""), _name(""), _body_size(1048576) { }
+	Server::Server() : _port(80), _address("0.0.0.0"), _name(""), _body_size(1048576) { }
 
+	Server Server::invalid(slice input) {
+		static_cast<void>(input);
+		Server server;
+		server._port = -1;
+		return server;
+	}
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
@@ -103,6 +109,9 @@ namespace config
 		return Result<std::string>::ok(it->second);
 	}
 
+	bool Server::is_invalid() {
+		return _port == -1;
+	}
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
@@ -149,6 +158,7 @@ namespace config
 		std::string		str = buffer.str();
 		slice cfg(str);
 
+		cfg.size++; // Make sure we parse the \0 at the end.
 		ParserResult<std::vector<config::Server> >	cfgs = ConfigParser()(cfg);
 		if (cfgs.is_err())
 		{

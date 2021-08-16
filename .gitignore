@@ -10,6 +10,7 @@ webserv98
 
 #logs
 webserv.log
+request.test
 
 #clion project files
 /.idea

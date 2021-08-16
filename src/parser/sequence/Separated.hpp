@@ -38,7 +38,7 @@ result_type	operator()(const slice& input)
 {
 	first_result	r1 = _p1(input);
 	if (r1.is_err())
-		return result_type::err(input, error("Separated: not found"));
+		return r1.template convert<tuple<first_type, second_type> >().unwind(input, "Separated: not found");
 	separator_type r = _s(r1.left());
 	if (r.is_err() && r.left() != r1.left())
 		return r.failure().unwind(r1.left(), "Separated: bad separator").template convert<tuple<first_type, second_type> >();

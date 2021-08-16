@@ -25,6 +25,33 @@ private:
 
 	typedef std::vector<std::pair<slice, std::string> >::const_iterator iterator;
 
+	std::string 	escape(const std::string& str) const
+	{
+		std::string		out;
+
+		for (size_t i = 0; i < str.length(); i++) {
+			if (isprint(str[i]))
+				out += str[i];
+			else
+			{
+				unsigned int hex = (unsigned int)(unsigned char)(str[i]);
+				if (hex == '\n')
+					out += std::string("\\n");
+				else if (hex == '\t')
+					out += std::string("\\t");
+				else if (hex == '\r')
+					out += std::string("\\r");
+				else {
+					std::stringstream stream;
+					stream << std::hex << hex;
+					std::string code = stream.str();
+					out += std::string("\\x") + (code.size() < 2 ?"0" : "") + code;
+				}
+			}
+		}
+		return out;
+	}
+
 public:
 
 	Error(): _msg("No info") { }
@@ -59,13 +86,13 @@ public:
 
 	friend std::ostream	&operator<<(std::ostream &stream, const Error &err)
 	{
-		stream << err._msg << std::endl;
+		stream << err.escape(err._msg) << std::endl;
 		return stream;
 	}
 
 	void 	trace(slice start, LogStream &stream) const {
 		for (Error::iterator it = _stack.begin(); it != _stack.end(); it++)
-			stream << "\tat: (l" << it->first.lines(start) << "c" << it->first.character(start) << "): " << it->first.take(10).until('\n') << " (" << it->second << ")\n";
+			stream << "\tat: (l" << it->first.lines(start) << "c" << it->first.character(start) << "): " << escape(it->first.take(10).until('\n').to_string()) << " (" << it->second << ")\n";
 	}
 };
 

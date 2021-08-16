@@ -25,5 +25,4 @@ public:
 	result_type		operator()(const slice& input);
 
 };
-
 #endif //WEBSERV_CHAR_HPP

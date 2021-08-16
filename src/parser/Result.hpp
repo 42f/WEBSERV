@@ -178,7 +178,8 @@ public:
 	 * Unwraps the error side and append a new item to the stacktrace
 	 */
 	ParserResult unwind(const slice &at, std::string msg) {
-		this->unwrap_err().at(at, msg);
+		if (this->is_err())
+			this->unwrap_err().at(at, msg);
 		return *this;
 	}
 

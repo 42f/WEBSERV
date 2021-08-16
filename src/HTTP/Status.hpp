@@ -13,6 +13,7 @@ namespace status
 	enum StatusCode
 	{
 		None = 0,
+		Incomplete = 1,
 
 	/*
 	 * Errors starting by 1xx: informational status code

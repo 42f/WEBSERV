@@ -45,46 +45,46 @@ public:
 	{
 		typename P1::result_type	r1 = _p1(input);
 		if (r1.is_err())
-			return r1.unwind(input, "Sequence").template convert<data_type>();
+			return r1.unwind(input, "Sequence: first").template convert<data_type>();
 		typename P2::result_type	r2 = _p2(r1.left());
 		if (r2.is_err()) {
-			result_type res = r2.unwind(input, "Sequence").template convert<data_type>();
+			result_type res = r2.unwind(r1.left(), "Sequence: second").template convert<data_type>();
 			return r1.left().p != input.p ? res.failure() : res;
 		}
 
 		typename P3::result_type	r3 = _p3(r2.left());
 		if (r3.is_err()) {
-			result_type res = r3.unwind(input, "Sequence").template convert<data_type>();
+			result_type res = r3.unwind(r2.left(), "Sequence: third").template convert<data_type>();
 			return r2.left().p != input.p ? res.failure() : res;
 		}
 
 		typename P4::result_type	r4 = _p4(r3.left());
 		if (r4.is_err()) {
-			result_type res = r4.unwind(input, "Sequence").template convert<data_type>();
+			result_type res = r4.unwind(r3.left(), "Sequence: fourth").template convert<data_type>();
 			return r3.left().p != input.p ? res.failure() : res;
 		}
 
 		typename P5::result_type	r5 = _p5(r4.left());
 		if (r5.is_err()) {
-			result_type res = r5.unwind(input, "Sequence").template convert<data_type>();
+			result_type res = r5.unwind(r4.left(), "Sequence: fifth").template convert<data_type>();
 			return r4.left().p != input.p ? res.failure() : res;
 		}
 
 		typename P6::result_type	r6 = _p6(r5.left());
 		if (r6.is_err()) {
-			result_type res = r6.unwind(input, "Sequence").template convert<data_type>();
+			result_type res = r6.unwind(r5.left(), "Sequence: sixth").template convert<data_type>();
 			return r5.left().p != input.p ? res.failure() : res;
 		}
 
 		typename P7::result_type	r7 = _p7(r6.left());
 		if (r7.is_err()) {
-			result_type res = r7.unwind(input, "Sequence").template convert<data_type>();
+			result_type res = r7.unwind(r6.left(), "Sequence: seventh").template convert<data_type>();
 			return r6.left().p != input.p ? res.failure() : res;
 		}
 
 		typename P8::result_type	r8 = _p8(r7.left());
 		if (r8.is_err()) {
-			result_type res = r8.unwind(input, "Sequence").template convert<data_type>();
+			result_type res = r8.unwind(r7.left(), "Sequence: eighth").template convert<data_type>();
 			return r7.left().p != input.p ? res.failure() : res;
 		}
 		return result_type::ok(r8.left(), data_type(r1.unwrap(), r2.unwrap(), r3.unwrap(), r4.unwrap(), r5.unwrap(), r6.unwrap(), r7.unwrap(), r8.unwrap()));

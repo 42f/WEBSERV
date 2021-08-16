@@ -19,8 +19,6 @@ public:
 	result_type		operator()(const slice &input);
 };
 
-/* ************************************************************************** */
-
 /*
  * RWS = 1*(' ' | '\t')
  */
@@ -32,24 +30,18 @@ public:
 	result_type		operator()(const slice &input);
 };
 
-/* ************************************************************************** */
-
 /*
  * Newline = '\r\n' or '\n'
  */
 class Newline: public Parser<slice>
 {
 private:
-	Tag		_both;
-	Tag		_n;
+	Tag	_both;
+	Tag	_n;
 public:
 	Newline();
 	result_type 	operator()(const slice& input);
 };
-
-/* ************************************************************************** */
-
-const Newline newline = Newline();
 
 /*
  * Token = 1 * tchar = "!" | "#" | "$" | "%" | "&" | "'" | "*"| "+" | "-" | "." | "^" | "_" | "`" | "|" | "~" | DIGIT | ALPHA
@@ -61,8 +53,6 @@ public:
 	result_type		operator()(const slice &input);
 };
 
-/* ************************************************************************** */
-
 /*
  * quoted-string  = DQUOTE *( qdtext / quoted-pair ) DQUOTE
  */
@@ -73,14 +63,14 @@ public:
 	result_type	operator()(const slice &input);
 };
 
-/* ************************************************************************** */
-
 const Char	single_space = Char(' ');
 const RWS rws = RWS();
 const OWS ows = OWS();
-const Match		vchar = Match(isprint);
-const HexChar obs = HexChar('\x80', '\xFF');
-const Token token = Token();
-const QuotedText quoted_text = QuotedText();
+const Newline newline = Newline();
+
+const Match			vchar = Match(isprint);
+const HexChar		obs = HexChar('\x80', '\xFF');
+const Token			token = Token();
+const QuotedText	quoted_text = QuotedText();
 
 #endif //WEBSERV_TOKENS_HPP

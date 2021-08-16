@@ -38,7 +38,7 @@ public:
 		slice	left = name.left();
 		typename P::result_type	value = terminated(as_slice(_field), ows)(left);
 		if (value.is_err())
-			return value.failure().map_err(left.size ? status::BadRequest : status::None).template convert<Header>();
+			return value.template convert<Header>();
 		return result_type::ok(value.left(), Header(name.unwrap(), value.unwrap()));
 	}
 };

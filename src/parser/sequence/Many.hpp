@@ -41,6 +41,8 @@ public:
 			vec.push_back(res.unwrap());
 			res = _p(res.left());
 		}
+		if (vec.empty() && _empty_ok && input.size == 0)
+			return result_type::ok(left, vec);
 		if (res.is_failure())
 			return res.template convert<data_type>().unwind(input, "Many: failure while parsing");
 		if (vec.empty() && !_empty_ok)

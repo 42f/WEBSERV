@@ -17,11 +17,17 @@ FieldValue::FieldValue() { }
 */
 FieldValue::result_type	FieldValue::operator()(const slice &input)
 {
-	static const Alt<Match, HexChar> charset = alt(vchar, obs);
-	static const TakeWith<OneOf>	spaces = take_with(OneOf(" \t"));
-
-	ParserResult<slice> res = take_with(sequence(charset, opt(sequence(spaces, charset))))(input);
-	return res;
+	ParserResult<slice> res = take_until_match(newline)(input);
+	if (res.is_err())
+		return res.unwind(input, "Field value");
+	slice	s = res.unwrap();
+	size_t	o = s.size - 1;
+	while (o && std::isspace(s.p[o]))
+	{
+		o--;
+		s.size--;
+	}
+	return result_type::ok(res.left(), s);
 }
 
 /* ************************************************************************** */

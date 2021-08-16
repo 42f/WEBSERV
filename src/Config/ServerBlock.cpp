@@ -41,7 +41,8 @@ ServerBlock::ServerBlock() { }
 
 ServerBlock::result_type	ServerBlock::operator()(const slice &input)
 {
-	ParserResult<tuple<slice, config::Server> >	res = bloc(Tag("server"), ServerContent())(input);
+	ParserResult<tuple<slice, config::Server> >	res = bloc(Tag("server"),
+	wrap_error("Server content", ServerContent()))(input);
 	if (res.is_err())
 		return res.convert<config::Server>();
 	return res.map(res.unwrap().second);

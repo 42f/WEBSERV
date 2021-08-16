@@ -51,20 +51,21 @@ Debug<P>	debug(std::string context, P parser) { return Debug<P>(context, parser)
 template<typename P>
 class Fail: public Parser<typename P::data_type> {
 private:
-	P	_parser;
+	P		_parser;
+	bool	_always;
 
 public:
-	Fail(P parser): _parser(parser) { }
+	Fail(P parser, bool always = false): _parser(parser), _always(always) { }
 
 	typename Fail::result_type operator()(const slice &input) {
 		typename Fail::result_type res = _parser(input);
-		if (res.left() != input)
+		if (res.left() != input || _always)
 			return res.failure();
 		return res;
 	}
 };
 
 template<typename P>
-Fail<P>		fail(P parser) { return Fail<P>(parser); }
+Fail<P>		fail(P parser, bool always = false) { return Fail<P>(parser, always); }
 
 #endif //WEBSERV_WRAP_HPP
