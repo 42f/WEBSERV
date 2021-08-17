@@ -60,7 +60,8 @@ std::string			File::getLastModified() const {
 
 size_t				File::getSize() const {
 
-	if (_fd > FD_UNSET)	{
+	if (_path.empty() == false)	{
+
 		struct stat st;
 		if(stat(_path.c_str(), &st) != 0) {
 			return 0;
