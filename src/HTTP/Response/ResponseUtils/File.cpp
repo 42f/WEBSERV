@@ -53,11 +53,7 @@ std::string			File::getLastModified() const {
 		if(stat(_path.c_str(), &st) != 0) {
 			return std::string();
 		}
-		struct tm *timeModified;
-		timeModified = gmtime(&(st.st_mtime));
-		std::string date = asctime(timeModified);
-		return date.substr(0, date.find('\n'));
-		// TODO change format so it is: Mon, 02 Mar 2020 19:24:48 GMT
+		return Timer::getTimeStr(gmtime(&(st.st_mtime)));
 	}
 	return std::string();
 }

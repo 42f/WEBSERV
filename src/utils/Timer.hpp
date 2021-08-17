@@ -18,10 +18,14 @@ class Timer	{
 
         static std::string  getTimeNow( void ) {
             time_t _tm = time(NULL);
-            struct tm * curtime = localtime ( &_tm );
-            std::string date = asctime(curtime);
+            return getTimeStr(localtime(&_tm));
+        }
 
-            return date.substr(0, date.find('\n'));
+        static std::string  getTimeStr( struct tm * time ) {
+            char buff[30];
+            bzero(buff, 30);
+            strftime(buff, 29, "%a, %d %b %Y %H:%M:%S %Z", time);
+            return buff;
         }
 
     private:

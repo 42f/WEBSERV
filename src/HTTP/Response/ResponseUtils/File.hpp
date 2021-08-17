@@ -10,6 +10,7 @@
 # include <sys/stat.h>
 
 # include "Logger.hpp"
+# include "Timer.hpp"
 # include "Constants.hpp"
 
 namespace files {
