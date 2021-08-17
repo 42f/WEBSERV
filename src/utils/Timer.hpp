@@ -3,6 +3,7 @@
 # include <time.h>
 # include <iostream>
 # include <string>
+# include <string.h>
 
 class Timer	{
 

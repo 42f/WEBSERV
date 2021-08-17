@@ -10,7 +10,7 @@ Socket::Socket(int fd, int port, fd_status::status status)
     : _fd(fd),
       _port(port),
       _has_events(false),
-      _resp_is_ready(false),
+      _is_processed(false),
       _status(status),
       _res(result_type::err(status::None)) {
     if (fd < 0) {
@@ -36,7 +36,7 @@ Socket &Socket::operator=(Socket const &rhs) {
         _flags = rhs._flags;
         _status = rhs._status;
         _has_events = rhs._has_events;
-        _resp_is_ready = false;
+        _is_processed = false;
     }
     return *this;
 }
@@ -58,8 +58,7 @@ int Socket::get_port(void) const { return _port; }
 int Socket::get_flags(void) const { return _flags; }
 bool Socket::has_events(void) const { return _has_events; }
 fd_status::status Socket::get_status(void) const { return _status; }
-Response const & Socket::get_response(void) const { return _response; }
-bool Socket::response_is_ready(void) { return _resp_is_ready; }
+Response const &Socket::get_response(void) const { return _response; }
 
 /***************************************************
     Member functions
@@ -73,14 +72,12 @@ void Socket::manage_raw_request(char *buffer, int size) {
     }
 }
 
-void Socket::manage_response() {
-    if (_response_handler.isReady() == false) {
-        _resp_is_ready = false;
+int Socket::manage_response() {
+    if (_is_processed == false) {
         _response_handler.processRequest();
-    } else {
-        _response = _response_handler.getResponse();
-        _resp_is_ready = true;
+        _is_processed = true;
     }
+    return (_response_handler.doSend(_fd));
 }
 
 }  // namespace network

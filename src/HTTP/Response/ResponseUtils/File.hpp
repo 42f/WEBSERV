@@ -8,6 +8,7 @@
 # include <fcntl.h>
 # include <unistd.h>
 # include <sys/stat.h>
+# include <stdlib.h>
 
 # include "Logger.hpp"
 # include "Timer.hpp"

@@ -46,14 +46,14 @@ void	ServerPool::locationsInit(config::Server &serv) {
 }
 
 void	ServerPool::cleanPath(std::string &locPath) {
-	if (locPath.front() != '/')
+	if (locPath[0] != '/')
 		locPath = '/' + locPath;
-	if (locPath.back() != '/')
+	if (locPath[locPath.length() - 1] != '/')
 		locPath.push_back('/');
 }
 
 void	ServerPool::cleanRoot(std::string &locRoot) {
-	if (locRoot.size() > 1 && locRoot.back() != '/')
+	if (locRoot.size() > 1 && locRoot[locRoot.length() - 1] != '/')
 		locRoot.push_back('/');
 }
 

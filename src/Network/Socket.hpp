@@ -35,7 +35,7 @@ class Socket {
     Response const & get_response(void) const;
     bool response_is_ready(void);
 
-    void manage_response();
+    int manage_response();
     void manage_raw_request(char *buffer, int size);
 
     Socket &operator=(Socket const &rhs);
@@ -45,7 +45,7 @@ class Socket {
     int _port;
     int _flags;
     bool _has_events;
-    bool _resp_is_ready;
+    bool _is_processed;
     std::string _buffer;
     fd_status::status _status;
     RequestHandler _request_handler;
