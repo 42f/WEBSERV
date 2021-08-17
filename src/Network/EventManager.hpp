@@ -41,7 +41,6 @@ class EventManager {
     static int _max_fd;
     static int _timeout;
     static int _nb_events;
-    static int _max_ssocket;
     static int _total_requests;
     static fd_set _read_set;
     static fd_set _write_set;
