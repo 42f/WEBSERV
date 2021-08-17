@@ -139,16 +139,16 @@ bool		ResponseHandler::isReady() {
 
 
 int			ResponseHandler::sendFromPipe(int fdDest, int flags) {
-	if (sendHeaders(fdDest, flags) < 0)
-		return (-1);
-	return -1; // TODO implement
+	// TODO implement
+	sendHeaders(fdDest, flags);
+	sendFromFile(fdDest, flags);
+	return 1;
 }
 
 
 
 int			ResponseHandler::sendFromFile(int fdDest, int flags) {
-	if (sendHeaders(fdDest, flags) < 0)
-		return (-1);
+	sendHeaders(fdDest, flags);
 	int retSend = doSendFromFD(_response.getFileInst().getFD(), fdDest, flags);
 	switch ( retSend ) {
 		case 0:

@@ -145,7 +145,6 @@ class ResponseHandler	{
 				if (file.isGood()) {
 					if (isCGI(serv, file)) {
 						// TODO instanciate PipedCGI obj and check if isGood(). If not return right error
-						std::cout << "IS CGI" << std::endl;
 						setRespForFile(resp, file); //debug
 						resp.setStatus(status::Ok); //debug
 					}
