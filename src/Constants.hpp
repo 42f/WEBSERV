@@ -35,7 +35,7 @@
 #endif
 
 #ifndef DEFAULT_SEND_SIZE
-# define DEFAULT_SEND_SIZE 5096
+# define DEFAULT_SEND_SIZE 1024
 #endif
 
 #define RESPONSE_SENT_ENTIRELY	-2
