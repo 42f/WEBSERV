@@ -1,253 +1,231 @@
 #pragma once
 
-# include <vector>
-# include <istream>
-# include <iostream>
-# include <sstream>
-# include <unistd.h>
-# include <iostream>
-# include <string>
-# include <fstream>
-# include <iterator>
 #include <signal.h>
-# include <sys/socket.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <fstream>
+#include <iostream>
+#include <istream>
+#include <iterator>
+#include <sstream>
+#include <string>
+#include <vector>
 
 #include "../Request/RequestLine.hpp"
-#include "Headers/Headers.hpp"
 #include "Config/Directives/Redirect.hpp"
-
-#include "utils/Logger.hpp"
-#include "HTTP/Request/Request.hpp"
-#include "RequestHandler.hpp"
-#include "Status.hpp"
-#include "Response.hpp"
 #include "Config/Server.hpp"
+#include "HTTP/Request/Request.hpp"
+#include "Headers/Headers.hpp"
+#include "RequestHandler.hpp"
+#include "Response.hpp"
+#include "Status.hpp"
 #include "Timer.hpp"
+#include "utils/Logger.hpp"
 
+class ResponseHandler {
+    class A_Method;
+    typedef RequestHandler::result_type ReqResult;
 
-class ResponseHandler	{
+   public:
+    void init(ReqResult const& requestResult, int receivedPort);
+    void processRequest(void);
 
-		class A_Method;
-		typedef	RequestHandler::result_type		ReqResult;
+#if __APPLE__
+    int doSend(int fdDest, int flags = 0);
+#else
+    int doSend(int fdDest, int flags = MSG_NOSIGNAL);
+#endif
 
-	public:
+    bool isReady(void);
+    Response const& getResponse(void);
 
-		void			init( ReqResult const & requestResult, int receivedPort );
-		void	 		processRequest( void );
-		int		 		doSend( int fdDest, int flags = MSG_NOSIGNAL);
+    ResponseHandler(void);
+    ResponseHandler(ReqResult requestResult, int receivedPort);
+    ~ResponseHandler(void);
 
-		bool		 	isReady( void );
-		Response const&	getResponse( void );
+   private:
+    int _port;
+    ReqResult _request;
+    Response _response;
+    A_Method* _method;
 
-		ResponseHandler( void );
-		ResponseHandler( ReqResult requestResult, int receivedPort );
-		~ResponseHandler( void );
+    std::string getHeader(const Request& req, const std::string& target);
+    int sendHeaders(int fdDest, int flags);
+    int sendErrorBuffer(int fdDest, int flags);
+    int sendFromPipe(int fdDest, int flags);
+    int sendFromFile(int fdDest, int flags);
+    int doSendFromFD(int fdSrc, int fdDest, int flags);
 
-	private:
+    ResponseHandler(ResponseHandler const& src);
+    ResponseHandler& operator=(ResponseHandler const& rhs);
 
-		int		 	 	_port;
-		ReqResult 	 	_request;
-		Response	 	_response;
-		A_Method *	 	_method;
+    /*
+     * GET POST and DELETE Methods
+     */
 
-		std::string		getHeader(const Request & req, const std::string& target);
-		int				sendHeaders( int fdDest, int flags );
-		int				sendErrorBuffer( int fdDest, int flags );
-		int				sendFromPipe( int fdDest, int flags );
-		int				sendFromFile( int fdDest, int flags );
-		int				doSendFromFD(int fdSrc, int fdDest, int flags);
+    class A_Method {
+       public:
+        A_Method(){};
+        virtual ~A_Method(){};
 
-		ResponseHandler( ResponseHandler const & src );
-		ResponseHandler &		operator=( ResponseHandler const & rhs );
+        virtual void handler(config::Server const& serv,
+                             LocationConfig const& loc, Request const& req,
+                             Response& resp) = 0;
 
+        static void makeErrorResponse(Response& resp, status::StatusCode code,
+                                      config::Server const& serv) {
+            resp.reset(Version(), code);
 
-/*
- * GET POST and DELETE Methods
- */
+            std::map<int, std::string>::const_iterator errIt =
+                serv.get_error_pages().find(code);
+            if (errIt != serv.get_error_pages().end()) {
+                std::string errorPagePath =
+                    serv.get_error_pages().find(code)->second;
+                resp.setFile(errorPagePath);
+            }
 
-		class A_Method	{
+            if (resp.getFileInst().isGood()) {
+                setRespForFile(resp, resp.getFileInst());
+            } else {
+                setRespForErrorBuff(resp);
+            }
+        }
 
-			public:
-				A_Method() {};
-				virtual ~A_Method() {};
+        static void setRespForErrorBuff(Response& resp) {
+            resp.loadErrorHtmlBuffer(resp.getStatusCode());
+            resp.setHeader(headerTitle::Content_Length,
+                           resp.getErrorBuffer().length());
+            resp.setHeader(headerTitle::Content_Type, "html");
+            resp.getState() = respState::buffResp;
+        }
 
-				virtual void	handler(config::Server const& serv,
-						LocationConfig const & loc, Request const & req, Response & resp) = 0;
+        static void setRespForPipe(Response& resp, files::File const& file) {
+            // TODO implement
+            resp.setHeader(headerTitle::Content_Type, file.getType());  // debug
+            resp.setHeader(headerTitle::Last_Modified,
+                           file.getLastModified());  // debug
+            resp.setHeader(headerTitle::Content_Length,
+                           file.getSize());         // debug
+            resp.getState() = respState::fileResp;  // debug
+        }
 
-				static void	makeErrorResponse(Response & resp,
-						status::StatusCode code, config::Server const &serv)	{
+        static void setRespForFile(Response& resp, files::File const& file) {
+            resp.setHeader(headerTitle::Content_Type, file.getType());
+            resp.setHeader(headerTitle::Last_Modified, file.getLastModified());
 
-					resp.reset(Version(), code);
+            if (resp.getFileInst().getSize() > DEFAULT_SEND_SIZE) {
+                resp.setHeader(headerTitle::Transfer_Encoding, "chunked");
+                resp.getState() = respState::fileResp | respState::chunkedResp;
+            } else {
+                resp.setHeader(headerTitle::Content_Length, file.getSize());
+                resp.getState() = respState::fileResp;
+            }
+        }
+    };
 
-					std::map<int, std::string>::const_iterator errIt = serv.get_error_pages().find(code);
-					if (errIt != serv.get_error_pages().end()) {
-						std::string errorPagePath = serv.get_error_pages().find(code)->second;
-						resp.setFile(errorPagePath);
-					}
+    class GetMethod : public A_Method {
+       public:
+        GetMethod(){};
+        ~GetMethod(){};
 
-					if (resp.getFileInst().isGood()) {
-						setRespForFile(resp, resp.getFileInst());
-					}
-					else {
-						setRespForErrorBuff(resp);
-					}
-				}
+        void handler(config::Server const& serv, LocationConfig const& loc,
+                     Request const& req, Response& resp) {
+            // Resolve the file to be read, if none, return a 404 Not Found
+            std::string targetFile = resolveFilePath(loc, req);
+            resp.setFile(targetFile);
+            LogStream s;
+            s << "File targeted: " << targetFile;
 
+            files::File const& file = resp.getFileInst();
 
-				static void	setRespForErrorBuff( Response & resp ) {
-					resp.loadErrorHtmlBuffer(resp.getStatusCode());
-					resp.setHeader(headerTitle::Content_Length, resp.getErrorBuffer().length());
-					resp.setHeader(headerTitle::Content_Type, "html");
-					resp.getState() = respState::buffResp;
-				}
+            if (file.isGood()) {
+                if (isCGI(serv, file)) {
+                    // TODO instanciate PipedCGI obj and check if isGood(). If
+                    // not return right error
+                    setRespForFile(resp, file);  // debug
+                    resp.setStatus(status::Ok);  // debug
+                } else {
+                    setRespForFile(resp, file);
+                    resp.setStatus(status::Ok);
+                }
+            } else
+                makeErrorResponse(resp, status::NotFound, serv);
+        }
 
-				static void	setRespForPipe( Response & resp, files::File const & file) {
-					// TODO implement
-					resp.setHeader(headerTitle::Content_Type, file.getType());	// debug
-					resp.setHeader(headerTitle::Last_Modified, file.getLastModified());	// debug
-					resp.setHeader(headerTitle::Content_Length, file.getSize());	// debug
-					resp.getState() = respState::fileResp;	// debug
+        std::string resolveFilePath(LocationConfig const& loc,
+                                    Request const& req) {
+            std::string targetFile(loc.get_root());
 
-				}
+            if (files::File::isFileFromPath(req.target.decoded_path)) {
+                // if the request aims to a subdir of the location path,
+                // we remove the location path part
+                if (req.target.decoded_path.find(loc.get_path()) == 0) {
+                    targetFile +=
+                        req.target.decoded_path.substr(loc.get_path().length());
+                } else {
+                    targetFile += req.target.decoded_path;
+                }
+            } else if (loc.get_index().empty() == false) {
+                targetFile += loc.get_index();
+            } else
+                return std::string();
 
-				static void	setRespForFile( Response & resp, files::File const & file) {
+            return targetFile;
+        }
 
-					resp.setHeader(headerTitle::Content_Type, file.getType());
-					resp.setHeader(headerTitle::Last_Modified, file.getLastModified());
+        bool isCGI(config::Server const& serv, files::File const& file) {
+            std::string fileExt = file.getExt();
+            std::map<std::string, std::string>::const_iterator it =
+                serv.get_cgis().begin();
 
-					if (resp.getFileInst().getSize() > DEFAULT_SEND_SIZE) {
-						resp.setHeader(headerTitle::Transfer_Encoding, "chunked" );
-						resp.getState() = respState::fileResp | respState::chunkedResp;
-					}
-					else {
-						resp.setHeader(headerTitle::Content_Length, file.getSize());
-						resp.getState() = respState::fileResp;
-					}
-				}
-		};
+            for (; it != serv.get_cgis().end(); it++) {
+                if (fileExt == it->first) return true;
+            }
+            return false;
+        }
+    };
 
-		class GetMethod	: public A_Method {
+    class PostMethod : public A_Method {
+       public:
+        PostMethod(){};
+        ~PostMethod(){};
 
-			public:
+        void handler(config::Server const& serv, LocationConfig const& loc,
+                     Request const& req, Response& resp) {
+            (void)serv;
+            (void)resp;
+            (void)loc;
+            (void)req;
+            std::cout << __func__ << " of POST." << std::endl;
+        }
+    };
 
-			GetMethod() {};
-			~GetMethod() {};
+    class DeleteMethod : public A_Method {
+       public:
+        DeleteMethod(){};
+        ~DeleteMethod(){};
 
-			void	handler(config::Server const& serv, LocationConfig const & loc,
-											 Request const & req, Response & resp) {
+        void handler(config::Server const& serv, LocationConfig const& loc,
+                     Request const& req, Response& resp) {
+            (void)serv;
+            (void)resp;
+            (void)loc;
+            (void)req;
+            std::cout << __func__ << " of DELETE." << std::endl;
+        }
+    };
 
-				// Resolve the file to be read, if none, return a 404 Not Found
-				std::string	targetFile = resolveFilePath(loc, req);
-				resp.setFile(targetFile);
-				LogStream s; s << "File targeted: " << targetFile;
+    class UnsupportedMethod : public A_Method {
+       public:
+        UnsupportedMethod(){};
+        ~UnsupportedMethod(){};
 
-				files::File const & file = resp.getFileInst();
+        void handler(config::Server const&, LocationConfig const&,
+                     Request const&, Response&) {
+            std::cout << __func__ << " of UNSUPPORTED." << std::endl;
+        }
+    };
 
-				if (file.isGood()) {
-					if (isCGI(serv, file)) {
-						// TODO instanciate PipedCGI obj and check if isGood(). If not return right error
-						setRespForFile(resp, file); //debug
-						resp.setStatus(status::Ok); //debug
-					}
-					else {
-						setRespForFile(resp, file);
-						resp.setStatus(status::Ok);
-					}
-				}
-				else
-					makeErrorResponse(resp, status::NotFound, serv);
-			}
-
-
-
-			std::string	resolveFilePath(LocationConfig const& loc, Request const& req)	{
-
-				std::string	targetFile(loc.get_root());
-
-				if (files::File::isFileFromPath(req.target.decoded_path)) {
-					// if the request aims to a subdir of the location path,
-					// we remove the location path part
-					if (req.target.decoded_path.find(loc.get_path()) == 0) {
-						targetFile += req.target.decoded_path.substr(loc.get_path().length()) ;
-					}
-					else {
-						targetFile += req.target.decoded_path ;
-					}
-				}
-				else if (loc.get_index().empty() == false)	{
-					targetFile += loc.get_index();
-				}
-				else
-					return std::string();
-
-				return targetFile;
-			}
-
-
-			bool		isCGI(config::Server const & serv, files::File const & file) {
-
-				std::string	fileExt = file.getExt();
-				std::map<std::string, std::string>::const_iterator it = serv.get_cgis().begin();
-
-				for (; it != serv.get_cgis().end(); it++) {
-					if (fileExt == it->first)
-						return true;
-				}
-				return false;
-			}
-		};
-
-
-
-		class PostMethod	: public A_Method {
-
-			public:
-
-			PostMethod() {};
-			~PostMethod() {};
-
-			void	handler(config::Server const& serv, LocationConfig const & loc,
-											 Request const & req, Response & resp) {
-				(void)serv;
-				(void)resp;
-				(void)loc;
-				(void)req;
-				std::cout << __func__ << " of POST." << std::endl;
-			}
-		};
-
-
-
-		class DeleteMethod	: public A_Method {
-
-			public:
-
-			DeleteMethod() {};
-			~DeleteMethod() {};
-
-			void	handler(config::Server const& serv, LocationConfig const & loc,
-											 Request const & req, Response & resp) {
-				(void)serv;
-				(void)resp;
-				(void)loc;
-				(void)req;
-				std::cout << __func__ << " of DELETE." << std::endl;
-			}
-		};
-
-
-
-		class UnsupportedMethod	: public A_Method {
-
-			public:
-
-			UnsupportedMethod() {};
-			~UnsupportedMethod() {};
-
-			void	handler(config::Server const&, LocationConfig const&,
-														Request const&, Response&) {
-				std::cout << __func__ << " of UNSUPPORTED." << std::endl;
-			}
-		};
-
-}; // end reponseHandler
+};  // end reponseHandler

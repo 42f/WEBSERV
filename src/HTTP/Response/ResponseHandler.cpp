@@ -75,6 +75,11 @@ std::string ResponseHandler::getHeader(const Request& req,
 }
 
 int ResponseHandler::doSend(int fdDest, int flags) {
+#if __APPLE__
+    int set = 1;
+    setsockopt(fdDest, SOL_SOCKET, SO_NOSIGPIPE, (void*)&set, sizeof(int));
+#endif
+
     int state = _response.getState();
 
     if (state == respState::emptyResp) {
