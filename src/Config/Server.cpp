@@ -95,6 +95,7 @@ namespace config
 		std::vector<LocationConfig>&		Server::get_locations() { return _locations; }
 		std::vector<LocationConfig> const&	Server::get_locations() const { return _locations; }
 		std::map<int, std::string> const&	Server::get_error_pages() const { return _error_pages; }
+		std::map<std::string, std::string> const & Server::get_cgis() const { return _cgis; };
 
 /*
 ** --------------------------------- METHODS ----------------------------------

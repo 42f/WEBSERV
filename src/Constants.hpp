@@ -39,6 +39,7 @@
 #endif
 
 #define RESPONSE_SENT_ENTIRELY	-2
-#define RESPONSE_IS_EMPTY		-3
+#define RESPONSE_READ_ERROR		-3
+#define RESPONSE_IS_EMPTY		-4
 
 #endif //WEBSERV_CONSTANTS_HPP

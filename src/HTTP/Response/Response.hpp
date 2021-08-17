@@ -22,7 +22,7 @@ namespace respState {
 	enum states {
 		emptyResp		= 0,
 		entirelySent	= 1<<1,
-		sentError 		= 1<<2,
+		readError 		= 1<<2,
 		headerSent		= 1<<3,
 		buffResp 		= 1<<4,
 		pipeResp 		= 1<<5,

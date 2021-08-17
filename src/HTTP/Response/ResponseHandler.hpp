@@ -11,7 +11,7 @@
 # include <iterator>
 # include <sys/socket.h>
 
-#include "Request/RequestLine.hpp"
+#include "../Request/RequestLine.hpp"
 #include "Headers/Headers.hpp"
 #include "Config/Directives/Redirect.hpp"
 
@@ -100,6 +100,15 @@ class ResponseHandler	{
 					resp.getState() = respState::buffResp;
 				}
 
+				static void	setRespForPipe( Response & resp, files::File const & file) {
+					// TODO implement
+					resp.setHeader(headerTitle::Content_Type, file.getType());	// debug
+					resp.setHeader(headerTitle::Last_Modified, file.getLastModified());	// debug
+					resp.setHeader(headerTitle::Content_Length, file.getSize());	// debug
+					resp.getState() = respState::fileResp;	// debug
+
+				}
+
 				static void	setRespForFile( Response & resp, files::File const & file) {
 
 					resp.setHeader(headerTitle::Content_Type, file.getType());
@@ -123,16 +132,27 @@ class ResponseHandler	{
 			GetMethod() {};
 			~GetMethod() {};
 
-			void	handler(config::Server const& serv, LocationConfig const & loc, Request const & req, Response & resp) {
+			void	handler(config::Server const& serv, LocationConfig const & loc,
+											 Request const & req, Response & resp) {
 
 				// Resolve the file to be read, if none, return a 404 Not Found
 				std::string	targetFile = resolveFilePath(loc, req);
 				resp.setFile(targetFile);
 				LogStream s; s << "File targeted: " << targetFile;
 
-				if (resp.getFileInst().isGood()) {
-					setRespForFile(resp, resp.getFileInst());
-					resp.setStatus(status::Ok);
+				files::File const & file = resp.getFileInst();
+
+				if (file.isGood()) {
+					if (isCGI(serv, file)) {
+						// TODO instanciate PipedCGI obj and check if isGood(). If not return right error
+						std::cout << "IS CGI" << std::endl;
+						setRespForFile(resp, file); //debug
+						resp.setStatus(status::Ok); //debug
+					}
+					else {
+						setRespForFile(resp, file);
+						resp.setStatus(status::Ok);
+					}
 				}
 				else
 					makeErrorResponse(resp, status::NotFound, serv);
@@ -162,6 +182,19 @@ class ResponseHandler	{
 
 				return targetFile;
 			}
+
+
+			bool		isCGI(config::Server const & serv, files::File const & file) {
+
+				std::string	fileExt = file.getExt();
+				std::map<std::string, std::string>::const_iterator it = serv.get_cgis().begin();
+
+				for (; it != serv.get_cgis().end(); it++) {
+					if (fileExt == it->first)
+						return true;
+				}
+				return false;
+			}
 		};
 
 
@@ -173,7 +206,8 @@ class ResponseHandler	{
 			PostMethod() {};
 			~PostMethod() {};
 
-			void	handler(config::Server const& serv, LocationConfig const & loc, Request const & req, Response & resp) {
+			void	handler(config::Server const& serv, LocationConfig const & loc,
+											 Request const & req, Response & resp) {
 				(void)serv;
 				(void)resp;
 				(void)loc;
@@ -191,7 +225,8 @@ class ResponseHandler	{
 			DeleteMethod() {};
 			~DeleteMethod() {};
 
-			void	handler(config::Server const& serv, LocationConfig const & loc, Request const & req, Response & resp) {
+			void	handler(config::Server const& serv, LocationConfig const & loc,
+											 Request const & req, Response & resp) {
 				(void)serv;
 				(void)resp;
 				(void)loc;
@@ -209,7 +244,8 @@ class ResponseHandler	{
 			UnsupportedMethod() {};
 			~UnsupportedMethod() {};
 
-			void	handler(config::Server const&, LocationConfig const&, Request const&, Response&) {
+			void	handler(config::Server const&, LocationConfig const&,
+														Request const&, Response&) {
 				std::cout << __func__ << " of UNSUPPORTED." << std::endl;
 			}
 		};

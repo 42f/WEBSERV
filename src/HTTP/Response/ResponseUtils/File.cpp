@@ -89,6 +89,24 @@ bool	File::isFileFromPath( std::string const & path) {
 	return path.find('.', lastPartHead) != std::string::npos;
 }
 
+// returns the content-type header field for the file instance
+std::string	File::getType( void ) const {
+
+	if (isFileFromPath(_path)) {
+		size_t extPos = _path.find_last_of('.');
+		extPos += (extPos != std::string::npos) ? 1 : 0;
+		return (getTypeFromExt(_path.substr(extPos)));
+	}
+	return std::string(DEFAULT_CONTENT_TYPE);
+}
+
+// returns the extension for the file isntance
+std::string	File::getExt( void ) const {
+
+	return getExtFromPath(_path);
+}
+
+// returns the filename + ext
 std::string	File::getFileFromPath(std::string const & path) {
 
 	if (isFileFromPath(path)) {
@@ -100,16 +118,15 @@ std::string	File::getFileFromPath(std::string const & path) {
 		return std::string();
 }
 
-std::string	File::getType( void ) const {
+// returns the extension of a given path, if it is a file path
+std::string	File::getExtFromPath(std::string const & path) {
 
-	if (isFileFromPath(_path)) {
-		size_t extPos = _path.find_last_of('.');
-		extPos += (extPos != std::string::npos) ? 1 : 0;
-		return (getTypeFromExt(_path.substr(extPos)));
-	}
-	return std::string(DEFAULT_CONTENT_TYPE);
+	std::string output = getFileFromPath(path);
+	return output.substr(output.find_last_of('.'));
 }
 
+
+// returns the content-type header from a given extension
 std::string	File::getTypeFromExt( std::string const & extSrc ) const {
 
 	typesMap_t::iterator ext = _types.find(extSrc);

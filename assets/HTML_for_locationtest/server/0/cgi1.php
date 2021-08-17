@@ -12,7 +12,7 @@ h1 {
 p {text-align: center;}
 div {text-align: center;}
 </style>
-<title>/tmp/server/0/index.html : Webserv Homepage ^-^</title>
+<title>ABOUT</title>
 <meta name="description" content="Coucou">
 <meta name="author" content="team ABC">
 
@@ -29,11 +29,9 @@ div {text-align: center;}
 
 <body>
 	<h1>
-		<img src="/imgs/hello.gif" width="400"><br/><br/>
-		HELLO WORLD from /tmp/server/0/index.html !<br/>
-		<a href="/site0/about.html">about</a><br/>
-		<a href="/site0/cgi1.php">php_cgi</a><br/>
-		<input type="button" value="Go back!" onclick="history.back()">
+		Webserver php infos here: <br/>
+		<input type="button" value="Go back!" onclick="history.back()"> <br/>
+		<?php phpinfo(); ?>
 	</h1>
 </body>
 </html>

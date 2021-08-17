@@ -63,6 +63,7 @@ namespace config
 		std::vector<LocationConfig>&		get_locations();
 		std::vector<LocationConfig> const&	get_locations() const;
 		std::map<int, std::string>	const&	get_error_pages() const; //AVOIR
+		std::map<std::string, std::string> const & get_cgis() const;
 
 /*
 ** --------------------------------- METHODS ----------------------------------

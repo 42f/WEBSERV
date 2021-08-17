@@ -162,13 +162,14 @@ void	simple_listener( void ) {
 
 void exit_server(int sig) {
 	(void)sig;
-	std::cout << "\rGot signal, Bye..." << std::endl;
+	std::cout << "\rGot signal, Bye... : " << sig << std::endl;
 	exit(0);
 }
 
 int main(int ac, char **av)
 {
 	signal(SIGINT, &exit_server);
+	signal(SIGPIPE, &exit_server);
 	std::string 	path;
 	switch (ac) {
 		case 1:

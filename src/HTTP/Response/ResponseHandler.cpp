@@ -93,8 +93,8 @@ int	 		ResponseHandler::doSend( int fdDest, int flags)	{
 		// std::cout << "doSend -> entirelySent" << std::endl;
 		return RESPONSE_SENT_ENTIRELY;
 	}
-	if (state & respState::sentError) {
-		// std::cout << "doSend -> sentError" << std::endl;
+	if (state & respState::readError) {
+		// std::cout << "doSend -> readError" << std::endl;
 		return -1;
 	}
 	if (state & respState::buffResp) {
@@ -120,10 +120,7 @@ int			ResponseHandler::sendHeaders(int fdDest, int flags) {
 	if ( (_response.getState() & respState::headerSent) == false) {
 		std::stringstream output;
 		output << _response;
-		if (send(fdDest, output.str().c_str(), output.str().length(), flags) < 0) {
-			_response.getState() = respState::sentError;
-			return (-1);
-		}
+		send(fdDest, output.str().c_str(), output.str().length(), flags);
 		_response.getState() |= respState::headerSent;
 		return (output.str().length());
 	}
@@ -152,18 +149,17 @@ int			ResponseHandler::sendFromPipe(int fdDest, int flags) {
 int			ResponseHandler::sendFromFile(int fdDest, int flags) {
 	if (sendHeaders(fdDest, flags) < 0)
 		return (-1);
-	int retSend = 1;
-	retSend = doSendFromFD(_response.getFileInst().getFD(), fdDest, flags);
+	int retSend = doSendFromFD(_response.getFileInst().getFD(), fdDest, flags);
 	switch ( retSend ) {
 		case 0:
 			_response.getState() = respState::entirelySent;
 			break;
 		case -1:
-			_response.getState() = respState::sentError;
+			_response.getState() = respState::readError;
 			break;
 
 		default:
-			break ;
+			break;
 	}
 	return retSend;
 }
@@ -174,10 +170,7 @@ int			ResponseHandler::sendErrorBuffer(int fdDest, int flags) {
 	std::stringstream output;
 
 	output << _response << _response.getErrorBuffer();
-	if (send(fdDest, output.str().c_str(), output.str().length(), flags) < 0) {
-		_response.getState() = respState::sentError;
-		return (-1);
-	}
+	send(fdDest, output.str().c_str(), output.str().length(), flags);
 	_response.getState() = respState::entirelySent;
 	return (output.str().length());
 }
@@ -195,32 +188,20 @@ int			ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
 	size_t	retRead = 0;
 
 	if ( (retRead = read(fdSrc, buff, DEFAULT_SEND_SIZE)) < 0)
-		return (-1);
+		return (RESPONSE_READ_ERROR);
 
 	if (_response.getState() & respState::chunkedResp) {
 		std::stringstream chunkData;
 		chunkData << std::hex << retRead << "\r\n";
+		send(fdDest, chunkData.str().c_str(), chunkData.str().length(), flags);
 
-		if (send(fdDest, chunkData.str().c_str(), chunkData.str().length(), flags) < 0) {
-			return (-1);
-		}
 		buff[retRead + 0] = '\r';
 		buff[retRead + 1] = '\n';
-		struct stat st;
-		if(fstat(fdDest, &st) != 0) {
-			perror("error: send():");
-			exit(1);
-		}
-		if (send(fdDest, buff, retRead + 2 , flags) < 0) {
-			return (-1);
-		}
+		send(fdDest, buff, retRead + 2 , flags);
 	}
-	else {
-		if (send(fdDest, buff, retRead, flags) < 0) {
-			return (-1);
-		}
-	}
-	return (retRead);
+	else
+		send(fdDest, buff, retRead, flags);
+	return retRead;
 }
 
 /* ................................. ACCESSOR ................................*/

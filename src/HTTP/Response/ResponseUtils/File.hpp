@@ -46,9 +46,12 @@ namespace files {
 
             std::string         getLastModified( void ) const;
             std::string         getType( void ) const;
+            std::string         getExt( void ) const;
             std::string         getTypeFromExt( std::string const & ext ) const;
+
             static bool         isFileFromPath( std::string const & path );
             static std::string	getFileFromPath( std::string const & path );
+            static std::string	getExtFromPath( std::string const & path );
 
             static void initContentTypes( char const * pathTypesConf );
 
