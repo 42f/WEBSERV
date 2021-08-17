@@ -194,20 +194,13 @@ void EventManager::send_response(int index) {
         if (EventManager::_sockets[i].get_fd() > _max_ssocket &&
             FD_ISSET(EventManager::_sockets[i].get_fd(), &_write_set) &&
             EventManager::_sockets[i].get_status() == fd_status::read) {
-            EventManager::_sockets[i].manage_response();
-            if (EventManager::_sockets[i].response_is_ready() == true) {
-                std::ostringstream buffer;
-                buffer << EventManager::_sockets[i].get_response();
 
-                unsigned long ret =
-                    send(EventManager::_sockets[i].get_fd(),
-                         buffer.str().c_str(), buffer.str().length(), 0);
-                // Change condition to (if nothing else to send)
-                if (ret >= buffer.str().length()) {
-                    close(EventManager::_sockets[i].get_fd());
-                    EventManager::_sockets[i].set_status(fd_status::closed);
-                }
+            if (EventManager::_sockets[i].manage_response() ==
+                RESPONSE_SENT_ENTIRELY) {
+                close(EventManager::_sockets[i].get_fd());
+                EventManager::_sockets[i].set_status(fd_status::closed);
             }
+
         }
     }
 }
