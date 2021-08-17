@@ -158,12 +158,9 @@ int ResponseHandler::sendErrorBuffer(int fdDest, int flags) {
 
 int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
     // TODO remove after Calixte code integration
-    int set = 1;
-    setsockopt(fdDest, SOL_SOCKET, SO_NOSIGPIPE, (void*)&set, sizeof(int));
-
     char buff[DEFAULT_SEND_SIZE + 2];
     bzero(buff, DEFAULT_SEND_SIZE + 2);
-    size_t retRead = 0;
+    ssize_t retRead = 0;
 
     if ((retRead = read(fdSrc, buff, DEFAULT_SEND_SIZE)) < 0)
         return (RESPONSE_READ_ERROR);

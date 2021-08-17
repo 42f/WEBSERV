@@ -9,6 +9,7 @@
 # include <string>
 # include <fstream>
 # include <iterator>
+#include <signal.h>
 # include <sys/socket.h>
 
 #include "../Request/RequestLine.hpp"
@@ -33,7 +34,7 @@ class ResponseHandler	{
 
 		void			init( ReqResult const & requestResult, int receivedPort );
 		void	 		processRequest( void );
-		int		 		doSend( int fdDest, int flags = 0);
+		int		 		doSend( int fdDest, int flags = MSG_NOSIGNAL);
 
 		bool		 	isReady( void );
 		Response const&	getResponse( void );
