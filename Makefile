@@ -129,6 +129,30 @@ webserv/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/build
 .PHONY : webserv/fast
 
+src/CGI/CGI.o: src/CGI/CGI.cpp.o
+.PHONY : src/CGI/CGI.o
+
+# target to build an object file
+src/CGI/CGI.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/CGI/CGI.cpp.o
+.PHONY : src/CGI/CGI.cpp.o
+
+src/CGI/CGI.i: src/CGI/CGI.cpp.i
+.PHONY : src/CGI/CGI.i
+
+# target to preprocess a source file
+src/CGI/CGI.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/CGI/CGI.cpp.i
+.PHONY : src/CGI/CGI.cpp.i
+
+src/CGI/CGI.s: src/CGI/CGI.cpp.s
+.PHONY : src/CGI/CGI.s
+
+# target to generate assembly for a file
+src/CGI/CGI.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/CGI/CGI.cpp.s
+.PHONY : src/CGI/CGI.cpp.s
+
 src/Config/ConfigParser.o: src/Config/ConfigParser.cpp.o
 .PHONY : src/Config/ConfigParser.o
 
@@ -1410,6 +1434,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... webserv"
+	@echo "... src/CGI/CGI.o"
+	@echo "... src/CGI/CGI.i"
+	@echo "... src/CGI/CGI.s"
 	@echo "... src/Config/ConfigParser.o"
 	@echo "... src/Config/ConfigParser.i"
 	@echo "... src/Config/ConfigParser.s"
