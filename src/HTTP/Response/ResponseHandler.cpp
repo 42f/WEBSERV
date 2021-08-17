@@ -171,13 +171,18 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
         return (RESPONSE_READ_ERROR);
 
     if (_response.getState() & respState::chunkedResp) {
-        std::stringstream chunkData;
-        chunkData << std::hex << retRead << "\r\n";
-        send(fdDest, chunkData.str().c_str(), chunkData.str().length(), flags);
 
+
+        std::stringstream chunkSize;
+        chunkSize << std::hex << retRead << "\r\n";
+        std::string chunkData(chunkSize.str());
+
+        chunkData.reserve(chunkData.length() + DEFAULT_SEND_SIZE + 2);
         buff[retRead + 0] = '\r';
         buff[retRead + 1] = '\n';
-        send(fdDest, buff, retRead + 2, flags);
+        chunkData.insert(chunkData.end(), buff, buff + retRead + 2);
+
+        send(fdDest, chunkData.data(), chunkData.length(), flags);
     } else
         send(fdDest, buff, retRead, flags);
     return retRead;
