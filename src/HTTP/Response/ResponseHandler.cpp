@@ -62,7 +62,7 @@ void ResponseHandler::processRequest() {
         _method->handler(serverMatch, locMatch, req, _response);
     } else {
         A_Method::makeErrorResponse(_response, status::BadRequest,
-                                    config::Server());  // waiting bugfix
+                                    config::Server());  // TODO waiting bugfix
         // A_Method::makeErrorResponse(_response, _request.unwrap_err(),
         // config::Server()); // waiting bugfix
     }
@@ -106,16 +106,13 @@ int ResponseHandler::doSend(int fdDest, int flags) {
     return -42;  // TODO cleanup
 }
 
-// std::cout << __func__ << ":" << __LINE__ << " MASK ============ " <<
-// _response.getState() << std::endl;
-
 int ResponseHandler::sendHeaders(int fdDest, int flags) {
     if ((_response.getState() & respState::headerSent) == false) {
         std::stringstream output;
         output << _response;
         send(fdDest, output.str().c_str(), output.str().length(), flags);
         _response.getState() |= respState::headerSent;
-        if (_response.getState() &= respState::noBodyResp) {
+        if (_response.getState() & respState::noBodyResp) {
             _response.getState() |= respState::entirelySent;
             return (RESPONSE_SENT_ENTIRELY);
         }
@@ -167,8 +164,10 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
     bzero(buff, DEFAULT_SEND_SIZE + 2);
     ssize_t retRead = 0;
 
-    if ((retRead = read(fdSrc, buff, DEFAULT_SEND_SIZE)) < 0)
+    if ((retRead = read(fdSrc, buff, DEFAULT_SEND_SIZE)) < 0) {
+        _response.getState() = respState::readError;
         return (RESPONSE_READ_ERROR);
+    }
 
     if (_response.getState() & respState::chunkedResp) {
 
@@ -176,7 +175,6 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
         std::stringstream chunkSize;
         chunkSize << std::hex << retRead << "\r\n";
         std::string chunkData(chunkSize.str());
-
         chunkData.reserve(chunkData.length() + DEFAULT_SEND_SIZE + 2);
         buff[retRead + 0] = '\r';
         buff[retRead + 1] = '\n';
@@ -196,7 +194,7 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
  * Returns the result processed. If no call to processRequest was made prior
  * to a call to getResult, result sould not be unwrapped.
  */
-Response const& ResponseHandler::getResponse() { return (_response); }
+Response const& ResponseHandler::getResponse() { return _response; }
 
 /* ................................. OVERLOAD ................................*/
 
