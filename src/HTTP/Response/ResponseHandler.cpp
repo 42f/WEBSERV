@@ -106,6 +106,10 @@ int ResponseHandler::doSend(int fdDest, int flags) {
         // std::cout << "doSend -> fileResp" << std::endl;
         return sendFromFile(fdDest, flags);
     }
+    if (state & respState::noBodyResp) {
+        // std::cout << "doSend -> fileResp" << std::endl;
+        return sendHeaders(fdDest, flags);
+    }
     return -42;  // TODO cleanup
 }
 
@@ -118,6 +122,10 @@ int ResponseHandler::sendHeaders(int fdDest, int flags) {
         output << _response;
         send(fdDest, output.str().c_str(), output.str().length(), flags);
         _response.getState() |= respState::headerSent;
+        if (_response.getState() &= respState::noBodyResp) {
+            _response.getState() |= respState::entirelySent;
+            return (RESPONSE_SENT_ENTIRELY);
+        }
         return (output.str().length());
     }
     return 0;

@@ -74,6 +74,27 @@ class ResponseHandler {
                              LocationConfig const& loc, Request const& req,
                              Response& resp) = 0;
 
+        virtual std::string resolveFilePath(LocationConfig const& loc,
+                                    Request const& req) {
+            std::string targetFile(loc.get_root());
+
+            if (files::File::isFileFromPath(req.target.decoded_path)) {
+                // if the request aims to a subdir of the location path,
+                // we remove the location path part
+                if (req.target.decoded_path.find(loc.get_path()) == 0) {
+                    targetFile +=
+                        req.target.decoded_path.substr(loc.get_path().length());
+                } else {
+                    targetFile += req.target.decoded_path;
+                }
+            } else if (loc.get_index().empty() == false) {
+                targetFile += loc.get_index();
+            } else
+                return std::string();
+
+            return targetFile;
+        }
+
         static void makeErrorResponse(Response& resp, status::StatusCode code,
                                       config::Server const& serv) {
             resp.reset(Version(), code);
@@ -135,8 +156,7 @@ class ResponseHandler {
             // Resolve the file to be read, if none, return a 404 Not Found
             std::string targetFile = resolveFilePath(loc, req);
             resp.setFile(targetFile);
-            LogStream s;
-            s << "File targeted: " << targetFile;
+            LogStream s; s << "File targeted: " << targetFile;
 
             files::File const& file = resp.getFileInst();
 
@@ -152,27 +172,7 @@ class ResponseHandler {
                 }
             } else
                 makeErrorResponse(resp, status::NotFound, serv);
-        }
-
-        std::string resolveFilePath(LocationConfig const& loc,
-                                    Request const& req) {
-            std::string targetFile(loc.get_root());
-
-            if (files::File::isFileFromPath(req.target.decoded_path)) {
-                // if the request aims to a subdir of the location path,
-                // we remove the location path part
-                if (req.target.decoded_path.find(loc.get_path()) == 0) {
-                    targetFile +=
-                        req.target.decoded_path.substr(loc.get_path().length());
-                } else {
-                    targetFile += req.target.decoded_path;
-                }
-            } else if (loc.get_index().empty() == false) {
-                targetFile += loc.get_index();
-            } else
-                return std::string();
-
-            return targetFile;
+            resp.setHeader(headerTitle::Server, serv.get_name());
         }
 
         bool isCGI(config::Server const& serv, files::File const& file) {
@@ -209,11 +209,23 @@ class ResponseHandler {
 
         void handler(config::Server const& serv, LocationConfig const& loc,
                      Request const& req, Response& resp) {
-            (void)serv;
-            (void)resp;
-            (void)loc;
-            (void)req;
-            std::cout << __func__ << " of DELETE." << std::endl;
+
+            std::string targetFile = resolveFilePath(loc, req);
+            LogStream s; s << "File targeted: " << targetFile;
+
+            struct stat st;
+            if (targetFile.empty() == false
+                                        && stat(targetFile.c_str(), &st) == 0) {
+                resp.getState() = respState::noBodyResp;
+                if (unlink(targetFile.c_str()) == 0)
+                    resp.setStatus(status::NoContent);
+                else if (errno == EBUSY)
+                    resp.setStatus(status::Accepted);
+                else
+                    makeErrorResponse(resp, status::Unauthorized, serv);
+            } else
+                makeErrorResponse(resp, status::NotFound, serv);
+        resp.setHeader(headerTitle::Server, serv.get_name());
         }
     };
 

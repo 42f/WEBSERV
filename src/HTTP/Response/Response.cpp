@@ -7,7 +7,6 @@ Response::Response() : _respState(respState::emptyResp),
                         _statusCode(status::None) {
 
     setHeader(headerTitle::Date, Timer::getTimeNow());
-    setHeader(headerTitle::Server, headerTitle::DefaultValues::get(headerTitle::Server));
 }
 
 Response::Response(Version version, status::StatusCode statusCode)
@@ -16,7 +15,6 @@ Response::Response(Version version, status::StatusCode statusCode)
                                                 _statusCode(statusCode) {
 
     setHeader(headerTitle::Date, Timer::getTimeNow());
-    setHeader(headerTitle::Server, headerTitle::DefaultValues::get(headerTitle::Server));
 }
 
 /* ..............................COPY CONSTRUCTOR.............................*/

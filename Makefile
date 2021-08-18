@@ -57,10 +57,10 @@ RM = /Users/bvalette/.brew/Cellar/cmake/3.21.1/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/bvalette/42/REPO
+CMAKE_SOURCE_DIR = /Users/bvalette/goinfre/WEBSERV
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/bvalette/42/REPO
+CMAKE_BINARY_DIR = /Users/bvalette/goinfre/WEBSERV
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/bvalette/42/REPO/CMakeFiles /Users/bvalette/42/REPO//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/bvalette/goinfre/WEBSERV/CMakeFiles /Users/bvalette/goinfre/WEBSERV//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/bvalette/42/REPO/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/bvalette/goinfre/WEBSERV/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -825,30 +825,6 @@ src/HTTP/Response/ResponseUtils/ResponseHeader.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/ResponseUtils/ResponseHeader.cpp.s
 .PHONY : src/HTTP/Response/ResponseUtils/ResponseHeader.cpp.s
 
-src/HTTP/Response/ResponseUtils/TypesMime.o: src/HTTP/Response/ResponseUtils/TypesMime.cpp.o
-.PHONY : src/HTTP/Response/ResponseUtils/TypesMime.o
-
-# target to build an object file
-src/HTTP/Response/ResponseUtils/TypesMime.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/ResponseUtils/TypesMime.cpp.o
-.PHONY : src/HTTP/Response/ResponseUtils/TypesMime.cpp.o
-
-src/HTTP/Response/ResponseUtils/TypesMime.i: src/HTTP/Response/ResponseUtils/TypesMime.cpp.i
-.PHONY : src/HTTP/Response/ResponseUtils/TypesMime.i
-
-# target to preprocess a source file
-src/HTTP/Response/ResponseUtils/TypesMime.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/ResponseUtils/TypesMime.cpp.i
-.PHONY : src/HTTP/Response/ResponseUtils/TypesMime.cpp.i
-
-src/HTTP/Response/ResponseUtils/TypesMime.s: src/HTTP/Response/ResponseUtils/TypesMime.cpp.s
-.PHONY : src/HTTP/Response/ResponseUtils/TypesMime.s
-
-# target to generate assembly for a file
-src/HTTP/Response/ResponseUtils/TypesMime.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/ResponseUtils/TypesMime.cpp.s
-.PHONY : src/HTTP/Response/ResponseUtils/TypesMime.cpp.s
-
 src/HTTP/Status.o: src/HTTP/Status.cpp.o
 .PHONY : src/HTTP/Status.o
 
@@ -1497,9 +1473,6 @@ help:
 	@echo "... src/HTTP/Response/ResponseUtils/ResponseHeader.o"
 	@echo "... src/HTTP/Response/ResponseUtils/ResponseHeader.i"
 	@echo "... src/HTTP/Response/ResponseUtils/ResponseHeader.s"
-	@echo "... src/HTTP/Response/ResponseUtils/TypesMime.o"
-	@echo "... src/HTTP/Response/ResponseUtils/TypesMime.i"
-	@echo "... src/HTTP/Response/ResponseUtils/TypesMime.s"
 	@echo "... src/HTTP/Status.o"
 	@echo "... src/HTTP/Status.i"
 	@echo "... src/HTTP/Status.s"
