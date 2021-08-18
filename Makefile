@@ -60,7 +60,7 @@ EQUALS = =
 CMAKE_SOURCE_DIR = /Users/bvalette/goinfre/WEBSERV
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/bvalette/goinfre/WEBSERV
+CMAKE_BINARY_DIR = /Volumes/Storage/goinfre/bvalette/WEBSERV
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/bvalette/goinfre/WEBSERV/CMakeFiles /Users/bvalette/goinfre/WEBSERV//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Volumes/Storage/goinfre/bvalette/WEBSERV/CMakeFiles /Volumes/Storage/goinfre/bvalette/WEBSERV//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/bvalette/goinfre/WEBSERV/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Volumes/Storage/goinfre/bvalette/WEBSERV/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

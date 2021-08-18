@@ -83,31 +83,24 @@ int ResponseHandler::doSend(int fdDest, int flags) {
     int state = _response.getState();
 
     if (state == respState::emptyResp) {
-        // std::cout << "doSend -> emptyResp" << std::endl; // TODO cleanup
         return RESPONSE_IS_EMPTY;
     }
     if (state & respState::entirelySent) {
-        // std::cout << "doSend -> entirelySent" << std::endl;
         return RESPONSE_SENT_ENTIRELY;
     }
     if (state & respState::readError) {
-        // std::cout << "doSend -> readError" << std::endl;
         return -1;
     }
     if (state & respState::buffResp) {
-        // std::cout << "doSend -> buffResp" << std::endl;
         return sendErrorBuffer(fdDest, flags);
     }
     if (state & respState::pipeResp) {
-        // std::cout << "doSend -> pipeResp" << std::endl;
         return sendFromPipe(fdDest, flags);
     }
     if (state & respState::fileResp) {
-        // std::cout << "doSend -> fileResp" << std::endl;
         return sendFromFile(fdDest, flags);
     }
     if (state & respState::noBodyResp) {
-        // std::cout << "doSend -> fileResp" << std::endl;
         return sendHeaders(fdDest, flags);
     }
     return -42;  // TODO cleanup

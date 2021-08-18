@@ -172,7 +172,8 @@ class ResponseHandler {
                 }
             } else
                 makeErrorResponse(resp, status::NotFound, serv);
-            resp.setHeader(headerTitle::Server, serv.get_name());
+            std::cout << "REQUEST: " << req << std::endl;
+            std::cout << "RESP: " << resp << std::endl;
         }
 
         bool isCGI(config::Server const& serv, files::File const& file) {
@@ -225,7 +226,6 @@ class ResponseHandler {
                     makeErrorResponse(resp, status::Unauthorized, serv);
             } else
                 makeErrorResponse(resp, status::NotFound, serv);
-        resp.setHeader(headerTitle::Server, serv.get_name());
         }
     };
 
