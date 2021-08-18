@@ -97,8 +97,8 @@ int ResponseHandler::doSend(int fdDest, int flags) {
     // std::cout << "doSend -> buffResp" << std::endl;
     return sendErrorBuffer(fdDest, flags);
   }
-  if (state & respState::pipeResp) {
-    // std::cout << "doSend -> pipeResp" << std::endl;
+  if (state & respState::cgiResp) {
+    // std::cout << "doSend -> cgiResp" << std::endl;
     return sendFromPipe(fdDest, flags);
   }
   if (state & respState::fileResp) {
@@ -124,13 +124,18 @@ int ResponseHandler::sendHeaders(int fdDest, int flags) {
 
 bool ResponseHandler::isReady() {
   return _response.getState() &=
-         (respState::fileResp | respState::pipeResp | respState::buffResp);
+         (respState::fileResp | respState::cgiResp | respState::buffResp);
 };
 
 int ResponseHandler::sendFromPipe(int fdDest, int flags) {
   // TODO implement
   sendHeaders(fdDest, flags);
-  sendFromFile(fdDest, flags);
+  // of course, the init parameters come from the request and the config
+  //   cgi.init("/Users/calide-n/.brew/bin/php-cgi", "info.php");
+
+  if (_response.getCgiInst().status() == cgi_status::READY) {
+    doSendFromFD(_response.getCgiInst().get_readable_pipe(), fdDest, flags);
+  }
   return 1;
 }
 

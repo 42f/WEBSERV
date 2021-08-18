@@ -47,6 +47,7 @@ namespace files {
 
             std::string         getLastModified( void ) const;
             std::string         getType( void ) const;
+            std::string         getPath( void ) const;
             std::string         getExt( void ) const;
             std::string         getTypeFromExt( std::string const & ext ) const;
 

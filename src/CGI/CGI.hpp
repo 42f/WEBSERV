@@ -1,10 +1,12 @@
 #ifndef CGI_CGI_HPP
 #define CGI_CGI_HPP
 
+#include <stdio.h>
+
 #include "File.hpp"
 
 namespace cgi_status {
-enum status { READY, ERROR, WAITING };
+enum status { DONE, ERROR, READABLE };
 }
 
 class CGI {
@@ -13,9 +15,9 @@ class CGI {
   ~CGI();
 
   void execute_cgi(void);
-  void init(std::string cgi_path, std::string file_path);
+  void init(std::string cgi_path, files::File const &file);
   cgi_status::status status(void);
-  int get_readable_pipe(void);
+  int get_readable_pipe(void) const;
   int get_fd(void) const;
 
  private:

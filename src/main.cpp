@@ -40,52 +40,31 @@ void exit_server(int sig) {
 int main(int ac, char **av) {
   (void)ac;
   (void)av;
-  CGI cgi;
 
-  // of course, the init parameters come from the request and the config
-  cgi.init("/Users/calide-n/.brew/bin/php-cgi", "info.php");
-  cgi.execute_cgi();
-
-  while (1) {
-    if (cgi.status() == cgi_status::READY) {
-      //   std::cout << "cgi ready" << std::endl;
-      break;
-    } 
-	// else if (cgi.status() == cgi_status::ERROR) {
-    //   //   std::cout << "cgi error" << std::endl;
-    // } else if (cgi.status() == cgi_status::WAITING) {
-    //   //   std::cout << "cgi waiting" << std::endl;
-    // }
-    // sleep(1);
+  signal(SIGINT, &exit_server);
+  std::string path;
+  switch (ac) {
+      case 1:
+          path = "webserv.config";
+          break;
+      case 2:
+          path = av[1];
+          break;
+      default:
+          std::cerr << "./webserv [ConfigServerv]" << std::endl;
+          return -1;
   }
-  char buffer[300000];
-  int ret = read(cgi.get_fd(), buffer, 300000);
-  write(1, buffer, ret);
 
-  // signal(SIGINT, &exit_server);
-  // std::string path;
-  // switch (ac) {
-  //     case 1:
-  //         path = "webserv.config";
-  //         break;
-  //     case 2:
-  //         path = av[1];
-  //         break;
-  //     default:
-  //         std::cerr << "./webserv [ConfigServerv]" << std::endl;
-  //         return -1;
-  // }
+  network::ServerPool::init(path);
+  files::File::initContentTypes(TYPES_MIME_CONF_PATH);
 
-  // network::ServerPool::init(path);
-  // files::File::initContentTypes(TYPES_MIME_CONF_PATH);
+  Logger::getInstance("./logg", Logger::toConsole);
 
-  // Logger::getInstance("./logg", Logger::toConsole);
+  std::set<int> ports = network::ServerPool::getPorts();
+  std::vector<network::ServerSocket> sockets(ports.begin(), ports.end());
 
-  // std::set<int> ports = network::ServerPool::getPorts();
-  // std::vector<network::ServerSocket> sockets(ports.begin(), ports.end());
-
-  // network::Core core(sockets);
-  // core.run_servers();
+  network::Core core(sockets);
+  core.run_servers();
 
   return 0;
 }

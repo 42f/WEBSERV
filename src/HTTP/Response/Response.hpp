@@ -15,6 +15,7 @@
 #include "utils/Logger.hpp"
 #include "utils/Timer.hpp"
 #include "Status.hpp"
+#include "CGI.hpp"
 
 namespace respState {
 
@@ -25,7 +26,7 @@ namespace respState {
 		readError 		= 1<<2,
 		headerSent		= 1<<3,
 		buffResp 		= 1<<4,
-		pipeResp 		= 1<<5,
+		cgiResp 		= 1<<5,
 		fileResp 		= 1<<6,
 		chunkedResp		= 1<<7,
 		noBodyResp		= 1<<8
@@ -55,6 +56,8 @@ class Response	{
 
 		void	setFile( std::string const & filePath );
 
+		CGI &				 	getCgiInst( void );
+
 		files::File const & 	getFileInst( void ) const;
 		int						getFileFD( void ) const;
 		status::StatusCode		getStatusCode( void ) const;
@@ -76,7 +79,7 @@ class Response	{
 
 		// body data
 		files::File									_file;
-		// int											_pipe;
+		CGI											_cgi;
 		std::string									_htmlErrorBuffer;
 
 		friend std::ostream&	operator<<( std::ostream & o, Response const & i );
