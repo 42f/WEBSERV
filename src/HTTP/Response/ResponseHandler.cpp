@@ -158,11 +158,10 @@ int ResponseHandler::sendErrorBuffer(int fdDest, int flags) {
     output << _response << _response.getErrorBuffer();
     send(fdDest, output.str().c_str(), output.str().length(), flags);
     _response.getState() = respState::entirelySent;
-    return (output.str().length());
+    return RESPONSE_SENT_ENTIRELY;
 }
 
 int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
-    // TODO remove after Calixte code integration
     char buff[DEFAULT_SEND_SIZE + 2];
     bzero(buff, DEFAULT_SEND_SIZE + 2);
     ssize_t retRead = 0;
@@ -183,9 +182,11 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
         chunkData.insert(chunkData.end(), buff, buff + retRead + 2);
 
         send(fdDest, chunkData.data(), chunkData.length(), flags);
-    } else
+        return retRead;
+    } else {
         send(fdDest, buff, retRead, flags);
-    return retRead;
+        return RESPONSE_SENT_ENTIRELY;
+    }
 }
 
 /* ................................. ACCESSOR ................................*/
