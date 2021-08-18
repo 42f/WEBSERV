@@ -169,8 +169,6 @@ class ResponseHandler {
         }
       } else
         makeErrorResponse(resp, status::NotFound, serv);
-     std::cout << RED << "REQUEST: " << req << NC << std::endl;  // TODO remove
-     std::cout << BLUE << "RESP: " << resp << NC << std::endl;
     }
 
     bool isCGI(config::Server const& serv, files::File const& file) {
