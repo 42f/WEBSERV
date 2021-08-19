@@ -92,8 +92,16 @@ std::string File::getExt(void) const { return getExtFromPath(_path); }
 std::string File::getPath(void) const { return _path; }
 
 bool File::isFileFromPath(std::string const& path) {
+  if (path.empty())
+    return false;
   size_t lastPartHead = path.find_last_of('/');
   return path.find('.', lastPartHead) != std::string::npos;
+}
+
+bool File::isDirFromPath(std::string const& path) {
+  if (path.empty())
+    return false;
+  return !isFileFromPath(path);
 }
 
 // returns the filename + ext
@@ -166,7 +174,6 @@ File& File::operator=(File const& rhs) {
     _flags = rhs._flags;
     _path = rhs._path;
     _error = 0;
-
     openFile();
   }
   return *this;

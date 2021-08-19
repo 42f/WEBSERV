@@ -52,7 +52,8 @@ class Response	{
 		void	setHeader( std::string const& field, int value );
 		void	setHeader( headerTitle::Title title, int value );
 
-		void	loadErrorHtmlBuffer( const status::StatusCode& code );
+		void	loadErrorHtmlBuffer( const status::StatusCode& code,
+									const std::string& optionalMessage = "" );
 
 		void	setFile( std::string const & filePath );
 

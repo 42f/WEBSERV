@@ -85,14 +85,14 @@ int ResponseHandler::doSend(int fdDest, int flags) {
     return RESPONSE_IS_EMPTY;
   }
   if (state & respState::entirelySent) {
-    std::cout << RED << "REQUEST: " << _request.unwrap() << NC \
-              << std::endl;  // TODO remove
-    std::cout << BLUE << "RESP: " << _response << NC << std::endl;
     return RESPONSE_SENT_ENTIRELY;
   }
   if (state & respState::readError) {
     return -1;
   }
+  std::cout << RED << "REQUEST: " << _request.unwrap() << NC \
+            << std::endl;  // TODO remove
+  std::cout << BLUE << "RESP: " << _response << NC << std::endl;
   if (state & respState::buffResp) {
     return sendErrorBuffer(fdDest, flags);
   }
