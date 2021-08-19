@@ -53,7 +53,7 @@ class ResponseHandler {
   A_Method* _method;
 
   std::string getHeader(const Request& req, const std::string& target);
-  int sendHeaders(int fdDest, int flags);
+  int sendHeaders(int fdDest, int flags, bool is_cgi);
   int sendErrorBuffer(int fdDest, int flags);
   int sendFromPipe(int fdDest, int flags);
   int sendFromFile(int fdDest, int flags);

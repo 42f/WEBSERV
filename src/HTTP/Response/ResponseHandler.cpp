@@ -111,10 +111,12 @@ int ResponseHandler::doSend(int fdDest, int flags) {
 // std::cout << __func__ << ":" << __LINE__ << " MASK ============ " <<
 // _response.getState() << std::endl;
 
-int ResponseHandler::sendHeaders(int fdDest, int flags) {
+int ResponseHandler::sendHeaders(int fdDest, int flags, bool is_cgi) {
   if ((_response.getState() & respState::headerSent) == false) {
     std::stringstream output;
     output << _response;
+    if (is_cgi == false)
+      output << "\r\n";
     send(fdDest, output.str().c_str(), output.str().length(), flags);
     _response.getState() |= respState::headerSent;
     return (output.str().length());
@@ -129,7 +131,7 @@ bool ResponseHandler::isReady() {
 
 int ResponseHandler::sendFromPipe(int fdDest, int flags) {
   // TODO implement
-  sendHeaders(fdDest, flags);
+  sendHeaders(fdDest, flags, true);
   cgi_status::status status = _response.getCgiInst().status();
 
   if (status == cgi_status::ERROR) {
@@ -148,7 +150,7 @@ int ResponseHandler::sendFromPipe(int fdDest, int flags) {
 }
 
 int ResponseHandler::sendFromFile(int fdDest, int flags) {
-  sendHeaders(fdDest, flags);
+  sendHeaders(fdDest, flags, false);
   int retSend = doSendFromFD(_response.getFileInst().getFD(), fdDest, flags);
   switch (retSend) {
     case 0:

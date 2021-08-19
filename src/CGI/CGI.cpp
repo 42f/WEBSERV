@@ -32,7 +32,11 @@ void CGI::execute_cgi(std::string cgi_path, files::File const &file) {
   _status = cgi_status::ERROR;
   int pipes[2];
 
-  _cgi_path = "/usr/local/bin/php-cgi";
+  // on macbook pro
+  // _cgi_path = "/usr/local/bin/php-cgi";
+
+  // on mac 42
+  _cgi_path = "/Users/calide-n/.brew/bin/php-cgi";
 
   struct stat sb;
 
@@ -56,14 +60,31 @@ void CGI::execute_cgi(std::string cgi_path, files::File const &file) {
   char *SCRIPT_NAME = "SCRIPT_NAME=cgi_info.php";
   char *REDIRECT_STATUS = "REDIRECT_STATUS=200";
   char *PATH_INFO = strdup(_file_path.c_str());
+  char *REQUEST_METHOD = "REQUEST_METHOD=GET";
 
-  char *env[] = {GATEWAY_INTERFACE,
-                 SERVER_PROTOCOL,
-                 SCRIPT_FILENAME,
-                 SCRIPT_NAME,
-                 REDIRECT_STATUS,
-                 PATH_INFO,
-                 NULL};
+  char *AUTH_TYPE = "AUTH_TYPE=";
+  // Lenght of the request body, can be null or unset
+  char *CONTENT_LENGTH = "CONTENT_LENGTH=";
+  // Content type of the request body
+  char *CONTENT_TYPE = "CONTENT_TYPE=";
+  // End of PATH_INFO
+  char *PATH_TRANSLATED = "PATH_TRANSLATED=/cgi_info.php";
+  // Arguments for the script 
+  char *QUERY_STRING = "QUERY_STRING=\"\"";
+  char *REMOTE_ADDR = "REMOTE_ADDR=";
+  char *REMOTE_HOST = "REMOTE_HOST=";
+  char *REMOTE_IDENT = "REMOTE_IDENT=";
+  char *REMOTE_USER = "REMOTE_USER=";
+  char *SERVER_NAME = "SERVER_NAME=";
+  char *SERVER_PORT = "SERVER_PORT=";
+  char *SERVER_SOFTWARE = "SERVER_SOFTWARE=";
+
+  char *env[] = {
+      GATEWAY_INTERFACE, SERVER_PROTOCOL, SCRIPT_FILENAME, SCRIPT_NAME,
+      REDIRECT_STATUS,   PATH_INFO,       REQUEST_METHOD,  CONTENT_TYPE,
+      AUTH_TYPE,         CONTENT_LENGTH,  PATH_TRANSLATED, QUERY_STRING,
+      REMOTE_ADDR,       REMOTE_HOST,     REMOTE_IDENT,    REMOTE_USER,
+      SERVER_NAME,       SERVER_PORT,     SERVER_SOFTWARE, NULL};
 
   // /Users/calide-n/.brew/bin/php-cgi
   char *cgi = strdup(_cgi_path.c_str());
@@ -84,8 +105,11 @@ void CGI::execute_cgi(std::string cgi_path, files::File const &file) {
     close(pipes[0]);
     dup2(pipes[1], 1);
     close(pipes[1]);
-    execve(args[0], args, env);
-    // exit(0);
+    if (execve(args[0], args, env) < 0) {
+		// std::cout << "error" << std::endl;
+		// perror("execve");
+	}
+    exit(1);
   } else {
     waitpid(_child_pid, &_child_return, WNOHANG);
     _status = cgi_status::READABLE;
