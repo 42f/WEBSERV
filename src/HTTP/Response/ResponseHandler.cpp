@@ -214,16 +214,9 @@ int ResponseHandler::sendCgiHeaders(int fdSrc, int fdDest, int flags) {
   int retRead = 1;
   while ((retRead = read(fdSrc, &cBuff, 1)) > 0) {
     output += cBuff;
-    std::cout << output.c_str() << std::endl;
-    // if (output.size() >= 2) {
-    //   std::cout << "-1 = [" << output[output.length()-1] << "]" << std::endl;
-    //   std::cout << "-2 = [" << output[output.length() - 2] << "]" << std::endl;
-    //   std::cout << "size = " << output.size() << std::endl;
-    // }
-    if (output.size() >= 2 && output[output.length() - 3] == '\n' &&
+    if (output.size() >= 3 && output[output.length() - 3] == '\n' &&
         output[output.length() - 2] == '\r' && output[output.length() - 1] == '\n')
       break;
-    // if (output.size() > 100) break;
   }
   if (retRead < 0) return RESPONSE_READ_ERROR;
   send(fdDest, output.c_str(), output.length(), flags);
