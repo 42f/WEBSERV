@@ -96,7 +96,7 @@ int ResponseHandler::doSend(int fdDest, int flags) {
   if (state & respState::buffResp) {
     return sendErrorBuffer(fdDest, flags);
   }
-  if (state & respState::pipeResp) {
+  if (state & respState::cgiResp) {
     return sendFromPipe(fdDest, flags);
   }
   if (state & respState::fileResp) {
@@ -125,7 +125,7 @@ int ResponseHandler::sendHeaders(int fdDest, int flags) {
 
 bool ResponseHandler::isReady() {
   return _response.getState() &=
-         (respState::fileResp | respState::pipeResp | respState::buffResp);
+         (respState::fileResp | respState::cgiResp | respState::buffResp);
 };
 
 int ResponseHandler::sendFromPipe(int fdDest, int flags) {

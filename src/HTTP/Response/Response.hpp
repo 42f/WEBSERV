@@ -25,7 +25,7 @@ namespace respState {
 		readError 		= 1<<2,
 		headerSent		= 1<<3,
 		buffResp 		= 1<<4,
-		pipeResp 		= 1<<5,
+		cgiResp 		= 1<<5,
 		fileResp 		= 1<<6,
 		chunkedResp		= 1<<7,
 		noBodyResp		= 1<<8

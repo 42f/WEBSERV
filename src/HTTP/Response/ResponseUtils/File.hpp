@@ -50,6 +50,7 @@ namespace files {
 
             static typesMap_t   _types;
             int                 _fd;
+            ino_t               _inode;
 			std::string 		_path;
 			int          		_error;
 			int          		_flags;

@@ -208,10 +208,12 @@ class ResponseHandler {
       std::string targetFile = resolveFilePath(loc, req);
       LogStream s;
       s << "File targeted in DELETE: " << targetFile;
-
+      files::File openTmp(targetFile);
+      if(openTmp.isGood()) { std::cerr << "tmp is open !" << std::endl;}
       struct stat st;
       if (targetFile.empty() == false && stat(targetFile.c_str(), &st) == 0) {
         resp.getState() = respState::noBodyResp;
+        errno = 0;
         if (unlink(targetFile.c_str()) == 0)
           resp.setStatus(status::NoContent);
         else if (errno == EBUSY)
@@ -220,7 +222,9 @@ class ResponseHandler {
           makeErrorResponse(resp, status::Unauthorized, serv);
       } else
         makeErrorResponse(resp, status::NotFound, serv);
+      if(openTmp.isGood()) { std::cerr << "tmp is open !" << std::endl;}
     }
+
   };
 
   class UnsupportedMethod : public A_Method {
