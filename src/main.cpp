@@ -15,6 +15,7 @@
 #include <sstream>
 #include <utility>
 
+#include "CGI.hpp"
 #include "Config/ConfigParser.hpp"
 #include "Config/Server.hpp"
 #include "HTTP/RequestHandler.hpp"
@@ -31,36 +32,39 @@
 #define SA struct sockaddr
 
 void exit_server(int sig) {
-    (void)sig;
-    std::cout << "\rGot signal, Bye..." << std::endl;
-    exit(0);
+  (void)sig;
+  std::cout << "\rGot signal, Bye..." << std::endl;
+  exit(0);
 }
 
 int main(int ac, char **av) {
-    // signal(SIGINT, &exit_server);
-    std::string path;
-    switch (ac) {
-        case 1:
-            path = "webserv.config";
-            break;
-        case 2:
-            path = av[1];
-            break;
-        default:
-            std::cerr << "./webserv [ConfigServerv]" << std::endl;
-            return -1;
-    }
+  (void)ac;
+  (void)av;
 
-    network::ServerPool::init(path);
-    files::File::initContentTypes(TYPES_MIME_CONF_PATH);
+  signal(SIGINT, &exit_server);
+  std::string path;
+  switch (ac) {
+      case 1:
+          path = "webserv.config";
+          break;
+      case 2:
+          path = av[1];
+          break;
+      default:
+          std::cerr << "./webserv [ConfigServerv]" << std::endl;
+          return -1;
+  }
 
-    Logger::getInstance("./logg", Logger::toConsole);
+  network::ServerPool::init(path);
+  files::File::initContentTypes(TYPES_MIME_CONF_PATH);
 
-    std::set<int> ports = network::ServerPool::getPorts();
-    std::vector<network::ServerSocket> sockets(ports.begin(), ports.end());
+  Logger::getInstance("./logg", Logger::toConsole);
 
-    network::Core core(sockets);
-    core.run_servers();
+  std::set<int> ports = network::ServerPool::getPorts();
+  std::vector<network::ServerSocket> sockets(ports.begin(), ports.end());
 
-    return 0;
+  network::Core core(sockets);
+  core.run_servers();
+
+  return 0;
 }

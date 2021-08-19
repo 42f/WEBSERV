@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "../Request/RequestLine.hpp"
+#include "CGI.hpp"
 #include "Config/Directives/Redirect.hpp"
 #include "Config/Server.hpp"
 #include "HTTP/Request/Request.hpp"
@@ -54,7 +55,7 @@ class ResponseHandler {
   std::string getHeader(const Request& req, const std::string& target);
   int sendHeaders(int fdDest, int flags);
   int sendErrorBuffer(int fdDest, int flags);
-  int sendFromPipe(int fdDest, int flags);
+  int sendFromCgi(int fdDest, int flags);
   int sendFromFile(int fdDest, int flags);
   int doSendFromFD(int fdSrc, int fdDest, int flags);
 
@@ -119,14 +120,12 @@ class ResponseHandler {
       resp.getState() = respState::buffResp;
     }
 
-    static void setRespForPipe(Response& resp, files::File const& file) {
+    static void setRespForCgi(Response& resp, files::File const& file) {
       // TODO implement
-      resp.setHeader(headerTitle::Content_Type, file.getType());  // debug
       resp.setHeader(headerTitle::Last_Modified,
                      file.getLastModified());  // debug
-      resp.setHeader(headerTitle::Content_Length,
-                     file.getSize());         // debug
-      resp.getState() = respState::fileResp;  // debug
+      resp.setHeader(headerTitle::Transfer_Encoding, "chunked");
+      resp.getState() = respState::cgiResp | respState::chunkedResp;
     }
 
     static void setRespForFile(Response& resp, files::File const& file) {
@@ -158,10 +157,11 @@ class ResponseHandler {
       files::File const& file = resp.getFileInst();
 
       if (file.isGood()) {
-        if (isCGI(serv, file)) {
-          // TODO instanciate PipedCGI obj and check if isGood(). If
-          // not return right error
-          setRespForFile(resp, file);  // debug
+        std::string cgiBin = getCGI(serv, file);
+        if (cgiBin.empty() == false) {
+          resp.getCgiInst().execute_cgi(cgiBin, file); // TODO Add request
+
+          setRespForCgi(resp, file);   // debug
           resp.setStatus(status::Ok);  // debug
         } else {
           setRespForFile(resp, file);
@@ -171,15 +171,15 @@ class ResponseHandler {
         makeErrorResponse(resp, status::NotFound, serv);
     }
 
-    bool isCGI(config::Server const& serv, files::File const& file) {
+    std::string getCGI(config::Server const& serv, files::File const& file) {
       std::string fileExt = file.getExt();
       std::map<std::string, std::string>::const_iterator it =
           serv.get_cgis().begin();
 
       for (; it != serv.get_cgis().end(); it++) {
-        if (fileExt == it->first) return true;
+        if (fileExt == it->first) return it->second;
       }
-      return false;
+      return std::string();
     }
   };
 
@@ -235,7 +235,7 @@ class ResponseHandler {
     void handler(config::Server const&, LocationConfig const&, Request const&,
                  Response&) {
       std::cout << __func__ << " of UNSUPPORTED." << std::endl;
-        }
-    };
+    }
+  };
 
 };  // end reponseHandler

@@ -29,14 +29,16 @@ namespace files {
 
 			File &		operator=( File const & rhs );
 
-			bool		    isGood(void) const;
-            int             getFD( void ) const;
-            size_t		    getSize( void ) const;
-            int             getError( void ) const;
-            std::string     getLastModified( void ) const;
-            std::string     getType( void ) const;
-            std::string     getExt( void ) const;
-            std::string     getTypeFromExt( std::string const & ext ) const;
+			bool		isGood(void) const;
+            int         getFD( void ) const;
+            size_t		getSize( void ) const;
+            int         getError( void ) const;
+
+            std::string         getLastModified( void ) const;
+            std::string         getType( void ) const;
+            std::string         getPath( void ) const;
+            std::string         getExt( void ) const;
+            std::string         getTypeFromExt( std::string const & ext ) const;
 
             static bool         isFileFromPath( std::string const & path );
             static std::string	getFileFromPath( std::string const & path );

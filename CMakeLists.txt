@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.6)
 project(webserv)
 
 # TODO remove fsanitize for evaluation !
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -Wall -Wextra -Werror -g2 -std=c++98")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -Wall -Wextra -Werror -g2 -std=c++98")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -g2 -std=c++98")
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98")
 
 include_directories(
@@ -17,6 +18,7 @@ include_directories(
         src/parser
         src/parsing
         src/Network
+        src/CGI
         src/utils)
 
 set(FILES
@@ -46,6 +48,9 @@ set(FILES
         src/Network/Core.cpp
         src/Network/EventManager.hpp
         src/Network/EventManager.cpp
+
+        src/CGI/CGI.hpp
+        src/CGI/CGI.cpp
 
         src/parser/combinators.hpp
         src/parser/Error.cpp

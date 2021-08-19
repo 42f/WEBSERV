@@ -1,0 +1,168 @@
+[1;33mServer {[0m
+AdresseIP/Port : 0.0.0.0:17000
+Server_name : A
+Root : /tmp/server/0
+Index : index.hmtl
+Client_max_body_size : 1048576 bytes
+
+[1;33m}[0m
+
+[1;33mServer {[0m
+AdresseIP/Port : 0.0.0.0:18000
+Server_name : A
+Root : 
+Index : 
+Client_max_body_size : 1048576 bytes
+CGI : bla -> ./cgi/ubuntu_cgi_tester
+CGI : php -> /usr/bin/php-cgi
+error_page: 404 -> /tmp/server/err_pages/404.html
+
+[0;32mLocation { [0m
+path : /
+root : /tmp/server
+methods : GET 
+autoindex : on
+upload : off
+body_size : unset
+index : index.html
+Redirect : 0 | 
+[0;32m}[0m
+
+[0;32mLocation { [0m
+path : /imgs
+root : /tmp/server/imgs
+methods : GET 
+autoindex : on
+upload : off
+body_size : unset
+index : 
+Redirect : 0 | 
+[0;32m}[0m
+
+[0;32mLocation { [0m
+path : /site0
+root : /tmp/server/0
+methods : GET 
+autoindex : on
+upload : off
+body_size : unset
+index : index.html
+Redirect : 0 | 
+[0;32m}[0m
+
+[0;32mLocation { [0m
+path : /site1
+root : /tmp/server/1
+methods : GET 
+autoindex : on
+upload : off
+body_size : unset
+index : index.html
+Redirect : 0 | 
+[0;32m}[0m
+
+[0;32mLocation { [0m
+path : /site2
+root : /tmp/server/2
+methods : GET 
+autoindex : on
+upload : off
+body_size : unset
+index : index.html
+Redirect : 0 | 
+[0;32m}[0m
+
+[0;32mLocation { [0m
+path : /site3/
+root : /tmp/server/3/
+methods : GET 
+autoindex : on
+upload : off
+body_size : unset
+index : index.html
+Redirect : 0 | 
+[0;32m}[0m
+
+[0;32mLocation { [0m
+path : /site3/pagesA/
+root : /tmp/server/3/A
+methods : GET 
+autoindex : on
+upload : off
+body_size : unset
+index : fileA_0.html
+Redirect : 0 | 
+[0;32m}[0m
+
+[0;32mLocation { [0m
+path : /site3/pagesB/
+root : /tmp/server/3/B
+methods : GET 
+autoindex : on
+upload : off
+body_size : unset
+index : fileB_0.html
+Redirect : 0 | 
+[0;32m}[0m
+
+[0;32mLocation { [0m
+path : /site3/pagesC/
+root : /tmp/server/3/C
+methods : GET 
+autoindex : on
+upload : off
+body_size : unset
+index : fileC_0.html
+Redirect : 0 | 
+[0;32m}[0m
+
+[1;33m}[0m
+
+[1;33mServer {[0m
+AdresseIP/Port : 0.0.0.0:18001
+Server_name : marcel
+Root : 
+Index : 
+Client_max_body_size : 1048576 bytes
+
+[0;32mLocation { [0m
+path : a
+root : /tmp/server/1
+methods : GET 
+autoindex : on
+upload : off
+body_size : unset
+index : index.html
+Redirect : 0 | 
+[0;32m}[0m
+
+[1;33m}[0m
+
+[1;33mServer {[0m
+AdresseIP/Port : 0.0.0.0:18000
+Server_name : B
+Root : /tmp/server/3
+Index : index.html
+Client_max_body_size : 1048576 bytes
+
+[1;33m}[0m
+
+[1;33mServer {[0m
+AdresseIP/Port : 0.0.0.0:18000
+Server_name : albert
+Root : /tmp/server
+Index : index.html
+Client_max_body_size : 1048576 bytes
+
+[1;33m}[0m
+
+[1;33mServer {[0m
+AdresseIP/Port : 0.0.0.0:18000
+Server_name : D
+Root : /tmp/server/1
+Index : index.html
+Client_max_body_size : 1048576 bytes
+
+[1;33m}[0m
+
+Got signal, Bye...

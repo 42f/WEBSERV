@@ -89,6 +89,8 @@ std::string File::getType(void) const {
 // returns the extension for the file isntance
 std::string File::getExt(void) const { return getExtFromPath(_path); }
 
+std::string File::getPath(void) const { return _path; }
+
 bool File::isFileFromPath(std::string const& path) {
   size_t lastPartHead = path.find_last_of('/');
   return path.find('.', lastPartHead) != std::string::npos;
