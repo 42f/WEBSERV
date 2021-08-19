@@ -28,7 +28,9 @@ int CGI::get_readable_pipe(void) const { return (_pipe); }
 
 std::vector<char const *> CGI::set_meta_variables(std::string cgi_path,
                                                   files::File const &file,
-                                                  Request const &req) {
+                                                  Request const &req,
+                                                  LocationConfig const &loc,
+                                                  config::Server const &serv) {
   RequestLine req_lines;
   std::vector<char const *> variables;
 
@@ -36,7 +38,14 @@ std::vector<char const *> CGI::set_meta_variables(std::string cgi_path,
   _file_path = file.getPath();
   _status = cgi_status::ERROR;
 
-  std::cout << "cgi path : " << cgi_path << std::endl;
+  std::cout << "req target" << std::endl;
+  std::cout << "req target deco path : " << req.target.decoded_path
+            << std::endl;
+  std::cout << "req target deco query : " << req.target.decoded_query
+            << std::endl;
+  std::cout << "req target path : " << req.target.path << std::endl;
+  std::cout << "req target query : " << req.target.query << std::endl;
+  std::cout << "req target scheme : " << req.target.scheme << std::endl;
 
   // on macbook pro
   // _cgi_path = "/usr/local/bin/php-cgi";
@@ -73,7 +82,7 @@ std::vector<char const *> CGI::set_meta_variables(std::string cgi_path,
   // variables.push_back("SCRIPT_NAME=cgi_info.php");
   variables.push_back("SCRIPT_NAME=cgi1.php");
   // ?
-  // variables.push_back("REDIRECT_STATUS=200");
+  variables.push_back("REDIRECT_STATUS=200");
   // Request method (GET/POST/DELETE)
   if (req.method == methods::GET)
     variables.push_back("REQUEST_METHOD=GET");
@@ -121,9 +130,16 @@ std::vector<char const *> CGI::set_meta_variables(std::string cgi_path,
   // ?
   variables.push_back("REMOTE_USER=");
   // ?
+  //----------------------------------------
+  std::ostringstream ss;
+  ss << "SERVER_NAME=" << serv.get_port();
+  variables.push_back(ss.str().c_str());
   variables.push_back("SERVER_NAME=");
-  // ?
-  variables.push_back("SERVER_PORT=");
+  //----------------------------------------
+  std::ostringstream ss;
+  ss << "SERVER_PORT=" << serv.get_port();
+  variables.push_back(ss.str().c_str());
+  //----------------------------------------
   // ?
   variables.push_back("SERVER_SOFTWARE=");
   // ?
@@ -132,7 +148,8 @@ std::vector<char const *> CGI::set_meta_variables(std::string cgi_path,
 }
 
 void CGI::execute_cgi(std::string cgi_path, files::File const &file,
-                      Request const &req) {
+                      Request const &req, LocationConfig const &loc,
+                      config::Server const &serv) {
   _cgi_path = cgi_path;
   _file_path = file.getPath();
   _status = cgi_status::ERROR;
@@ -141,7 +158,7 @@ void CGI::execute_cgi(std::string cgi_path, files::File const &file,
   char *env[20];
   int i = 0;
   std::vector<char const *> variables;
-  variables = set_meta_variables(cgi_path, file, req);
+  variables = set_meta_variables(cgi_path, file, req, loc, serv);
   for (; i < variables.size();) {
     env[i] = strdup(variables[i]);
     std::cout << env[i] << std::endl;

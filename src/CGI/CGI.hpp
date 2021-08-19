@@ -8,6 +8,7 @@
 
 #include <vector>
 
+#include "Config/Server.hpp"
 #include "File.hpp"
 #include "HTTP/Request/Request.hpp"
 
@@ -22,7 +23,8 @@ class CGI {
 
   void execute_cgi(void);
   void execute_cgi(std::string cgi_path, files::File const &file,
-                   Request const &req);
+                   Request const &req, LocationConfig const &loc,
+                   config::Server const &serv);
   cgi_status::status status(void);
   int get_readable_pipe(void) const;
   int get_fd(void) const;
@@ -37,8 +39,10 @@ class CGI {
   cgi_status::status _status;
 
   std::vector<char const *> set_meta_variables(std::string cgi_path,
-                                         files::File const &file,
-                                         Request const &req);
+                                               files::File const &file,
+                                               Request const &req,
+                                               LocationConfig const &loc,
+                                               config::Server const &serv);
 };
 
 #endif

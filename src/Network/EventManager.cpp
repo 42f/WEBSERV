@@ -101,7 +101,8 @@ void EventManager::add(int fd, int port, struct sockaddr_in client_addr) {
     if (fd > EventManager::_max_fd) EventManager::_max_fd = fd;
     char client_ip[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
-    EventManager::_sockets.push_back(Socket(fd, port, client_ip, fd_status::accepted));
+    EventManager::_sockets.push_back(
+        Socket(fd, port, client_ip, fd_status::accepted));
 
     if (fd > _max_ssocket) {
       FD_SET(fd, &EventManager::_read_set);
@@ -197,7 +198,7 @@ void EventManager::send_response(int index) {
       usleep(1000);
       if (EventManager::_sockets[i].manage_response() ==
           RESPONSE_SENT_ENTIRELY) {
-        std::cout << "Every chunk are sent" << std::endl;
+        std::cout << "Every chunk sent" << std::endl;
         close(EventManager::_sockets[i].get_fd());
         EventManager::_sockets[i].set_status(fd_status::closed);
       }
