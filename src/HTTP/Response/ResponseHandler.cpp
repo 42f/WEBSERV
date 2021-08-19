@@ -112,6 +112,8 @@ int ResponseHandler::sendHeaders(int fdDest, int flags) {
   if ((_response.getState() & respState::headerSent) == false) {
     std::stringstream output;
     output << _response;
+    if ((_response.getState() & respState::cgiResp) == false)
+      output << "\r\n";
     send(fdDest, output.str().c_str(), output.str().length(), flags);
     _response.getState() |= respState::headerSent;
     if (_response.getState() & respState::noBodyResp) {

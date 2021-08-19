@@ -9,3 +9,8 @@ Network: close fd on send response when not successful ?
 Questions :
         POST a un body ? si oui le buffer de rcv request ne vas pas marcher
         unchunk request ?
+
+
+
+Changes on mate's code :
+        - changed sendheader : added a boolean for \r\n in case it's not cgi. Also commented this part on the operator << in response.cpp

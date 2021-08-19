@@ -27,7 +27,7 @@ void EventManager::init(std::vector<network::ServerSocket> s) {
        it != s.end(); it++) {
     FD_SET(it->get_id(), &EventManager::_read_set);
     EventManager::_sockets.push_back(
-        Socket(it->get_id(), it->get_port(), fd_status::listener));
+        Socket(it->get_id(), it->get_port(), NULL, fd_status::listener));
 
     if (it->get_id() > EventManager::_max_ssocket)
       EventManager::_max_ssocket = it->get_id();
@@ -96,10 +96,12 @@ void EventManager::do_select(void) {
  *  add() only adds non-listening soccket
  */
 
-void EventManager::add(int fd, int port) {
+void EventManager::add(int fd, int port, struct sockaddr_in client_addr) {
   if (fd > 0) {
     if (fd > EventManager::_max_fd) EventManager::_max_fd = fd;
-    EventManager::_sockets.push_back(Socket(fd, port, fd_status::accepted));
+    char client_ip[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
+    EventManager::_sockets.push_back(Socket(fd, port, client_ip, fd_status::accepted));
 
     if (fd > _max_ssocket) {
       FD_SET(fd, &EventManager::_read_set);
@@ -138,7 +140,7 @@ void EventManager::accept_request(int fd) {
         perror("Accept");
       else {
         std::cout << EventManager::get_total_requests() << std::endl;
-        add(tmp_fd, EventManager::_sockets[i].get_port());
+        add(tmp_fd, EventManager::_sockets[i].get_port(), client_addr);
         EventManager::_total_requests++;
       }
     }
