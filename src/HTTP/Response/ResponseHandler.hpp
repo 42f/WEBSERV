@@ -159,7 +159,7 @@ class ResponseHandler {
       if (file.isGood()) {
         std::string cgiBin = getCGI(serv, file);
         if (cgiBin.empty() == false) {
-          resp.getCgiInst().execute_cgi(cgiBin, file); // TODO Add request
+          resp.getCgiInst().execute_cgi(cgiBin, file, req); // TODO Add request
 
           setRespForCgi(resp, file);   // debug
           resp.setStatus(status::Ok);  // debug

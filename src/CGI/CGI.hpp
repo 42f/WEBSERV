@@ -6,7 +6,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <vector>
+
 #include "File.hpp"
+#include "HTTP/Request/Request.hpp"
 
 namespace cgi_status {
 enum status { DONE, ERROR, READABLE };
@@ -18,7 +21,8 @@ class CGI {
   ~CGI();
 
   void execute_cgi(void);
-  void execute_cgi(std::string cgi_path, files::File const &file);
+  void execute_cgi(std::string cgi_path, files::File const &file,
+                   Request const &req);
   cgi_status::status status(void);
   int get_readable_pipe(void) const;
   int get_fd(void) const;
@@ -31,6 +35,10 @@ class CGI {
   int _child_return;
   int _pipe;
   cgi_status::status _status;
+
+  std::vector<char const *> set_meta_variables(std::string cgi_path,
+                                         files::File const &file,
+                                         Request const &req);
 };
 
 #endif

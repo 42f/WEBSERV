@@ -77,6 +77,7 @@ void Socket::manage_raw_request(char *buffer, int size) {
   _res = _request_handler.update(buffer, size);
   if (_res.is_ok()) {
     set_status(fd_status::read);
+    _res.unwrap().set_client_ip(_client_ip);
     _response_handler.init(_res, _port);
   }
 }
