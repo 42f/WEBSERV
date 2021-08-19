@@ -90,7 +90,7 @@ int ResponseHandler::doSend(int fdDest, int flags) {
   if (state & respState::readError) {
     return -1;
   }
-  std::cout << RED << "REQUEST: " << _request.unwrap() << NC \
+  std::cout << RED << "REQUEST: " << _request.unwrap() << NC
             << std::endl;  // TODO remove
   std::cout << BLUE << "RESP: " << _response << NC << std::endl;
   if (state & respState::buffResp) {
@@ -112,8 +112,7 @@ int ResponseHandler::sendHeaders(int fdDest, int flags) {
   if ((_response.getState() & respState::headerSent) == false) {
     std::stringstream output;
     output << _response;
-    if ((_response.getState() & respState::cgiResp) == false)
-      output << "\r\n";
+    if ((_response.getState() & respState::cgiResp) == false) output << "\r\n";
     send(fdDest, output.str().c_str(), output.str().length(), flags);
     _response.getState() |= respState::headerSent;
     if (_response.getState() & respState::noBodyResp) {
@@ -133,21 +132,24 @@ bool ResponseHandler::isReady() {
 int ResponseHandler::sendFromCgi(int fdDest, int flags) {
   // TODO implement
   sendHeaders(fdDest, flags);
+  int retSend = 0;
   cgi_status::status status = _response.getCgiInst().status();
 
   if (status == cgi_status::ERROR) {
     _response.getState() = respState::readError;
-    return 1;
+    return RESPONSE_READ_ERROR;
   } else {
-    doSendFromFD(_response.getCgiInst().get_readable_pipe(), fdDest, flags);
+    retSend =
+        doSendFromFD(_response.getCgiInst().get_readable_pipe(), fdDest, flags);
   }
 
   // NOT GOOD : done only means execve has finished executing the command,
   // but there might be something to read on the pipe still
   if (status == cgi_status::DONE) {
     _response.getState() = respState::entirelySent;
+    return RESPONSE_SENT_ENTIRELY;
   }
-  return 1;
+  return retSend;
 }
 
 int ResponseHandler::sendFromFile(int fdDest, int flags) {
@@ -180,13 +182,19 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
   char buff[DEFAULT_SEND_SIZE + 2];
   bzero(buff, DEFAULT_SEND_SIZE + 2);
   ssize_t retRead = 0;
+  int& state = _response.getState();
+
+  if (state & respState::cgiResp &&
+      (state & respState::cgiHeadersSent) == false) {
+    return sendCgiHeaders(fdSrc, fdDest, flags);
+  }
 
   if ((retRead = read(fdSrc, buff, DEFAULT_SEND_SIZE)) < 0) {
-    _response.getState() = respState::readError;
+    state = respState::readError;
     return (RESPONSE_READ_ERROR);
   }
 
-  if (_response.getState() & respState::chunkedResp) {
+  if (state & respState::chunkedResp) {
     std::stringstream chunkSize;
     chunkSize << std::hex << retRead << "\r\n";
     std::string chunkData(chunkSize.str());
@@ -201,6 +209,23 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
     send(fdDest, buff, retRead, flags);
     return RESPONSE_SENT_ENTIRELY;
   }
+}
+
+int ResponseHandler::sendCgiHeaders(int fdSrc, int fdDest, int flags) {
+  char cBuff;
+  std::string output;
+  int retRead = 1;
+  while ( (retRead = read(fdSrc, &cBuff, 1)) > 0) {
+    output += cBuff;
+    if (output.size() >= 2 && output[output.length() - 1] == '\r' &&
+        output[output.length()] == '\n')
+      break;
+  }
+  if (retRead < 0)
+    return RESPONSE_READ_ERROR;
+  send(fdDest, output.c_str(), output.length(), flags);
+  _response.getState() |= respState::cgiHeadersSent;
+  return output.length();
 }
 
 /* ................................. ACCESSOR ................................*/

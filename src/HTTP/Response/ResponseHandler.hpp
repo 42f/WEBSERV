@@ -54,6 +54,7 @@ class ResponseHandler {
 
   std::string getHeader(const Request& req, const std::string& target);
   int sendHeaders(int fdDest, int flags);
+  int sendCgiHeaders(int fdSrc, int fdDest, int flags);
   int sendErrorBuffer(int fdDest, int flags);
   int sendFromCgi(int fdDest, int flags);
   int sendFromFile(int fdDest, int flags);
@@ -160,6 +161,7 @@ class ResponseHandler {
       if (file.isGood()) {
         std::string cgiBin = getCGI(serv, file);
         if (cgiBin.empty() == false) {
+          // resp.getCgiInst().execute_cgi(cgiBin, file, loc, serv);  // TODO Add request
           resp.getCgiInst().execute_cgi(cgiBin, file);  // TODO Add request
 
           setRespForCgi(resp, file);   // debug

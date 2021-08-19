@@ -69,7 +69,7 @@ void CGI::execute_cgi(std::string cgi_path, files::File const &file) {
   char *CONTENT_TYPE = "CONTENT_TYPE=";
   // End of PATH_INFO
   char *PATH_TRANSLATED = "PATH_TRANSLATED=/cgi_info.php";
-  // Arguments for the script 
+  // Arguments for the script
   char *QUERY_STRING = "QUERY_STRING=\"\"";
   char *REMOTE_ADDR = "REMOTE_ADDR=";
   char *REMOTE_HOST = "REMOTE_HOST=";
@@ -103,7 +103,7 @@ void CGI::execute_cgi(std::string cgi_path, files::File const &file) {
   }
   if (_child_pid == 0) {
     close(pipes[0]);
-    dup2(pipes[1], 1);
+    // dup2(pipes[1], 1);
     close(pipes[1]);
     if (execve(args[0], args, env) < 0) {
 		// std::cout << "error" << std::endl;
