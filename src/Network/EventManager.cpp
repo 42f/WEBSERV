@@ -191,7 +191,7 @@ void EventManager::send_response(int index) {
   for (unsigned long i = 0; i < EventManager::_sockets.size(); i++) {
     if (FD_ISSET(EventManager::_sockets[i].get_fd(), &_write_set) &&
         EventManager::_sockets[i].get_status() == fd_status::read) {
-      std::cout << "sending a chunk" << std::endl;
+      // std::cout << "sending a chunk" << std::endl;
       usleep(1000);
       if (EventManager::_sockets[i].manage_response() ==
           RESPONSE_SENT_ENTIRELY) {

@@ -1,0 +1,11 @@
+CGI :   error checking for everything
+        check cgi header to see what's needed
+        error 501 when system fail ? (fork, pipe, etc...)
+        rethink the done/readable part, done = executed =/= nothing to read
+
+Network: close fd on send response when not successful ?
+
+
+Questions :
+        POST a un body ? si oui le buffer de rcv request ne vas pas marcher
+        unchunk request ?

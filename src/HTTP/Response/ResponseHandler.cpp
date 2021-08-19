@@ -130,11 +130,19 @@ bool ResponseHandler::isReady() {
 int ResponseHandler::sendFromPipe(int fdDest, int flags) {
   // TODO implement
   sendHeaders(fdDest, flags);
-  // of course, the init parameters come from the request and the config
-  //   cgi.init("/Users/calide-n/.brew/bin/php-cgi", "info.php");
+  cgi_status::status status = _response.getCgiInst().status();
 
-  if (_response.getCgiInst().status() == cgi_status::READY) {
+  if (status == cgi_status::ERROR) {
+    _response.getState() = respState::readError;
+    return 1;
+  } else {
     doSendFromFD(_response.getCgiInst().get_readable_pipe(), fdDest, flags);
+  }
+
+  // NOT GOOD : done only means execve has finished executing the command,
+  // but there might be something to read on the pipe still
+  if (status == cgi_status::DONE) {
+    _response.getState() = respState::entirelySent;
   }
   return 1;
 }

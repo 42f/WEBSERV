@@ -128,7 +128,7 @@ std::ostream& operator<<(std::ostream& o, Response const& i) {
     }
 
     // Writes empty line separation
-    o << "\r\n";
+    // o << "\r\n";
 
     return o;
 }

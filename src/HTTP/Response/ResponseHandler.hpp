@@ -102,7 +102,6 @@ class ResponseHandler {
 
     static void setRespForCgi(Response& resp, files::File const& file) {
       // TODO implement
-      resp.setHeader(headerTitle::Content_Type, "html");  // TODO check
       resp.setHeader(headerTitle::Last_Modified,
                      file.getLastModified());  // debug
       resp.setHeader(headerTitle::Transfer_Encoding, "chunked");

@@ -1,0 +1,74 @@
+#!/bin/bash
+
+print_separator(){
+	i=1
+	max=$(tput cols)
+	while [ $i -le $max ]
+	do
+		echo -n $1
+		((i+=1))
+	done
+	echo
+}
+
+git_commit(){
+	print_separator "█" 
+	echo -e "STATUS:\n"
+	git status
+
+	print_separator "█" 
+	git add *
+	echo -e "AFTER ADD *\n"
+	git status
+
+	print_separator "█" 
+	echo -e "LAST COMMIT WAS:\n"
+	git log --max-count=2 | cat	
+	
+	print_separator "█" 
+	echo "📝  DEV part refers to what has been developed with this commit, NEXT part refers to what you plan on working on for the next commit"
+	read -p "📌 commit message [DEV] part = " val_1
+	read -p "📌 commit message [NEXT] part = " val_2
+	if [[ ! -z $val_1 ]]; then
+		val_dev="[DEV] "$val_1
+	fi
+	if [[ ! -z $val_2 ]]; then
+		val_next="[NEXT] "$val_2
+	fi	
+	echo "Commit message :" $(date "+%a-%d.%m-%H:%M") $val_dev $val_next
+	git commit -am " [ $(date "+%a-%d.%m-%H:%M") ] $val_dev $val_next"
+}
+
+git_push(){
+
+ while true; do
+		read -p "🚀  Git push ? [y/n] " yn
+        case $yn in
+            [Yy]*) git push ; return 0  ;;  
+            [Nn]*) echo "Not pushed" ; return  1 ;;
+        esac
+    done
+}
+
+check_git() {
+	git status&>/dev/null 
+}
+
+if ! check_git; then
+	echo "⚠️  Not a git directory"
+	exit 1
+fi
+
+if [[ -z $(git status --porcelain=v1) ]]; then
+	echo "✅  Nothing to commit"
+else
+	git_commit
+fi
+
+if [[ -z $(git diff origin | cat) ]]; then
+	echo "✅  Nothing to push"
+else
+	git_push
+fi
+
+

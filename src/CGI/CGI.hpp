@@ -2,6 +2,9 @@
 #define CGI_CGI_HPP
 
 #include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "File.hpp"
 
@@ -15,7 +18,7 @@ class CGI {
   ~CGI();
 
   void execute_cgi(void);
-  void init(std::string cgi_path, files::File const &file);
+  void execute_cgi(std::string cgi_path, files::File const &file);
   cgi_status::status status(void);
   int get_readable_pipe(void) const;
   int get_fd(void) const;
