@@ -41,6 +41,7 @@ namespace files {
             std::string         getTypeFromExt( std::string const & ext ) const;
 
             static bool         isFileFromPath( std::string const & path );
+            static bool         isDirFromPath( std::string const & path );
             static std::string	getFileFromPath( std::string const & path );
             static std::string	getExtFromPath( std::string const & path );
 

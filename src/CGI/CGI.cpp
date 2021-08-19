@@ -77,10 +77,10 @@ std::vector<char const *> CGI::set_meta_variables(std::string cgi_path,
   variables.push_back("SERVER_PROTOCOL=HTTP/1.1");
   // ?
   // variables.push_back("SCRIPT_FILENAME=/tmp/server/0/cgi_info.php");
-  variables.push_back("SCRIPT_FILENAME=/tmp/server/0/cgi1.php");
+  variables.push_back("SCRIPT_FILENAME=/tmp/server/0/cgi_info.php");
   // ?
   // variables.push_back("SCRIPT_NAME=cgi_info.php");
-  variables.push_back("SCRIPT_NAME=cgi1.php");
+  variables.push_back("SCRIPT_NAME=cgi_info.php");
   // ?
   variables.push_back("REDIRECT_STATUS=200");
   // Request method (GET/POST/DELETE)
@@ -116,7 +116,7 @@ std::vector<char const *> CGI::set_meta_variables(std::string cgi_path,
   }
 
   // variables.push_back("PATH_TRANSLATED=/cgi_info.php");
-  variables.push_back("PATH_TRANSLATED=/cgi1.php");
+  variables.push_back("PATH_TRANSLATED=/cgi_info.php");
   // Arguments for the script
   variables.push_back("QUERY_STRING=\"\"");
   // Client ip address version 4
@@ -131,14 +131,14 @@ std::vector<char const *> CGI::set_meta_variables(std::string cgi_path,
   variables.push_back("REMOTE_USER=");
   // ?
   //----------------------------------------
-  std::ostringstream ss;
-  ss << "SERVER_NAME=" << serv.get_port();
-  variables.push_back(ss.str().c_str());
+  std::ostringstream ssn;
+  ssn << "SERVER_NAME=" << serv.get_port();
+  variables.push_back(ssn.str().c_str());
   variables.push_back("SERVER_NAME=");
   //----------------------------------------
-  std::ostringstream ss;
-  ss << "SERVER_PORT=" << serv.get_port();
-  variables.push_back(ss.str().c_str());
+  std::ostringstream ssp;
+  ssp << "SERVER_PORT=" << serv.get_port();
+  variables.push_back(ssp.str().c_str());
   //----------------------------------------
   // ?
   variables.push_back("SERVER_SOFTWARE=");

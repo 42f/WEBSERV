@@ -54,6 +54,7 @@ class ResponseHandler {
 
   std::string getHeader(const Request& req, const std::string& target);
   int sendHeaders(int fdDest, int flags);
+  int sendCgiHeaders(int fdSrc, int fdDest, int flags);
   int sendErrorBuffer(int fdDest, int flags);
   int sendFromCgi(int fdDest, int flags);
   int sendFromFile(int fdDest, int flags);
@@ -74,7 +75,7 @@ class ResponseHandler {
     virtual void handler(config::Server const& serv, LocationConfig const& loc,
                          Request const& req, Response& resp) = 0;
 
-    virtual std::string resolveFilePath(LocationConfig const& loc,
+    virtual std::string resolveTargetPath(LocationConfig const& loc,
                                         Request const& req) {
       std::string targetFile(loc.get_root());
 
@@ -90,12 +91,11 @@ class ResponseHandler {
         targetFile += loc.get_index();
       } else
         return std::string();
-
       return targetFile;
     }
 
     static void makeErrorResponse(Response& resp, status::StatusCode code,
-                                  config::Server const& serv) {
+          config::Server const& serv, const std::string& optionalMessage = "") {
       resp.reset(Version(), code);
 
       std::map<int, std::string>::const_iterator errIt =
@@ -108,12 +108,13 @@ class ResponseHandler {
       if (resp.getFileInst().isGood()) {
         setRespForFile(resp, resp.getFileInst());
       } else {
-        setRespForErrorBuff(resp);
+        setRespForErrorBuff(resp, optionalMessage);
       }
     }
 
-    static void setRespForErrorBuff(Response& resp) {
-      resp.loadErrorHtmlBuffer(resp.getStatusCode());
+    static void setRespForErrorBuff(Response& resp,
+                                      const std::string& optionalMessage = "") {
+      resp.loadErrorHtmlBuffer(resp.getStatusCode(), optionalMessage);
       resp.setHeader(headerTitle::Content_Length,
                      resp.getErrorBuffer().length());
       resp.setHeader(headerTitle::Content_Type, "html");
@@ -150,10 +151,11 @@ class ResponseHandler {
     void handler(config::Server const& serv, LocationConfig const& loc,
                  Request const& req, Response& resp) {
       // Resolve the file to be read, if none, return a 404 Not Found
-      std::string targetFile = resolveFilePath(loc, req);
-      resp.setFile(targetFile);
+
+      std::string targetFile = resolveTargetPath(loc, req);
       LogStream s; s << "File targeted in GET: " << targetFile;
 
+      resp.setFile(targetFile);
       files::File const& file = resp.getFileInst();
 
       if (file.isGood()) {
@@ -205,26 +207,42 @@ class ResponseHandler {
 
     void handler(config::Server const& serv, LocationConfig const& loc,
                  Request const& req, Response& resp) {
-      std::string targetFile = resolveFilePath(loc, req);
+
+      std::string target = resolveTargetPath(loc, req);
       LogStream s;
-      s << "File targeted in DELETE: " << targetFile;
-      files::File openTmp(targetFile);
-      if(openTmp.isGood()) { std::cerr << "tmp is open !" << std::endl;}
+      s << "Target in DELETE: " << target;
       struct stat st;
-      if (targetFile.empty() == false && stat(targetFile.c_str(), &st) == 0) {
+      if (stat(target.c_str(), &st) == 0) {
         resp.getState() = respState::noBodyResp;
         errno = 0;
-        if (unlink(targetFile.c_str()) == 0)
+        if (files::File::isDirFromPath(target) && rmdir(target.c_str()) == 0)
           resp.setStatus(status::NoContent);
-        else if (errno == EBUSY)
-          resp.setStatus(status::Accepted);
+        else if (errno == ENOTEMPTY)
+          makeErrorResponse(resp, status::Conflict, serv, strerror(errno));
+        else if (files::File::isFileFromPath(target) && unlink(target.c_str()) == 0)
+          resp.setStatus(status::NoContent);
         else
-          makeErrorResponse(resp, status::Unauthorized, serv);
-      } else
+        makeErrorResponse(resp, status::Unauthorized, serv);
+      }
+      else
         makeErrorResponse(resp, status::NotFound, serv);
-      if(openTmp.isGood()) { std::cerr << "tmp is open !" << std::endl;}
     }
 
+    std::string resolveTargetPath(LocationConfig const& loc,
+                                        Request const& req) {
+      std::string target(loc.get_root());
+
+      // if the request aims to a subdir of the location path,
+      // we remove the location path part
+      std::cout << "TARGET b = " << target << std::endl;
+      if (req.target.decoded_path.find(loc.get_path()) == 0) {
+        target += req.target.decoded_path.substr(loc.get_path().length());
+      } else {
+        target += req.target.decoded_path;
+      }
+      std::cout << "TARGET a = " << target << std::endl;
+      return target;
+    }
   };
 
   class UnsupportedMethod : public A_Method {
