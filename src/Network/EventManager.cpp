@@ -74,6 +74,7 @@ void EventManager::do_select(void) {
   std::vector<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
+    // std::cout << itr->get_fd() << std::endl;
     if (itr->get_fd() > _max_ssocket) {
       FD_SET(itr->get_fd(), &EventManager::_read_set);
       FD_SET(itr->get_fd(), &EventManager::_write_set);
@@ -82,9 +83,10 @@ void EventManager::do_select(void) {
   }
   EventManager::_nb_events =
       select(EventManager::_max_fd + 1, &EventManager::_read_set,
-             &EventManager::_write_set, NULL, &tv);
+             &EventManager::_write_set, NULL, NULL);
   if (EventManager::_nb_events < 0) {
     perror("select");
+    exit(0);
     std::cerr << EventManager::_max_fd + 1 << std::endl;
   }
 }
@@ -140,7 +142,7 @@ void EventManager::accept_request(int fd) {
       if (tmp_fd < 0)
         perror("Accept");
       else {
-        std::cout << EventManager::get_total_requests() << std::endl;
+        // std::cout << EventManager::get_total_requests() << std::endl;
         add(tmp_fd, EventManager::_sockets[i].get_port(), client_addr);
         EventManager::_total_requests++;
       }
@@ -198,8 +200,6 @@ void EventManager::send_response(int index) {
       usleep(1000);
       if (EventManager::_sockets[i].manage_response() ==
           RESPONSE_SENT_ENTIRELY) {
-        std::cout << "Every chunk sent" << std::endl;
-        close(EventManager::_sockets[i].get_fd());
         EventManager::_sockets[i].set_status(fd_status::closed);
       }
       // TO DO : check with Brian the other cases a fd needs to be closed
@@ -217,6 +217,8 @@ void EventManager::resize(void) {
     if (EventManager::_sockets[i].get_status() == fd_status::closed) {
       FD_CLR(EventManager::_sockets[i].get_fd(), &EventManager::_read_set);
       FD_CLR(EventManager::_sockets[i].get_fd(), &EventManager::_write_set);
+      close(EventManager::_sockets[i].get_fd());
+
       EventManager::_sockets.erase(EventManager::_sockets.begin() + i);
     }
   }

@@ -11,13 +11,13 @@ cgi_status::status CGI::status(void) {
   }
   int ret = waitpid(_child_pid, &_child_return, WNOHANG);
   if (ret == _child_pid) {
-    std::cout << "status is done" << std::endl;
+    // std::cout << "status is done" << std::endl;
     _status = cgi_status::DONE;
   } else if (ret == 0) {
-    std::cout << "status is readable" << std::endl;
+    // std::cout << "status is readable" << std::endl;
     _status = cgi_status::READABLE;
   } else if (ret < 0) {
-    std::cout << "status is error" << std::endl;
+    // std::cout << "status is error" << std::endl;
     _status = cgi_status::ERROR;
     // exit(1);
   }
@@ -38,7 +38,7 @@ std::vector<char *> CGI::set_meta_variables(std::string cgi_path,
 
   // TODO : finish error management here
   if (stat(cgi_path.c_str(), &sb) == -1) {
-    perror("stat");
+    perror("stat cgi path");
     _status = cgi_status::ERROR;
   }
 

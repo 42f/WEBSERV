@@ -234,13 +234,11 @@ class ResponseHandler {
 
       // if the request aims to a subdir of the location path,
       // we remove the location path part
-      std::cout << "TARGET b = " << target << std::endl;
       if (req.target.decoded_path.find(loc.get_path()) == 0) {
         target += req.target.decoded_path.substr(loc.get_path().length());
       } else {
         target += req.target.decoded_path;
       }
-      std::cout << "TARGET a = " << target << std::endl;
       return target;
     }
   };

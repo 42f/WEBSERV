@@ -127,25 +127,24 @@ bool ResponseHandler::isReady() {
 };
 
 int ResponseHandler::sendFromCgi(int fdDest, int flags) {
-  // TODO implement
   sendHeaders(fdDest, flags);
   int retSend = 0;
   cgi_status::status status = _response.getCgiInst().status();
+  int& state = _response.getState();
+  int cgiPipe = _response.getCgiInst().get_readable_pipe();
 
   if (status == cgi_status::ERROR) {
-    _response.getState() = respState::readError;
+    state = respState::readError;
     return RESPONSE_READ_ERROR;
+  } else if ((state & respState::cgiHeadersSent) == false) {
+    return sendCgiHeaders(cgiPipe, fdDest, flags);
   } else {
-    retSend =
-        doSendFromFD(_response.getCgiInst().get_readable_pipe(), fdDest, flags);
+    retSend = doSendFromFD(cgiPipe, fdDest, flags);
   }
 
   // NOT GOOD : done only means execve has finished executing the command,
   // but there might be something to read on the pipe still
-  if (retSend == 0) {
-    _response.getState() = respState::entirelySent;
-    return RESPONSE_SENT_ENTIRELY;
-  }
+  if (retSend == 0) _response.getState() = respState::entirelySent;
   return retSend;
 }
 
@@ -181,11 +180,6 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
   ssize_t retRead = 0;
   int& state = _response.getState();
 
-  if (state & respState::cgiResp &&
-      (state & respState::cgiHeadersSent) == false) {
-    return sendCgiHeaders(fdSrc, fdDest, flags);
-  }
-
   if ((retRead = read(fdSrc, buff, DEFAULT_SEND_SIZE)) < 0) {
     state = respState::readError;
     return (RESPONSE_READ_ERROR);
@@ -215,7 +209,8 @@ int ResponseHandler::sendCgiHeaders(int fdSrc, int fdDest, int flags) {
   while ((retRead = read(fdSrc, &cBuff, 1)) > 0) {
     output += cBuff;
     if (output.size() >= 3 && output[output.length() - 3] == '\n' &&
-        output[output.length() - 2] == '\r' && output[output.length() - 1] == '\n')
+        output[output.length() - 2] == '\r' &&
+        output[output.length() - 1] == '\n')
       break;
   }
   if (retRead < 0) return RESPONSE_READ_ERROR;
