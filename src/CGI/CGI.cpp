@@ -76,8 +76,8 @@ std::vector<char const *> CGI::set_meta_variables(std::string cgi_path,
   // Server protocol
   variables.push_back("SERVER_PROTOCOL=HTTP/1.1");
   // ?
-  // variables.push_back("SCRIPT_FILENAME=/tmp/server/0/cgi_info.php");
   variables.push_back("SCRIPT_FILENAME=/tmp/server/0/cgi_info.php");
+  // variables.push_back("SCRIPT_FILENAME=/tmp/server/0/cgi1.php");
   // ?
   // variables.push_back("SCRIPT_NAME=cgi_info.php");
   variables.push_back("SCRIPT_NAME=cgi_info.php");
