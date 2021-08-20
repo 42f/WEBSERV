@@ -95,7 +95,7 @@ class ResponseHandler {
       return targetFile;
     }
 
-    static void makeErrorResponse(Response& resp, status::StatusCode code,
+    static void makeStandardResponse(Response& resp, status::StatusCode code,
                                   config::Server const& serv,
                                   const std::string& optionalMessage = "") {
       resp.reset(Version(), code);
@@ -119,7 +119,8 @@ class ResponseHandler {
       resp.loadErrorHtmlBuffer(resp.getStatusCode(), optionalMessage);
       resp.setHeader(headerTitle::Content_Length,
                     resp.getErrorBuffer().length());
-      resp.setHeader(headerTitle::Content_Type, "html");
+      if (optionalMessage.empty())
+        resp.setHeader(headerTitle::Content_Type, "html");
       resp.getState() = respState::buffResp;
     }
 
@@ -174,7 +175,7 @@ class ResponseHandler {
           resp.setStatus(status::Ok);
         }
       } else
-        makeErrorResponse(resp, status::NotFound, serv);
+        makeStandardResponse(resp, status::NotFound, serv);
     }
 
     std::string getCGI(config::Server const& serv, files::File const& file) {
@@ -221,14 +222,14 @@ class ResponseHandler {
         if (files::File::isDirFromPath(target) && rmdir(target.c_str()) == 0)
           resp.setStatus(status::NoContent);
         else if (errno == ENOTEMPTY)
-          makeErrorResponse(resp, status::Conflict, serv, strerror(errno));
+          makeStandardResponse(resp, status::Conflict, serv, strerror(errno));
         else if (files::File::isFileFromPath(target) &&
                  unlink(target.c_str()) == 0)
           resp.setStatus(status::NoContent);
         else
-          makeErrorResponse(resp, status::Unauthorized, serv);
+          makeStandardResponse(resp, status::Unauthorized, serv);
       } else
-        makeErrorResponse(resp, status::NotFound, serv);
+        makeStandardResponse(resp, status::NotFound, serv);
     }
 
     std::string resolveTargetPath(LocationConfig const& loc,

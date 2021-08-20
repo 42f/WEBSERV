@@ -46,7 +46,7 @@ void ResponseHandler::init(ReqResult const requestResult, int receivedPort) {
 void ResponseHandler::processRequest() {
   if (_response.getState() != respState::emptyResp) return;
   if (_request.is_err()) {
-    A_Method::makeErrorResponse(_response, _request.unwrap_err(),
+    A_Method::makeStandardResponse(_response, _request.unwrap_err(),
                                 config::Server());
     return;
   }
@@ -64,13 +64,13 @@ void ResponseHandler::processRequest() {
   }
 
   if (locMatch.get_methods().has(req.method) == false) {
-    A_Method::makeErrorResponse(_response, status::MethodNotAllowed,
+    A_Method::makeStandardResponse(_response, status::MethodNotAllowed,
                                 config::Server());
     return;
   }
   // Case where no location was resolved, and parent server has no root
   if (locMatch.get_root().empty()) {
-    A_Method::makeErrorResponse(_response, status::Unauthorized, serverMatch);
+    A_Method::makeStandardResponse(_response, status::Unauthorized, serverMatch);
     return;
   }
   _method->handler(serverMatch, locMatch, req, _response);
@@ -221,10 +221,10 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
 }
 
 void ResponseHandler::manageRedirect(redirect red) {
-  A_Method::makeErrorResponse(_response,
+  A_Method::makeStandardResponse(_response,
                               static_cast<status::StatusCode>(red.status),
                               config::Server(), red.uri);
-  if (red.status >= 300 && red.status < 400) {
+  if (red.status >= 301 && red.status <= 308) {
     _response.setHeader("Location", red.uri);
   }
 }
