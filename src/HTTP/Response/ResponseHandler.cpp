@@ -57,6 +57,14 @@ void ResponseHandler::processRequest() {
   LocationConfig const locMatch =
       network::ServerPool::getLocationMatch(serverMatch, req.target);
 
+  redirect  red = locMatch.get_redirect();
+  if (red.status != 0)  {
+    A_Method::makeErrorResponse(_response,
+                                static_cast<status::StatusCode>(red.status),
+                                config::Server(), red.uri);
+    return;
+  }
+
   if (locMatch.get_methods().has(req.method) == false) {
     A_Method::makeErrorResponse(_response, status::MethodNotAllowed,
                                 config::Server());
@@ -87,11 +95,8 @@ int ResponseHandler::doSend(int fdDest, int flags) {
   if (state == respState::emptyResp) {
     return RESPONSE_IS_EMPTY;
   }
-  if (state & respState::entirelySent) {
+  if (state & (respState::entirelySent | respState::ioError)) {
     return RESPONSE_SENT_ENTIRELY;
-  }
-  if (state & respState::readError) {
-    return -1;
   }
   if (state & respState::cgiResp) {
     return sendFromCgi(fdDest, flags);
@@ -109,25 +114,29 @@ int ResponseHandler::doSend(int fdDest, int flags) {
 }
 
 int ResponseHandler::sendHeaders(int fdDest, int flags) {
-  if ((_response.getState() & respState::headerSent) == false) {
+  if ((_response.getState() & respState::headerSent) == false &&
+      _request.is_ok()) {
+
     if (_request.is_ok()) //TODO remove db
-      std::cout << RED << "REQEST:\n" << _request.unwrap() << NC << std::endl; //TODO remove db
-    std::cout << BLUE << "RESPONSE:\n" << _response << NC << std::endl; //TODO remove db
+    std::cout << RED << "REQEST:\n" << _request.unwrap() << NC << std::endl; //TODO remove db
+  std::cout << BLUE << "RESPONSE:\n" << _response << NC << std::endl; //TODO remove db
+
+
     std::stringstream output;
     output << _response;
     if ((_response.getState() & respState::cgiResp) == false) output << "\r\n";
     send(fdDest, output.str().c_str(), output.str().length(), flags);
-    _response.getState() |= respState::headerSent;
     if (_response.getState() & respState::noBodyResp) {
       _response.getState() |= respState::entirelySent;
       return (RESPONSE_SENT_ENTIRELY);
     }
+    _response.getState() |= respState::headerSent;
     return (output.str().length());
   }
   return 0;
 }
 
-bool ResponseHandler::isReady() {         // TODO remove ? not used
+bool ResponseHandler::isReady() {  // TODO remove ? not used
   return _response.getState() &
          (respState::fileResp | respState::cgiResp | respState::buffResp);
 };
@@ -140,7 +149,7 @@ int ResponseHandler::sendFromCgi(int fdDest, int flags) {
   int cgiPipe = _response.getCgiInst().get_readable_pipe();
 
   if (status == cgi_status::ERROR) {
-    state = respState::readError;
+    state = respState::ioError;
     return RESPONSE_READ_ERROR;
   } else if ((state & respState::cgiHeadersSent) == false) {
     return sendCgiHeaders(cgiPipe, fdDest, flags);
@@ -161,7 +170,7 @@ int ResponseHandler::sendFromFile(int fdDest, int flags) {
       _response.getState() = respState::entirelySent;
       break;
     case -1:
-      _response.getState() = respState::readError;
+      _response.getState() = respState::ioError;
       break;
 
     default:
@@ -173,7 +182,12 @@ int ResponseHandler::sendFromFile(int fdDest, int flags) {
 int ResponseHandler::sendErrorBuffer(int fdDest, int flags) {
   std::stringstream output;
 
-  output << _response << _response.getErrorBuffer();
+    if (_request.is_ok()) //TODO remove db
+    std::cout << RED << "REQEST:\n" << _request.unwrap() << NC << std::endl; //TODO remove db
+  std::cout << BLUE << "RESPONSE:\n" << _response << NC << std::endl; //TODO remove db
+  std::cout << BLUE << "RESPONSE body:\n" << _response.getErrorBuffer() << NC << std::endl; //TODO remove db
+
+  output << _response << "\r\n" << _response.getErrorBuffer();
   send(fdDest, output.str().c_str(), output.str().length(), flags);
   _response.getState() = respState::entirelySent;
   return RESPONSE_SENT_ENTIRELY;
@@ -186,7 +200,7 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
   int& state = _response.getState();
 
   if ((retRead = read(fdSrc, buff, DEFAULT_SEND_SIZE)) < 0) {
-    state = respState::readError;
+    state = respState::ioError;
     return (RESPONSE_READ_ERROR);
   }
 
@@ -218,7 +232,10 @@ int ResponseHandler::sendCgiHeaders(int fdSrc, int fdDest, int flags) {
         output[output.length() - 1] == '\n')
       break;
   }
-  if (retRead < 0) return RESPONSE_READ_ERROR;
+  if (retRead < 0) {
+    _response.getState() = respState::ioError;
+    return RESPONSE_READ_ERROR;
+  }
   send(fdDest, output.c_str(), output.length(), flags);
   _response.getState() |= respState::cgiHeadersSent;
   return output.length();

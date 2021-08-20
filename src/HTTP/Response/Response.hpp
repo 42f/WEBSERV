@@ -23,7 +23,7 @@ namespace respState {
 	enum states {
 		emptyResp		= 0,
 		entirelySent	= 1<<0,
-		readError 		= 1<<1,
+		ioError 		= 1<<1,
 		headerSent		= 1<<2,
 		buffResp 		= 1<<3,
 		cgiResp 		= 1<<4,
