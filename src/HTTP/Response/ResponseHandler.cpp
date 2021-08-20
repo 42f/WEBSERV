@@ -212,7 +212,6 @@ int ResponseHandler::sendCgiHeaders(int fdSrc, int fdDest, int flags) {
   int retRead = 1;
   while ((retRead = read(fdSrc, &cBuff, 1)) > 0) {
     output += cBuff;
-    std::cout << output.c_str() << std::endl;
     if (output.size() >= 3 && output[output.length() - 3] == '\n' &&
         output[output.length() - 2] == '\r' &&
         output[output.length() - 1] == '\n')

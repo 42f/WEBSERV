@@ -31,18 +31,24 @@ class CGI {
 
  private:
   files::File *_file;
-  std::string _cgi_path;
-  std::string _file_path;
   int _child_pid;
   int _child_return;
   int _pipe;
   cgi_status::status _status;
+  std::vector<char *> _variables;
 
-  std::vector<char const *> set_meta_variables(std::string cgi_path,
-                                               files::File const &file,
-                                               Request const &req,
-                                               LocationConfig const &loc,
-                                               config::Server const &serv);
+  template <typename T>
+  void add_variable(std::string name, T value) {
+    std::ostringstream ss;
+    ss << name << "=" << value;
+    _variables.push_back(strdup(ss.str().c_str()));
+  }
+
+  std::vector<char *> set_meta_variables(std::string cgi_path,
+                                         files::File const &file,
+                                         Request const &req,
+                                         LocationConfig const &loc,
+                                         config::Server const &serv);
 };
 
 #endif
