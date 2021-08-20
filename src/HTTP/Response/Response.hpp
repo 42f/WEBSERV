@@ -22,15 +22,15 @@ namespace respState {
 	// bit mask on a int
 	enum states {
 		emptyResp		= 0,
-		entirelySent	= 1<<1,
-		readError 		= 1<<2,
-		headerSent		= 1<<3,
-		buffResp 		= 1<<4,
-		cgiResp 		= 1<<5,
-		fileResp 		= 1<<6,
-		chunkedResp		= 1<<7,
-		noBodyResp		= 1<<8,
-		cgiHeadersSent	= 1<<9
+		entirelySent	= 1<<0,
+		readError 		= 1<<1,
+		headerSent		= 1<<2,
+		buffResp 		= 1<<3,
+		cgiResp 		= 1<<4,
+		fileResp 		= 1<<5,
+		chunkedResp		= 1<<6,
+		noBodyResp		= 1<<7,
+		cgiHeadersSent	= 1<<8
 	};
 }
 

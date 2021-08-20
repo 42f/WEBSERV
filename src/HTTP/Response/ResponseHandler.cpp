@@ -93,14 +93,14 @@ int ResponseHandler::doSend(int fdDest, int flags) {
   if (state & respState::readError) {
     return -1;
   }
-  if (state & respState::buffResp) {
-    return sendErrorBuffer(fdDest, flags);
-  }
   if (state & respState::cgiResp) {
     return sendFromCgi(fdDest, flags);
   }
   if (state & respState::fileResp) {
     return sendFromFile(fdDest, flags);
+  }
+  if (state & respState::buffResp) {
+    return sendErrorBuffer(fdDest, flags);
   }
   if (state & respState::noBodyResp) {
     return sendHeaders(fdDest, flags);
@@ -127,8 +127,8 @@ int ResponseHandler::sendHeaders(int fdDest, int flags) {
   return 0;
 }
 
-bool ResponseHandler::isReady() {
-  return _response.getState() &=
+bool ResponseHandler::isReady() {         // TODO remove ? not used
+  return _response.getState() &
          (respState::fileResp | respState::cgiResp | respState::buffResp);
 };
 
@@ -147,10 +147,8 @@ int ResponseHandler::sendFromCgi(int fdDest, int flags) {
   } else {
     retSend = doSendFromFD(cgiPipe, fdDest, flags);
   }
-
-  // NOT GOOD : done only means execve has finished executing the command,
-  // but there might be something to read on the pipe still
-  if (retSend == 0) _response.getState() = respState::entirelySent;
+  if (retSend == 0)
+    _response.getState() = respState::entirelySent;
   return retSend;
 }
 
