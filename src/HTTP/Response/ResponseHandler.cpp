@@ -45,26 +45,29 @@ void ResponseHandler::init(ReqResult const& requestResult, int receivedPort) {
 
 void ResponseHandler::processRequest() {
   if (_response.getState() != respState::emptyResp) return;
-  if (_request.is_ok()) {
-    Request req = _request.unwrap();
-
-    config::Server const& serverMatch =
-        network::ServerPool::getServerMatch(getHeader(req, "Host"), _port);
-    LocationConfig const locMatch =
-        network::ServerPool::getLocationMatch(serverMatch, req.target);
-
-    // Case where no location was resolved, and parent server has no root
-    if (locMatch.get_root().empty()) {
-      A_Method::makeErrorResponse(_response, status::Unauthorized, serverMatch);
-      return;
-    }
-    _method->handler(serverMatch, locMatch, req, _response);
-  } else {
-    A_Method::makeErrorResponse(_response, status::BadRequest,
-                                config::Server());  // TODO waiting bugfix
-    // A_Method::makeErrorResponse(_response, _request.unwrap_err(),
-    // config::Server()); // waiting bugfix
+  if (_request.is_err()) {
+    A_Method::makeErrorResponse(_response, _request.unwrap_err(),
+                                config::Server());
+    return;
   }
+  Request req = _request.unwrap();
+
+  config::Server const& serverMatch =
+      network::ServerPool::getServerMatch(getHeader(req, "Host"), _port);
+  LocationConfig const locMatch =
+      network::ServerPool::getLocationMatch(serverMatch, req.target);
+
+  if (locMatch.get_methods().has(req.method) == false) {
+    A_Method::makeErrorResponse(_response, status::MethodNotAllowed,
+                                config::Server());
+    return;
+  }
+  // Case where no location was resolved, and parent server has no root
+  if (locMatch.get_root().empty()) {
+    A_Method::makeErrorResponse(_response, status::Unauthorized, serverMatch);
+    return;
+  }
+  _method->handler(serverMatch, locMatch, req, _response);
 }
 
 // safely returns the value of a header if it exists, an empty string otherwise
@@ -107,6 +110,9 @@ int ResponseHandler::doSend(int fdDest, int flags) {
 
 int ResponseHandler::sendHeaders(int fdDest, int flags) {
   if ((_response.getState() & respState::headerSent) == false) {
+    if (_request.is_ok()) //TODO remove db
+      std::cout << RED << "REQEST:\n" << _request.unwrap() << NC << std::endl; //TODO remove db
+    std::cout << BLUE << "RESPONSE:\n" << _response << NC << std::endl; //TODO remove db
     std::stringstream output;
     output << _response;
     if ((_response.getState() & respState::cgiResp) == false) output << "\r\n";

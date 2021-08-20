@@ -87,10 +87,11 @@ void Response::loadErrorHtmlBuffer(const status::StatusCode& code,
           << "<body>" << '\n'
           << "	<center>" << '\n'
           << "		<h1> Ho crap ! That's an error. </h1>" << '\n'
-          << "		<h1>" << code << ' ' << status::StatusMessage::get(code)
-          << "</h1>" << '\n'
-          << "		<h1>" << optionalMessage << "</h1>" << '\n'
-          << "	</center>" << '\n'
+          << "		<h1> " << code << ' ' << status::StatusMessage::get(code)
+          << " </h1>" << '\n';
+  if (optionalMessage.empty() == false)
+    tmpBuff << "		<h1> " << optionalMessage << " </h1>" << '\n';
+  tmpBuff << "	</center>" << '\n'
           << "	<hr>" << '\n'
           << "	<center>Webserv Team ABC</center>" << '\n'
           << "</body>" << '\n'
