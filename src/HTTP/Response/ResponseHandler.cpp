@@ -147,8 +147,9 @@ int ResponseHandler::sendFromCgi(int fdDest, int flags) {
   } else {
     retSend = doSendFromFD(cgiPipe, fdDest, flags);
   }
-  if (retSend == 0)
+  if (retSend == 0) {
     _response.getState() = respState::entirelySent;
+  }
   return retSend;
 }
 
