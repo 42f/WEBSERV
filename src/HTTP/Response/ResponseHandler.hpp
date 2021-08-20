@@ -30,7 +30,7 @@ class ResponseHandler {
   typedef RequestHandler::result_type ReqResult;
 
  public:
-  void init(ReqResult const& requestResult, int receivedPort);
+  void init(ReqResult const requestResult, int receivedPort);
   void processRequest(void);
 
 #if __APPLE__
@@ -53,12 +53,12 @@ class ResponseHandler {
   A_Method* _method;
 
   std::string getHeader(const Request& req, const std::string& target);
-  int sendHeaders(int fdDest, int flags);
-  int sendCgiHeaders(int fdSrc, int fdDest, int flags);
-  int sendErrorBuffer(int fdDest, int flags);
-  int sendFromCgi(int fdDest, int flags);
-  int sendFromFile(int fdDest, int flags);
-  int doSendFromFD(int fdSrc, int fdDest, int flags);
+  void sendHeaders(int fdDest, int flags);
+  void sendCgiHeaders(int fdSrc, int fdDest, int flags);
+  void sendFromBuffer(int fdDest, int flags);
+  void sendFromCgi(int fdDest, int flags);
+  void sendFromFile(int fdDest, int flags);
+  void doSendFromFD(int fdSrc, int fdDest, int flags);
   void manageRedirect( redirect red );
 
   ResponseHandler(ResponseHandler const& src);
@@ -135,13 +135,13 @@ class ResponseHandler {
       resp.setHeader(headerTitle::Content_Type, file.getType());
       resp.setHeader(headerTitle::Last_Modified, file.getLastModified());
 
-      if (resp.getFileInst().getSize() > DEFAULT_SEND_SIZE) {
-        resp.setHeader(headerTitle::Transfer_Encoding, "chunked");
-        resp.getState() = respState::fileResp | respState::chunkedResp;
-      } else {
+      // if (resp.getFileInst().getSize() > DEFAULT_SEND_SIZE) {
+      //   resp.setHeader(headerTitle::Transfer_Encoding, "chunked");
+      //   resp.getState() = respState::fileResp | respState::chunkedResp;
+      // } else {
         resp.setHeader(headerTitle::Content_Length, file.getSize());
         resp.getState() = respState::fileResp;
-      }
+      // }
     }
   };
 
