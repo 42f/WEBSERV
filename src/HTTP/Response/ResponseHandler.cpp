@@ -59,9 +59,7 @@ void ResponseHandler::processRequest() {
 
   redirect  red = locMatch.get_redirect();
   if (red.status != 0)  {
-    A_Method::makeErrorResponse(_response,
-                                static_cast<status::StatusCode>(red.status),
-                                config::Server(), red.uri);
+    manageRedirect(red);
     return;
   }
 
@@ -163,12 +161,19 @@ int ResponseHandler::sendFromCgi(int fdDest, int flags) {
 }
 
 int ResponseHandler::sendFromFile(int fdDest, int flags) {
+  int retSend = 0;
   sendHeaders(fdDest, flags);
-  int retSend = doSendFromFD(_response.getFileInst().getFD(), fdDest, flags);
+  if (_response.getFileInst().isGood()) {
+    retSend = doSendFromFD(_response.getFileInst().getFD(), fdDest, flags);
+  }
+  else {
+    retSend = RESPONSE_READ_ERROR;
+  }
   switch (retSend) {
     case 0:
       _response.getState() = respState::entirelySent;
       break;
+    case RESPONSE_READ_ERROR:
     case -1:
       _response.getState() = respState::ioError;
       break;
@@ -239,6 +244,15 @@ int ResponseHandler::sendCgiHeaders(int fdSrc, int fdDest, int flags) {
   send(fdDest, output.c_str(), output.length(), flags);
   _response.getState() |= respState::cgiHeadersSent;
   return output.length();
+}
+
+void ResponseHandler::manageRedirect(redirect red) {
+  A_Method::makeErrorResponse(_response,
+                                static_cast<status::StatusCode>(red.status),
+                                config::Server(), red.uri);
+  if (red.status >= 300 && red.status < 400) {
+    _response.setHeader("Location", red.uri);
+  }
 }
 
 /* ................................. ACCESSOR ................................*/

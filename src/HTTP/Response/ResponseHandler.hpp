@@ -59,6 +59,7 @@ class ResponseHandler {
   int sendFromCgi(int fdDest, int flags);
   int sendFromFile(int fdDest, int flags);
   int doSendFromFD(int fdSrc, int fdDest, int flags);
+  void manageRedirect( redirect red );
 
   ResponseHandler(ResponseHandler const& src);
   ResponseHandler& operator=(ResponseHandler const& rhs);
@@ -115,12 +116,10 @@ class ResponseHandler {
 
     static void setRespForErrorBuff(Response& resp,
                                     const std::string& optionalMessage = "") {
-      if (resp.getStatusCode() >= 400) {
-        resp.loadErrorHtmlBuffer(resp.getStatusCode(), optionalMessage);
-        resp.setHeader(headerTitle::Content_Length,
-                      resp.getErrorBuffer().length());
-        resp.setHeader(headerTitle::Content_Type, "html");
-      }
+      resp.loadErrorHtmlBuffer(resp.getStatusCode(), optionalMessage);
+      resp.setHeader(headerTitle::Content_Length,
+                    resp.getErrorBuffer().length());
+      resp.setHeader(headerTitle::Content_Type, "html");
       resp.getState() = respState::buffResp;
     }
 
