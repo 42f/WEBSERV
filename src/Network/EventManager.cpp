@@ -197,10 +197,9 @@ void EventManager::send_response(int index) {
     if (FD_ISSET(EventManager::_sockets[i].get_fd(), &_write_set) &&
         EventManager::_sockets[i].get_status() == fd_status::read) {
       // std::cout << "sending a chunk" << std::endl;
-      usleep(1000);
+      // usleep(1000);
       if (EventManager::_sockets[i].manage_response() ==
-              RESPONSE_SENT_ENTIRELY ||
-          EventManager::_sockets[i].manage_response() == RESPONSE_READ_ERROR) {
+          RESPONSE_SENT_ENTIRELY) {
         EventManager::_sockets[i].set_status(fd_status::closed);
       }
       // TO DO : check with Brian the other cases a fd needs to be closed

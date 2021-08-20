@@ -6,6 +6,7 @@ Response::Response()
     : _respState(respState::emptyResp),
       _version(Version('1', '1')),
       _statusCode(status::None) {
+  setHeader("Cache-Control:", "no-cache");  // TODO remove debug
   setHeader(headerTitle::Date, Timer::getTimeNow());
   setHeader(headerTitle::Server,
             headerTitle::DefaultValues::get(headerTitle::Server));
@@ -77,25 +78,28 @@ int& Response::getState(void) { return _respState; }
 
 void Response::loadErrorHtmlBuffer(const status::StatusCode& code,
                                    const std::string& optionalMessage) {
-  std::stringstream tmpBuff;
 
-  tmpBuff << "<html>" << '\n'
-          << "<head>" << '\n'
-          << "	<title>" << code << ' ' << status::StatusMessage::get(code)
-          << "</title>" << '\n'
-          << "</head>" << '\n'
-          << "<body>" << '\n'
-          << "	<center>" << '\n'
-          << "		<h1> Ho crap ! That's an error. </h1>" << '\n'
-          << "		<h1>" << code << ' ' << status::StatusMessage::get(code)
-          << "</h1>" << '\n'
-          << "		<h1>" << optionalMessage << "</h1>" << '\n'
-          << "	</center>" << '\n'
-          << "	<hr>" << '\n'
-          << "	<center>Webserv Team ABC</center>" << '\n'
-          << "</body>" << '\n'
-          << "</html>" << '\n';
+  if (optionalMessage.empty()) {
+    std::stringstream tmpBuff;
+    tmpBuff << "<html>" << '\n'
+            << "<head>" << '\n'
+            << "	<title>" << code << ' ' << status::StatusMessage::get(code)
+            << "</title>" << '\n'
+            << "</head>" << '\n'
+            << "<body>" << '\n'
+            << "	<center>" << '\n'
+            << "		<h1> Ho crap ! That's an error. </h1>" << '\n'
+            << "		<h1> " << code << ' ' << status::StatusMessage::get(code)
+            << " </h1>" << '\n'
+            << "	</center>" << '\n'
+            << "	<hr>" << '\n'
+            << "	<center>Webserv Team ABC</center>" << '\n'
+            << "</body>" << '\n'
+            << "</html>" << '\n';
   _htmlErrorBuffer.assign(tmpBuff.str());
+  } else {
+  _htmlErrorBuffer.assign(optionalMessage);
+  }
 }
 
 /* ................................. ACCESSOR ................................*/

@@ -30,7 +30,7 @@ class ResponseHandler {
   typedef RequestHandler::result_type ReqResult;
 
  public:
-  void init(ReqResult const& requestResult, int receivedPort);
+  void init(ReqResult const requestResult, int receivedPort);
   void processRequest(void);
 
 #if __APPLE__
@@ -53,12 +53,13 @@ class ResponseHandler {
   A_Method* _method;
 
   std::string getHeader(const Request& req, const std::string& target);
-  int sendHeaders(int fdDest, int flags);
-  int sendCgiHeaders(int fdSrc, int fdDest, int flags);
-  int sendErrorBuffer(int fdDest, int flags);
-  int sendFromCgi(int fdDest, int flags);
-  int sendFromFile(int fdDest, int flags);
-  int doSendFromFD(int fdSrc, int fdDest, int flags);
+  void sendHeaders(int fdDest, int flags);
+  void sendCgiHeaders(int fdSrc, int fdDest, int flags);
+  void sendFromBuffer(int fdDest, int flags);
+  void sendFromCgi(int fdDest, int flags);
+  void sendFromFile(int fdDest, int flags);
+  void doSendFromFD(int fdSrc, int fdDest, int flags);
+  void manageRedirect( redirect red );
 
   ResponseHandler(ResponseHandler const& src);
   ResponseHandler& operator=(ResponseHandler const& rhs);
@@ -94,7 +95,7 @@ class ResponseHandler {
       return targetFile;
     }
 
-    static void makeErrorResponse(Response& resp, status::StatusCode code,
+    static void makeStandardResponse(Response& resp, status::StatusCode code,
                                   config::Server const& serv,
                                   const std::string& optionalMessage = "") {
       resp.reset(Version(), code);
@@ -117,8 +118,9 @@ class ResponseHandler {
                                     const std::string& optionalMessage = "") {
       resp.loadErrorHtmlBuffer(resp.getStatusCode(), optionalMessage);
       resp.setHeader(headerTitle::Content_Length,
-                     resp.getErrorBuffer().length());
-      resp.setHeader(headerTitle::Content_Type, "html");
+                    resp.getErrorBuffer().length());
+      if (optionalMessage.empty())
+        resp.setHeader(headerTitle::Content_Type, "html");
       resp.getState() = respState::buffResp;
     }
 
@@ -134,13 +136,13 @@ class ResponseHandler {
       resp.setHeader(headerTitle::Content_Type, file.getType());
       resp.setHeader(headerTitle::Last_Modified, file.getLastModified());
 
-      if (resp.getFileInst().getSize() > DEFAULT_SEND_SIZE) {
-        resp.setHeader(headerTitle::Transfer_Encoding, "chunked");
-        resp.getState() = respState::fileResp | respState::chunkedResp;
-      } else {
+      // if (resp.getFileInst().getSize() > DEFAULT_SEND_SIZE) {
+      //   resp.setHeader(headerTitle::Transfer_Encoding, "chunked");
+      //   resp.getState() = respState::fileResp | respState::chunkedResp;
+      // } else {
         resp.setHeader(headerTitle::Content_Length, file.getSize());
         resp.getState() = respState::fileResp;
-      }
+      // }
     }
   };
 
@@ -167,7 +169,7 @@ class ResponseHandler {
                                         serv);  // TODO Add request
           if (resp.getCgiInst().status() == cgi_status::SYSTEM_ERROR) {
             std::cout << "hello from internal erreur " << std::endl;
-            makeErrorResponse(resp, status::InternalServerError, serv);
+            makeStandardResponse(resp, status::InternalServerError, serv, strerror(errno));
           } else {
             setRespForCgi(resp, file);   // debug
             resp.setStatus(status::Ok);  // debug
@@ -177,7 +179,7 @@ class ResponseHandler {
           resp.setStatus(status::Ok);
         }
       } else
-        makeErrorResponse(resp, status::NotFound, serv);
+        makeStandardResponse(resp, status::NotFound, serv);
     }
 
     std::string getCGI(config::Server const& serv, files::File const& file) {
@@ -224,14 +226,14 @@ class ResponseHandler {
         if (files::File::isDirFromPath(target) && rmdir(target.c_str()) == 0)
           resp.setStatus(status::NoContent);
         else if (errno == ENOTEMPTY)
-          makeErrorResponse(resp, status::Conflict, serv, strerror(errno));
+          makeStandardResponse(resp, status::Conflict, serv, strerror(errno));
         else if (files::File::isFileFromPath(target) &&
                  unlink(target.c_str()) == 0)
           resp.setStatus(status::NoContent);
         else
-          makeErrorResponse(resp, status::Unauthorized, serv);
+          makeStandardResponse(resp, status::Unauthorized, serv);
       } else
-        makeErrorResponse(resp, status::NotFound, serv);
+        makeStandardResponse(resp, status::NotFound, serv);
     }
 
     std::string resolveTargetPath(LocationConfig const& loc,
