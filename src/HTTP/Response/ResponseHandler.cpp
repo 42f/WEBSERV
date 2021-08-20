@@ -133,9 +133,16 @@ int ResponseHandler::sendFromCgi(int fdDest, int flags) {
   int& state = _response.getState();
   int cgiPipe = _response.getCgiInst().get_readable_pipe();
 
-  if (status == cgi_status::ERROR) {
+  if (status == cgi_status::CGI_ERROR) {
     state = respState::readError;
     return RESPONSE_READ_ERROR;
+  } else if (status == cgi_status::SYSTEM_ERROR) {
+    std::cout << "HELLO FROM SYSTEM ERROR" << std::endl;
+        std::string str;
+    str = "INTERNAL SYSTEM ERROR";
+    send(fdDest, str.c_str(), str.size(), 0);
+    return RESPONSE_READ_ERROR;
+
   } else if ((state & respState::cgiHeadersSent) == false) {
     return sendCgiHeaders(cgiPipe, fdDest, flags);
   } else {
