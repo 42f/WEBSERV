@@ -105,13 +105,12 @@ class ResponseHandler {
       if (errIt != serv.get_error_pages().end()) {
         std::string errorPagePath = serv.get_error_pages().find(code)->second;
         resp.setFile(errorPagePath);
+        if (resp.getFileInst().isGood()) {
+          setRespForFile(resp, resp.getFileInst());
+          return ;
+        }
       }
-
-      if (resp.getFileInst().isGood()) {
-        setRespForFile(resp, resp.getFileInst());
-      } else {
-        setRespForErrorBuff(resp, optionalMessage);
-      }
+      setRespForErrorBuff(resp, optionalMessage);
     }
 
     static void setRespForErrorBuff(Response& resp,
@@ -169,7 +168,8 @@ class ResponseHandler {
                                         serv);  // TODO Add request
           if (resp.getCgiInst().status() == cgi_status::SYSTEM_ERROR) {
             std::cout << "hello from internal erreur " << std::endl;
-            makeStandardResponse(resp, status::InternalServerError, serv, strerror(errno));
+            makeStandardResponse(resp, status::InternalServerError, serv);
+            return ;
           } else {
             setRespForCgi(resp, file);   // debug
             resp.setStatus(status::Ok);  // debug
