@@ -27,19 +27,22 @@ void ResponseHandler::init(ReqResult const requestResult, int receivedPort) {
   if (_request.is_ok()) {
     switch (_request.unwrap().method) {
       case methods::GET:
-        _method = new GetMethod;
+        _method = new(std::nothrow) GetMethod;
         break;
       case methods::POST:
-        _method = new PostMethod;
+        _method = new(std::nothrow) PostMethod;
         break;
       case methods::DELETE:
-        _method = new DeleteMethod;
+        _method = new(std::nothrow) DeleteMethod;
         break;
 
       default:
-        _method = new UnsupportedMethod;
+        _method = new(std::nothrow) UnsupportedMethod;
         break;
     }
+    if (_method == NULL)
+      A_Method::makeStandardResponse(_response, status::InternalServerError,
+                                  config::Server());
   }
 }
 
