@@ -13,7 +13,7 @@
 #include "HTTP/Request/Request.hpp"
 
 namespace cgi_status {
-enum status { DONE, ERROR, READABLE };
+enum status { NON_INIT, DONE, CGI_ERROR, SYSTEM_ERROR, READABLE, UNSUPPORTED };
 }
 
 class CGI {

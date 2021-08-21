@@ -50,7 +50,7 @@ void ResponseHandler::processRequest() {
   if (_response.getState() != respState::emptyResp) return;
   if (_request.is_err()) {
     A_Method::makeStandardResponse(_response, _request.unwrap_err(),
-                                config::Server());
+                                   config::Server());
     return;
   }
   Request req = _request.unwrap();
@@ -60,20 +60,21 @@ void ResponseHandler::processRequest() {
   LocationConfig const locMatch =
       network::ServerPool::getLocationMatch(serverMatch, req.target);
 
-  redirect  red = locMatch.get_redirect();
-  if (red.status != 0)  {
+  redirect red = locMatch.get_redirect();
+  if (red.status != 0) {
     manageRedirect(red);
     return;
   }
 
   if (locMatch.get_methods().has(req.method) == false) {
     A_Method::makeStandardResponse(_response, status::MethodNotAllowed,
-                                config::Server());
+                                   config::Server());
     return;
   }
   // Case where no location was resolved, and parent server has no root
   if (locMatch.get_root().empty()) {
-    A_Method::makeStandardResponse(_response, status::Unauthorized, serverMatch);
+    A_Method::makeStandardResponse(_response, status::Unauthorized,
+                                   serverMatch);
     return;
   }
   _method->handler(serverMatch, locMatch, req, _response);
@@ -90,9 +91,9 @@ int ResponseHandler::doSend(int fdDest, int flags) {
   int set = 1;
   setsockopt(fdDest, SOL_SOCKET, SO_NOSIGPIPE, (void*)&set, sizeof(int));
 #endif
-  int &state = _response.getState();
+  int& state = _response.getState();
   if (state == respState::emptyResp ||
-    state & (respState::entirelySent | respState::ioError)) {
+      state & (respState::entirelySent | respState::ioError)) {
     return RESPONSE_SENT_ENTIRELY;
   }
   if (state & respState::cgiResp)
@@ -113,7 +114,7 @@ int ResponseHandler::doSend(int fdDest, int flags) {
 bool ResponseHandler::isReady() {
   int state = _response.getState();
   return state != respState::emptyResp &&
-        (state & (respState::ioError | respState::entirelySent)) == false;
+         (state & (respState::ioError | respState::entirelySent)) == false;
 };
 
 void ResponseHandler::sendHeaders(int fdDest, int flags) {
@@ -121,7 +122,7 @@ void ResponseHandler::sendHeaders(int fdDest, int flags) {
   if ((state & respState::headerSent) == false) {
     if (_request.is_ok())
       std::cout << RED << "REQEST:\n"
-              << _request.unwrap() << NC << std::endl;  // TODO remove db
+                << _request.unwrap() << NC << std::endl;  // TODO remove db
     std::cout << BLUE << "RESPONSE:\n"
               << _response << NC << std::endl;  // TODO remove db
 
@@ -141,7 +142,8 @@ void ResponseHandler::sendFromCgi(int fdDest, int flags) {
     sendHeaders(fdDest, flags);
   int cgiPipe = _response.getCgiInst().get_readable_pipe();
 
-  if (_response.getCgiInst().status() == cgi_status::ERROR) {
+  if (_response.getCgiInst().status() == cgi_status::CGI_ERROR ||
+      _response.getCgiInst().status() == cgi_status::SYSTEM_ERROR) {
     _response.getState() = respState::ioError;
     return;
   }
@@ -214,7 +216,7 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
 
   if (_request.is_ok())
     std::cout << RED << "REQEST:\n"
-            << _request.unwrap() << NC << std::endl;  // TODO remove db
+              << _request.unwrap() << NC << std::endl;  // TODO remove db
   std::cout << BLUE << "RESPONSE:\n"
             << _response << NC << std::endl;  // TODO remove db
 
@@ -225,8 +227,8 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
 
 void ResponseHandler::manageRedirect(redirect red) {
   A_Method::makeStandardResponse(_response,
-                              static_cast<status::StatusCode>(red.status),
-                              config::Server(), red.uri);
+                                 static_cast<status::StatusCode>(red.status),
+                                 config::Server(), red.uri);
   if (red.status >= 301 && red.status <= 308) {
     _response.setHeader("Location", red.uri);
   }

@@ -87,8 +87,7 @@ int Socket::manage_response() {
     _response_handler.processRequest();
     _is_processed = true;
   }
-  _response_handler.doSend(_fd);
-  return 1;
+  return _response_handler.doSend(_fd);
 }
 
 }  // namespace network
