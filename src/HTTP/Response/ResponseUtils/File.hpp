@@ -26,8 +26,8 @@ namespace files {
 			File( std::string const & path, int flags = O_RDONLY );
 			~File( void );
 
-			File &		operator=( File const & rhs );
 
+			void		init(std::string const& path, int flags = O_RDONLY);
 			bool		isGood(void) const;
             int         getFD( void ) const;
             size_t		getSize( void ) const;

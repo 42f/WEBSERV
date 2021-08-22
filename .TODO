@@ -1,9 +1,13 @@
 Alena : check cgi in config file directly
         - operator= for every socket componenet
 
-Brian : fix location resolver pour / && check redirect variables, POST
-        - operator= for every socket componenet
-        - check autoindex + index && autodindex + fail index.html/php/xml
+Brian :
+        ✅ fix location resolver pour /
+        ✅ check autoindex with non existing pouette.html -> ok 404 returned
+        🟥 operator= for every socket componenet
+
+        🚧 check redirect variables
+        - POST
 
 Calixte : autoindex, finish system error cgi, rethink execve fail, check nginx response when cgi code fails
         - Your program should call the cgi with the file requested as first argument = ask Prawda
@@ -26,5 +30,5 @@ all :
         - Python-CGI
         - test webserv with tester
 
-why not ? : 
+why not ? :
         - implement non chunked cgi reponse for fast cgi/small responses (= content_length in the subject)

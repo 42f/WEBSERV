@@ -52,7 +52,7 @@ void ResponseHandler::processRequest() {
   }
   if (_request.is_err()) {
     A_Method::makeStandardResponse(_response, status::InternalServerError,
-                                   config::Server());
+                                   config::Server()); // TODO segfault !
     // A_Method::makeStandardResponse(_response, _request.unwrap_err(),
     //                                config::Server());
     return;

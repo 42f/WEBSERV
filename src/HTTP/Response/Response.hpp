@@ -42,7 +42,6 @@ class Response	{
 		Response( Response const & src );
 		Response( Version version, status::StatusCode statusCode );
 
-		Response &		operator=( Response const & rhs );
 		~Response( void );
 
 		void	setVersion( const Version& version );

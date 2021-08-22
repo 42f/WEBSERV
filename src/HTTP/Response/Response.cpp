@@ -66,7 +66,7 @@ void Response::setHeader(headerTitle::Title title, int value) {
 }
 
 void Response::setFile(std::string const& filePath) {
-  if (filePath.empty() == false) _file = files::File(filePath);
+  _file.init(filePath);
 }
 
 CGI& Response::getCgiInst(void) { return _cgi; }
@@ -106,16 +106,18 @@ void Response::loadErrorHtmlBuffer(const status::StatusCode& code,
 
 /* ................................. OVERLOAD ................................*/
 
-Response& Response::operator=(Response const& rhs) {
-  if (this != &rhs) {
-    this->_respState = rhs._respState;
-    this->_version = rhs._version;
-    this->_statusCode = rhs._statusCode;
-    this->_headers = rhs._headers;
-    this->_file = rhs._file;
-  }
-  return *this;
-}
+// Response& Response::operator=(Response const& rhs) {
+//   if (this != &rhs) {
+//     this->_respState = rhs._respState;
+//     this->_version = rhs._version;
+//     this->_statusCode = rhs._statusCode;
+//     this->_headers = rhs._headers;
+//     this->_file.init(rhs;
+//     this->_cgi = rhs._cgi;
+//     this->_htmlErrorBuffer = rhs._htmlErrorBuffer;
+//   }
+//   return *this;
+// }
 
 // Writes the response's content to the client's connection fd
 std::ostream& operator<<(std::ostream& o, Response const& i) {

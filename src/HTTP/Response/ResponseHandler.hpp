@@ -62,7 +62,7 @@ class ResponseHandler {
   void manageRedirect( redirect red );
 
   ResponseHandler(ResponseHandler const& src);
-  ResponseHandler& operator=(ResponseHandler const& rhs);
+  ResponseHandler & operator=(ResponseHandler const& rhs);
 
   /*
    * GET POST and DELETE Methods
@@ -153,7 +153,6 @@ class ResponseHandler {
     void handler(config::Server const& serv, LocationConfig const& loc,
                  Request const& req, Response& resp) {
       // Resolve the file to be read, if none, return a 404 Not Found
-
       std::string targetFile = resolveTargetPath(loc, req);
       LogStream s;
       s << "File targeted in GET: " << targetFile;
@@ -162,7 +161,7 @@ class ResponseHandler {
       files::File const& file = resp.getFileInst();
 
       if (file.isGood()) {
-        std::string cgiBin = getCGI(serv, file);
+        std::string cgiBin = getCgiBinPath(serv, file);
         if (cgiBin.empty() == false) {
           resp.getCgiInst().execute_cgi(cgiBin, file, req, loc,
                                         serv);  // TODO Add request
@@ -182,9 +181,10 @@ class ResponseHandler {
         makeStandardResponse(resp, status::NotFound, serv);
       // ADD else if autoindex : send autodindex
       // set rep for autoindex -> respState::(to create)
+
     }
 
-    std::string getCGI(config::Server const& serv, files::File const& file) {
+    std::string getCgiBinPath(config::Server const& serv, files::File const& file) {
       std::string fileExt = file.getExt();
       std::map<std::string, std::string>::const_iterator it =
           serv.get_cgis().begin();

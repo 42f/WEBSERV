@@ -42,13 +42,15 @@ Socket &Socket::operator=(Socket const &rhs) {
     _has_events = rhs._has_events;
     _is_processed = false;
     if (rhs._client_ip)
-      _client_ip = strdup(rhs._client_ip);
+      _client_ip = strdup(rhs._client_ip); // TODO tu free ça quelque part ?
     else
       _client_ip = NULL;
     _request_handler = rhs._request_handler;
     _res = rhs._res;
     // _response_handler = rhs._response_handler;
-    _response = rhs._response;
+    // _response = rhs._response;
+    // std::cout << YELLOW << "COPY OF SOCKET: fd: " << _fd << " processed :" << std::boolalpha << rhs._is_processed << NC << std::endl;
+    // TODO : je pense que chaque copie suite au réajustement du vecteur entraine processRequest a nouveau de façon inutile :/
   }
   return *this;
 }
