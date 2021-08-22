@@ -140,7 +140,7 @@ void CGI::execute_cgi(std::string cgi_path, files::File const &file,
   }
 
   _child_pid = fork();
-  if (_child_pid > 0) {
+  if (_child_pid < 0) {
     perror("fork");
     _status = cgi_status::SYSTEM_ERROR;
     return;

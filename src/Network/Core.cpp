@@ -31,7 +31,7 @@ void Core::check_responses(void) {
 
 void Core::run_servers(void) {
     for (;;) {
-        // std::cout << "update" << std::endl;
+        std::cout << "update" << std::endl;
         update_events();
         // std::cout << "check sockets" << std::endl;
         check_sockets();

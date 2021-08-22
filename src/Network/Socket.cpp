@@ -45,6 +45,10 @@ Socket &Socket::operator=(Socket const &rhs) {
       _client_ip = strdup(rhs._client_ip);
     else
       _client_ip = NULL;
+    _request_handler = rhs._request_handler;
+    _res = rhs._res;
+    // _response_handler = rhs._response_handler;
+    _response = rhs._response;
   }
   return *this;
 }

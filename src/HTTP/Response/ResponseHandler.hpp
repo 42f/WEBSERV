@@ -180,6 +180,8 @@ class ResponseHandler {
         }
       } else
         makeStandardResponse(resp, status::NotFound, serv);
+      // ADD else if autoindex : send autodindex
+      // set rep for autoindex -> respState::(to create)
     }
 
     std::string getCGI(config::Server const& serv, files::File const& file) {
