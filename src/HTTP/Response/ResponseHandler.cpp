@@ -47,10 +47,14 @@ void ResponseHandler::init(ReqResult const requestResult, int receivedPort) {
 }
 
 void ResponseHandler::processRequest() {
-  if (_response.getState() != respState::emptyResp) return;
+  if (_response.getState() != respState::emptyResp){
+    return;
+  }
   if (_request.is_err()) {
-    A_Method::makeStandardResponse(_response, _request.unwrap_err(),
+    A_Method::makeStandardResponse(_response, status::InternalServerError,
                                    config::Server());
+    // A_Method::makeStandardResponse(_response, _request.unwrap_err(),
+    //                                config::Server());
     return;
   }
   Request req = _request.unwrap();
@@ -73,6 +77,7 @@ void ResponseHandler::processRequest() {
   }
   // Case where no location was resolved, and parent server has no root
   if (locMatch.get_root().empty()) {
+    std::cout << GREEN << "loc: " << locMatch << NC <<std::endl;
     A_Method::makeStandardResponse(_response, status::Unauthorized,
                                    serverMatch);
     return;
