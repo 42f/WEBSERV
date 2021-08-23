@@ -105,14 +105,13 @@ class ResponseHandler {
     }
    public:
 
-    static void handleCgiFile(
-        Response& resp, std::string& cgiBin, config::Server const& serv,
-        LocationConfig const& loc,
-        Request const& req) {  // TODO remove param once execute_cig is simplier
-      resp.getCgiInst().execute_cgi(
-          cgiBin, resp.getFileInst(), req, loc,
-          serv);  // TODO send responseHandler const& instead ! So it can get
-                  // everything itself
+    // TODO remove param once execute_cig is simplier
+    static void handleCgiFile(Response& resp, std::string& cgiBin,
+                              config::Server const& serv,
+                              LocationConfig const& loc, Request const& req) {
+      resp.getCgiInst().execute_cgi(cgiBin, resp.getFileInst(), req, loc, serv);
+      // TODO send responseHandler const& instead ! So it can get
+      // everything itself
       if (resp.getCgiInst().status() == cgi_status::SYSTEM_ERROR) {
         return makeStandardResponse(resp, status::InternalServerError, serv);
       } else {
@@ -213,7 +212,8 @@ class ResponseHandler {
             return setRespForFile(resp, file);
           }
         }
-      } else if (loc.get_auto_index() == true && stat(targetPath.c_str(), &st) == 0) {
+      } else if (loc.get_auto_index() == true &&
+                 stat(targetPath.c_str(), &st) == 0) {
         setRespForAutoIndexBuff(resp, targetPath);
         resp.setStatus(status::Ok);
       } else {
