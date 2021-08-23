@@ -3,6 +3,7 @@
 
 #include "HTTP/RequestHandler.hpp"
 #include "HTTP/Response/ResponseHandler.hpp"
+#include <netinet/in.h>
 
 namespace fd_status {
 enum status { error, listener, accepted, read, written, closed };
@@ -18,7 +19,7 @@ class Socket {
    public:
     typedef Result<Request, status::StatusCode> result_type;
 
-    Socket(int fd, int port, fd_status::status status = fd_status::error);
+    Socket(int fd, int port, char *client_ip, fd_status::status status = fd_status::error);
     Socket(Socket const & src);
     Socket(void);
     ~Socket();
@@ -34,6 +35,7 @@ class Socket {
     fd_status::status get_status(void) const;
     Response const & get_response(void) const;
     bool response_is_ready(void);
+    char *get_client_ip(void) const;
 
     int manage_response();
     void manage_raw_request(char *buffer, int size);
@@ -52,6 +54,7 @@ class Socket {
     RequestHandler::result_type _res;
     ResponseHandler _response_handler;
     Response _response;
+    char *_client_ip;
 };
 
 }  // namespace network

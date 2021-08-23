@@ -1,47 +1,40 @@
 #pragma once
 
-# include <iostream>
-# include <string>
-# include <vector>
-# include <set>
-# include <algorithm>
+#include <algorithm>
+#include <iostream>
+#include <set>
+#include <string>
+#include <vector>
 
-# include "Config/Directives/Location.hpp"
+#include "Config/Directives/Location.hpp"
+#include "File.hpp"
 
 namespace network {
 
-	class ServerPool	{
+class ServerPool {
+ public:
+  static void init(const std::string &configFilePath);
 
-		public:
+  static std::vector<config::Server> const &getPool(void);
+  static std::set<int> getPorts(void);
+  static config::Server const &getServerMatch(std::string hostHeader,
+                                              int receivedPort);
+  static LocationConfig const getLocationMatch(config::Server const &serv,
+                                               Target const &target);
 
-			static void		init(const std::string & configFilePath);
+  ~ServerPool(void);
 
-			static std::vector<config::Server> const &	getPool( void );
-			static std::set<int>						getPorts( void );
-			static config::Server const&	getServerMatch( std::string hostHeader,
-																int receivedPort );
-			static LocationConfig const		getLocationMatch( config::Server const & serv,
-															Target const & target );
+ private:
+  static std::vector<config::Server> _serverPool;
 
-			~ServerPool( void );
+  static void locationsInit(config::Server &serv);
+  static bool isPathMatch(LocationConfig const &loc, Target const &target);
+  static void cleanPath(std::string &locPath);
+  static void cleanRoot(std::string &locRoot);
 
+  ServerPool(void){};
+  ServerPool(ServerPool const &src);
+  ServerPool &operator=(ServerPool const &rhs);
+};
 
-		private:
-
-			static std::vector<config::Server>		_serverPool;
-
-			static void		locationsInit(config::Server &serv);
-			static bool		isPathMatch( LocationConfig const & loc, Target const & target);
-			static void		cleanPath(std::string &locPath);
-			static void		cleanRoot(std::string &locRoot);
-
-			ServerPool( void ) {};
-			ServerPool( ServerPool const & src );
-			ServerPool &		operator=( ServerPool const & rhs );
-
-
-
-		};
-
-
-} // --- end of namespace network
+}  // namespace network

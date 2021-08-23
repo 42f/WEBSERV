@@ -36,10 +36,14 @@
 
 #ifndef DEFAULT_SEND_SIZE
 # define DEFAULT_SEND_SIZE 1024
+// # define DEFAULT_SEND_SIZE 2048 			// TODO cleanup
 #endif
 
-#define RESPONSE_SENT_ENTIRELY	-2
-#define RESPONSE_READ_ERROR		-3
-#define RESPONSE_IS_EMPTY		-4
+#define RESPONSE_AVAILABLE		0
+#define RESPONSE_SENT_ENTIRELY	-1
 
-#endif //WEBSERV_CONSTANTS_HPP
+#define PARAM_REDIR_REQ_SCHEME	"$scheme"
+#define PARAM_REDIR_REQ_URI		"$request_uri"
+#define PARAM_REDIR_REQ_QUERY	"$request_query"
+
+#endif  // WEBSERV_CONSTANTS_HPP
