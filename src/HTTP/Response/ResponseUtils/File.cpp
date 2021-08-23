@@ -118,10 +118,13 @@ std::string File::getFileFromPath(std::string const& path) {
 
 // returns the extension of a given path, if it is a file path
 std::string File::getExtFromPath(std::string const& path) {
-  std::string output = getFileFromPath(path);
-  size_t extPos = output.find_last_of('.');
-  extPos += extPos != std::string::npos ? 1 : 0;
-  return output.substr(extPos);
+  if (isFileFromPath(path)) {
+    std::string output = getFileFromPath(path);
+    size_t extPos = output.find_last_of('.');
+    extPos += extPos != std::string::npos ? 1 : 0;
+    return output.substr(extPos);
+  }
+  return std::string();
 }
 
 // returns the content-type header from a given extension
