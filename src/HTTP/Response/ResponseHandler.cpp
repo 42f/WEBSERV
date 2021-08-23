@@ -52,7 +52,7 @@ void ResponseHandler::processRequest() {
   }
   if (_request.is_err()) {
     A_Method::makeStandardResponse(_response, status::InternalServerError,
-                                   config::Server()); // TODO segfault !
+                                   config::Server());                            // TODO segfault !
     // A_Method::makeStandardResponse(_response, _request.unwrap_err(),
     //                                config::Server());
     return;
@@ -66,8 +66,7 @@ void ResponseHandler::processRequest() {
 
   redirect red = locMatch.get_redirect();
   if (red.status != 0) {
-    manageRedirect(red);
-    return;
+    return manageRedirect(red);
   }
 
   if (locMatch.get_methods().has(req.method) == false) {
@@ -127,16 +126,16 @@ void ResponseHandler::sendHeaders(int fdDest, int flags) {
   if ((state & respState::headerSent) == false) {
     if (_request.is_ok())
       std::cout << RED << "REQEST:\n"
-                << _request.unwrap() << NC << std::endl;  // TODO remove db
+                << _request.unwrap() << NC << std::endl;                         // TODO remove db
     std::cout << BLUE << "RESPONSE:\n"
-              << _response << NC << std::endl;  // TODO remove db
+              << _response << NC << std::endl;                                   // TODO remove db
 
     std::stringstream output;
     output << _response;
     if ((state & respState::cgiResp) == false) output << "\r\n";
     send(fdDest, output.str().c_str(), output.str().length(), flags);
     if (state & respState::noBodyResp)
-      state |= respState::entirelySent;
+      state |= respState::headerSent | respState::entirelySent;
     else
       state |= respState::headerSent;
   }
@@ -221,9 +220,9 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
 
   if (_request.is_ok())
     std::cout << RED << "REQEST:\n"
-              << _request.unwrap() << NC << std::endl;  // TODO remove db
+              << _request.unwrap() << NC << std::endl;                            // TODO remove db
   std::cout << BLUE << "RESPONSE:\n"
-            << _response << NC << std::endl;  // TODO remove db
+            << _response << NC << std::endl;                                      // TODO remove db
 
   output << _response << "\r\n" << _response.getErrorBuffer();
   send(fdDest, output.str().c_str(), output.str().length(), flags);
@@ -235,7 +234,7 @@ void ResponseHandler::manageRedirect(redirect red) {
                                  static_cast<status::StatusCode>(red.status),
                                  config::Server(), red.uri);
   if (red.status >= 301 && red.status <= 308) {
-    _response.setHeader("Location", red.uri);
+    _response.setHeader("Location", red.resolveRedirect(_request.unwrap().target));
   }
 }
 

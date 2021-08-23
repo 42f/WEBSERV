@@ -5,6 +5,9 @@
 #ifndef WEBSERV_REDIRECT_HPP
 #define WEBSERV_REDIRECT_HPP
 
+#include <string>
+
+#include "Target.hpp"
 #include "parser/export.hpp"
 #include "parsing/Tokens.hpp"
 
@@ -17,6 +20,7 @@ struct redirect
 	redirect(int code, std::string uri);
 
 	static redirect	parse(tuple<slice, slice> input);
+	std::string resolveRedirect(Target const& target) const;
 };
 
 /*
