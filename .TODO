@@ -8,7 +8,8 @@ Brian : fix location resolver pour / && check redirect variables, POST
 Calixte : autoindex, finish system error cgi, rethink execve fail, check nginx response when cgi code fails
         - Your program should call the cgi with the file requested as first argument = ask Prawda
         - check cgi execution directory
-        - operator= for every socket componenet
+        - operator= for every socket component
+        - swith to list instead of vector for sockets.
 
 
 Network: close fd on send response when not successful ?
