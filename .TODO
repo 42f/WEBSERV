@@ -9,11 +9,15 @@ Brian :
 
         🚧 POST
 
-Calixte : autoindex, finish system error cgi, rethink execve fail, check nginx response when cgi code fails
+Calixte : 
+        - signaux cgi ?
         - Your program should call the cgi with the file requested as first argument = ask Prawda
-        - check cgi execution directory
+        - switch to list instead of vector for sockets.
+        - check cgi execution directory ?
+
+        - autoindex
         - operator= for every socket component
-        - swith to list instead of vector for sockets.
+        - add post body and query parameters to cgi = WIP (need to find an efficient way to put request data on stdin for execve);
 
 
 Network: close fd on send response when not successful ?
