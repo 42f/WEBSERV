@@ -113,11 +113,16 @@ class ResponseHandler {
       setRespForErrorBuff(resp, optionalMessage);
     }
 
-    static void handleCgiFile(Response & resp, std::string & cgiBin,
-                               config::Server const& serv, LocationConfig const& loc, Request const& req) {                     // TODO remove param once execute_cig is simplier
-      resp.getCgiInst().execute_cgi(cgiBin, resp.getFileInst(), req, loc, serv); // TODO send responseHandler const& instead ! So it can get everything itself
+    static void handleCgiFile(
+        Response& resp, std::string& cgiBin, config::Server const& serv,
+        LocationConfig const& loc,
+        Request const& req) {  // TODO remove param once execute_cig is simplier
+      resp.getCgiInst().execute_cgi(
+          cgiBin, resp.getFileInst(), req, loc,
+          serv);  // TODO send responseHandler const& instead ! So it can get
+                  // everything itself
       if (resp.getCgiInst().status() == cgi_status::SYSTEM_ERROR) {
-        makeStandardResponse(resp, status::InternalServerError, serv);
+        return makeStandardResponse(resp, status::InternalServerError, serv);
       } else {
         setRespForCgi(resp, resp.getFileInst());  // debug
         resp.setStatus(status::Ok);               // debug
@@ -184,12 +189,17 @@ class ResponseHandler {
           resp.setStatus(status::Ok);
         }
       } else
-        makeStandardResponse(resp, status::NotFound, serv);
-      // ADD else if autoindex : send autodindex
+        return makeStandardResponse(resp, status::NotFound, serv);
+      // TODO ADD else if autoindex : send autodindex
       // set rep for autoindex -> respState::(to create)
     }
 
   };  // --- end GET METHOD
+
+  // *----------------------------------------------------------------------------------------------------
+  // *----------------------------------------------------------------------------------------------------
+  // *----------------------------------------------------------------------------------------------------
+  // *----------------------------------------------------------------------------------------------------
 
   class PostMethod : public A_Method {
    public:
@@ -199,8 +209,11 @@ class ResponseHandler {
     void handler(config::Server const& serv, LocationConfig const& loc,
                  Request const& req, Response& resp) {
       if (req.get_body().empty() && req.target.decoded_query.empty()) {
-        // TODO if empty post ?
-        return;
+        // TODO implement if empty body ? What does nginx do ?
+        std::cout << "Empty body in post request..." << std::endl;
+        return makeStandardResponse(resp, status::BadRequest, serv);
+      }
+
       std::string targetFile = resolveTargetPath(loc, req);
       LogStream s;
       s << "File targeted in POST: " << targetFile;
@@ -213,15 +226,29 @@ class ResponseHandler {
         if (cgiBin.empty() == false) {
           return handleCgiFile(resp, cgiBin, serv, loc, req);
         } else {
-          makeStandardResponse(resp, status::Unauthorized, serv);  // TODO what is post to html ?...
+          return makeStandardResponse(resp, status::Unauthorized,
+                                      serv);  // TODO what if post to html ?...
         }
-      } else
-        makeStandardResponse(resp, status::NotFound, serv);
-      // ADD else if autoindex : send autodindex
-      // set rep for autoindex -> respState::(to create)
+      } else if (req.get_body().empty() == false) {
+        handleUpload(loc, req, resp);
       }
     }
+
+    void handleUpload(LocationConfig const& loc, Request const& req,
+                      Response& resp) {
+      (void)resp;
+      (void)loc;
+      std::cout << "sep = [" << req.get_header("Content-Type").unwrap_or("")
+                << "]" << std::endl;
+      std::cout << "IN POST, GOT BODY: "
+                << std::string(req.get_body().begin(), req.get_body().end());
+    }
   };  // --- end POST METHOD
+
+  // *----------------------------------------------------------------------------------------------------
+  // *----------------------------------------------------------------------------------------------------
+  // *----------------------------------------------------------------------------------------------------
+  // *----------------------------------------------------------------------------------------------------
 
   class DeleteMethod : public A_Method {
    public:
@@ -240,14 +267,15 @@ class ResponseHandler {
         if (files::File::isDirFromPath(target) && rmdir(target.c_str()) == 0)
           resp.setStatus(status::NoContent);
         else if (errno == ENOTEMPTY)
-          makeStandardResponse(resp, status::Conflict, serv, strerror(errno));
+          return makeStandardResponse(resp, status::Conflict, serv,
+                                      strerror(errno));
         else if (files::File::isFileFromPath(target) &&
                  unlink(target.c_str()) == 0)
           resp.setStatus(status::NoContent);
         else
-          makeStandardResponse(resp, status::Unauthorized, serv);
+          return makeStandardResponse(resp, status::Unauthorized, serv);
       } else
-        makeStandardResponse(resp, status::NotFound, serv);
+        return makeStandardResponse(resp, status::NotFound, serv);
     }
 
     std::string resolveTargetPath(LocationConfig const& loc,

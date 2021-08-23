@@ -76,7 +76,6 @@ void ResponseHandler::processRequest() {
   }
   // Case where no location was resolved, and parent server has no root
   if (locMatch.get_root().empty()) {
-    std::cout << GREEN << "loc: " << locMatch << NC <<std::endl;
     A_Method::makeStandardResponse(_response, status::Unauthorized,
                                    serverMatch);
     return;
