@@ -23,16 +23,10 @@ std::string redirect::resolveRedirect(Target const& target) const {
                           target.query.c_str()};
 
   size_t paramPos = 0;
-  size_t offset = 0;
   for (int i = 0; i < sizeof(params) / sizeof(char**); i++) {
     paramPos = 0;
     while ((paramPos = redirUri.find(params[i])) != std::string::npos) {
-      offset = 0;
-      if (redirUri[paramPos - 1] == '/' && newVal[i][0] == '/') {
-        offset = 1;
-      }
-      redirUri.replace(paramPos - offset, strlen(params[i]) + offset,
-                       newVal[i]);
+      redirUri.replace(paramPos, strlen(params[i]), newVal[i]);
     }
   }
   return redirUri;
