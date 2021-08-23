@@ -5,9 +5,9 @@ Brian :
         ✅ fix location resolver pour /
         ✅ check autoindex with non existing pouette.html -> ok 404 returned
         🟥 operator= for every socket componenet
+        ✅ check redirect variables
 
-        🚧 check redirect variables
-        - POST
+        🚧 POST
 
 Calixte : autoindex, finish system error cgi, rethink execve fail, check nginx response when cgi code fails
         - Your program should call the cgi with the file requested as first argument = ask Prawda

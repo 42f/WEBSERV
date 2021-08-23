@@ -42,8 +42,8 @@
 #define RESPONSE_AVAILABLE		0
 #define RESPONSE_SENT_ENTIRELY	-1
 
-#define PARAM_REDIR_REQ_SCHEME "$scheme"
-#define PARAM_REDIR_REQ_URI "$request_uri"
-#define PARAM_REDIR_REQ_QUERY "$request_query"
+#define PARAM_REDIR_REQ_SCHEME	"$scheme"
+#define PARAM_REDIR_REQ_URI		"$request_uri"
+#define PARAM_REDIR_REQ_QUERY	"$request_query"
 
-#endif //WEBSERV_CONSTANTS_HPP
+#endif  // WEBSERV_CONSTANTS_HPP

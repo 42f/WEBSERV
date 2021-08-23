@@ -31,6 +31,15 @@ div {text-align: center;}
 		<img src="/imgs/hello.gif" width="400"><br/><br/>
 		HELLO WORLD from /tmp/server/2/index.html !<br/>
 		<a href="/site2/about.html">about</a><br/>
+
+		<a href="/site2/welcome.php?name=norminet&email=coucou@gmail.com">POST request with query</a><br/>
+
+		<form action="./site2/welcome.php" method="post">
+		Name: <input type="text" name="name"><br>
+		E-mail: <input type="text" name="email"><br>
+		<input type="submit">
+		</form>
+
 		<input type="button" value="Go back!" onclick="history.back()">
 	</h1>
 </body>
