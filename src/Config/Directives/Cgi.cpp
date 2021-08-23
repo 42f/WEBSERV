@@ -18,8 +18,7 @@ Cgi::result_type Cgi::operator()(const slice &input) {
 
   if (result.is_ok()) {
     std::string cgi_path = result.unwrap().second.to_string();
-    if (access(cgi_path.c_str(), X_OK))
-    {
+    if (access(cgi_path.c_str(), X_OK)) {
       return result_type::fail(
           result.left(), error("CGI path does not exist or is non executable by the current user"));
     }

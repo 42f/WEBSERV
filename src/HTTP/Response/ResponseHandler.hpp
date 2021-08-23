@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "../Request/RequestLine.hpp"
+#include "Autoindex.hpp"
 #include "CGI.hpp"
 #include "Config/Directives/Redirect.hpp"
 #include "Config/Server.hpp"
@@ -78,41 +79,33 @@ class ResponseHandler {
 
     virtual std::string resolveTargetPath(LocationConfig const& loc,
                                           Request const& req) {
-      std::string targetFile(loc.get_root());
+      std::string resolved(loc.get_root());
+      std::string target(req.target.decoded_path);
 
-      if (files::File::isFileFromPath(req.target.decoded_path)) {
-        // if the request aims to a subdir of the location path,
-        // we remove the location path part
-        if (req.target.decoded_path.find(loc.get_path()) == 0) {
-          targetFile += req.target.decoded_path.substr(loc.get_path().length());
-        } else {
-          targetFile += req.target.decoded_path;
+      if (files::File::isFileFromPath(target)) {
+        resolved += removeLocPath(loc, target);
+      } else if (loc.get_auto_index() == true) {
+        if (target[target.length() - 1] != '/') {
+          target += '/';
         }
+        resolved += removeLocPath(loc, target);
       } else if (loc.get_index().empty() == false) {
-        targetFile += loc.get_index();
-      } else
+        resolved += loc.get_index();
+      } else {
         return std::string();
-      return targetFile;
-    }
-
-    static void makeStandardResponse(Response& resp, status::StatusCode code,
-                                     config::Server const& serv,
-                                     const std::string& optionalMessage = "") {
-      resp.reset(Version(), code);
-
-      std::map<int, std::string>::const_iterator errIt =
-          serv.get_error_pages().find(code);
-      if (errIt != serv.get_error_pages().end()) {
-        std::string errorPagePath = serv.get_error_pages().find(code)->second;
-        resp.setFile(errorPagePath);
-        if (resp.getFileInst().isGood()) {
-          setRespForFile(resp, resp.getFileInst());
-          return;
-        }
       }
-      setRespForErrorBuff(resp, optionalMessage);
+      return resolved;
     }
 
+   private:
+    virtual std::string removeLocPath(LocationConfig const& loc,
+                                      std::string const& target) {
+      if (target.find(loc.get_path()) == 0)
+        return target.substr(loc.get_path().length());
+      return target;
+    }
+
+   public:
     static void handleCgiFile(
         Response& resp, std::string& cgiBin, config::Server const& serv,
         LocationConfig const& loc,
@@ -129,11 +122,56 @@ class ResponseHandler {
       }
     }
 
+    std::string getCgiBinPath(config::Server const& serv,
+                              files::File const& file) {
+      std::string fileExt = file.getExt();
+      std::map<std::string, std::string>::const_iterator it =
+          serv.get_cgis().begin();
+
+      for (; it != serv.get_cgis().end(); it++) {
+        if (fileExt == it->first) return it->second;
+      }
+      return std::string();
+    }
+
+    static void makeStandardResponse(Response& resp, status::StatusCode code,
+                                     config::Server const& serv,
+                                     const std::string& optionalMessage = "") {
+      resp.reset(Version(), code);
+
+      std::map<int, std::string>::const_iterator errIt =
+          serv.get_error_pages().find(code);
+      if (errIt != serv.get_error_pages().end()) {
+        std::string errorPagePath = serv.get_error_pages().find(code)->second;
+        resp.setFile(errorPagePath);
+        if (resp.getFileInst().isGood()) {
+          return setRespForFile(resp, resp.getFileInst());
+        }
+      }
+      setRespForErrorBuff(resp, optionalMessage);
+    }
+
+    static void setRespNoBody(Response& resp, status::StatusCode code) {
+      resp.getState() = respState::noBodyResp;
+      resp.setStatus(code);
+    }
+
+    // static void setRespForAutoIndexBuff(Response& resp, std::string const&
+    // path) {
+    static void setRespForAutoIndexBuff(Response& resp, std::string const&) {
+      // TODO call autoindex maker
+      // loadAutoIndexBuffer();
+      std::string path = "/tmp/server/";
+      Autoindex::make(path, resp);
+      resp.setHeader(headerTitle::Content_Length, resp.getBuffer().length());
+      resp.setHeader(headerTitle::Content_Type, "html");
+      resp.getState() = respState::buffResp;
+    }
+
     static void setRespForErrorBuff(Response& resp,
                                     const std::string& optionalMessage = "") {
       resp.loadErrorHtmlBuffer(resp.getStatusCode(), optionalMessage);
-      resp.setHeader(headerTitle::Content_Length,
-                     resp.getErrorBuffer().length());
+      resp.setHeader(headerTitle::Content_Length, resp.getBuffer().length());
       if (optionalMessage.empty())
         resp.setHeader(headerTitle::Content_Type, "html");
       resp.getState() = respState::buffResp;
@@ -152,17 +190,6 @@ class ResponseHandler {
       resp.getState() = respState::fileResp;
     }
 
-    std::string getCgiBinPath(config::Server const& serv,
-                              files::File const& file) {
-      std::string fileExt = file.getExt();
-      std::map<std::string, std::string>::const_iterator it =
-          serv.get_cgis().begin();
-
-      for (; it != serv.get_cgis().end(); it++) {
-        if (fileExt == it->first) return it->second;
-      }
-      return std::string();
-    }
   };  // -- end of A_METHODE
 
   class GetMethod : public A_Method {
@@ -172,28 +199,30 @@ class ResponseHandler {
 
     void handler(config::Server const& serv, LocationConfig const& loc,
                  Request const& req, Response& resp) {
-      // Resolve the file to be read, if none, return a 404 Not Found
-      std::string targetFile = resolveTargetPath(loc, req);
+      std::string targetPath = resolveTargetPath(loc, req);
       LogStream s;
-      s << "File targeted in GET: " << targetFile;
+      s << "File targeted in GET: " << targetPath;
+      struct stat st;
 
-      resp.setFile(targetFile);
-      files::File const& file = resp.getFileInst();
-
-      if (file.isGood()) {
-        std::string cgiBin = getCgiBinPath(serv, file);
-        if (cgiBin.empty() == false) {
-          return handleCgiFile(resp, cgiBin, serv, loc, req);
-        } else {
-          setRespForFile(resp, file);
-          resp.setStatus(status::Ok);
+      if (files::File::isFileFromPath(targetPath)) {
+        resp.setFile(targetPath);
+        files::File const& file = resp.getFileInst();
+        if (file.isGood()) {
+          std::string cgiBin = getCgiBinPath(serv, file);
+          if (cgiBin.empty() == false) {
+            return handleCgiFile(resp, cgiBin, serv, loc, req);
+          } else {
+            return setRespForFile(resp, file);
+          }
         }
-      } else
+      } else if (loc.get_auto_index() == true &&
+                 stat(targetPath.c_str(), &st) == 0) {
+        setRespForAutoIndexBuff(resp, targetPath);
+        resp.setStatus(status::Ok);
+      } else {
         return makeStandardResponse(resp, status::NotFound, serv);
-      // TODO ADD else if autoindex : send autodindex
-      // set rep for autoindex -> respState::(to create)
+      }
     }
-
   };  // --- end GET METHOD
 
   // *----------------------------------------------------------------------------------------------------
@@ -214,23 +243,25 @@ class ResponseHandler {
         return makeStandardResponse(resp, status::BadRequest, serv);
       }
 
-      std::string targetFile = resolveTargetPath(loc, req);
+      std::string targetPath = resolveTargetPath(loc, req);
       LogStream s;
-      s << "File targeted in POST: " << targetFile;
+      s << "File targeted in POST: " << targetPath;
 
-      resp.setFile(targetFile);
+      resp.setFile(targetPath);
       files::File const& file = resp.getFileInst();
 
       if (file.isGood()) {
         std::string cgiBin = getCgiBinPath(serv, file);
-        if (cgiBin.empty() == false) {
-          return handleCgiFile(resp, cgiBin, serv, loc, req);
+        if (cgiBin.empty()) {
+          // TODO what if post to html ?...
+          return makeStandardResponse(resp, status::Unauthorized, serv);
         } else {
-          return makeStandardResponse(resp, status::Unauthorized,
-                                      serv);  // TODO what if post to html ?...
+          return handleCgiFile(resp, cgiBin, serv, loc, req);
         }
       } else if (req.get_body().empty() == false) {
         handleUpload(loc, req, resp);
+        // TODO what if post to html ?...
+        return makeStandardResponse(resp, status::Ok, serv);
       }
     }
 
@@ -261,19 +292,22 @@ class ResponseHandler {
       LogStream s;
       s << "Target in DELETE: " << target;
       struct stat st;
+
       if (stat(target.c_str(), &st) == 0) {
         resp.getState() = respState::noBodyResp;
         errno = 0;
-        if (files::File::isDirFromPath(target) && rmdir(target.c_str()) == 0)
-          resp.setStatus(status::NoContent);
-        else if (errno == ENOTEMPTY)
+        if (files::File::isDirFromPath(target) && rmdir(target.c_str()) == 0) {
+          return setRespNoBody(resp, status::NoContent);
+        } else if (errno == ENOTEMPTY) {
           return makeStandardResponse(resp, status::Conflict, serv,
                                       strerror(errno));
-        else if (files::File::isFileFromPath(target) &&
-                 unlink(target.c_str()) == 0)
-          resp.setStatus(status::NoContent);
-        else
+        } else if (files::File::isFileFromPath(target) &&
+                   unlink(target.c_str()) == 0) {
+          return setRespNoBody(resp, status::NoContent);
+        } else {
           return makeStandardResponse(resp, status::Unauthorized, serv);
+        }
+
       } else
         return makeStandardResponse(resp, status::NotFound, serv);
     }

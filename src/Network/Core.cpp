@@ -26,7 +26,9 @@ void Core::check_requests(void) { EventManager::recv_request(0); }
 
 void Core::check_responses(void) {
     EventManager::send_response(0);
+    std::cout << "before resize" << std::endl;
     EventManager::resize();
+    std::cout << "after resize" << std::endl;
 }
 
 void Core::run_servers(void) {

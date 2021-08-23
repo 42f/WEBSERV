@@ -12,20 +12,15 @@ cgi_status::status CGI::status(void) {
   }
   int ret = waitpid(_child_pid, &_child_return, WNOHANG);
   if (ret == _child_pid) {
-    // std::cout << "status is done" << std::endl;
     if (_child_return < 0) {
-      std::cout << "execve returned : " << _child_return << std::endl;
       _status = cgi_status::CGI_ERROR;
     } else {
       _status = cgi_status::DONE;
     }
   } else if (ret == 0) {
-    // std::cout << "status is readable" << std::endl;
     _status = cgi_status::READABLE;
   } else if (ret < 0) {
-    // std::cout << "status is error" << std::endl;
     _status = cgi_status::SYSTEM_ERROR;
-    // exit(1);
   }
   return (_status);
 }
@@ -75,6 +70,7 @@ std::vector<char *> CGI::set_meta_variables(std::string cgi_path,
   }
   Result<std::__1::string> content_length = req.get_header("content-length");
   if (content_length.is_ok()) {
+    std::cout << "content length: " << content_length.unwrap() << std::endl;
     add_variable("CONTENT_LENGTH", content_length.unwrap());
   } else {
     add_variable("CONTENT_LENGTH", "");

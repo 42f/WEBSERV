@@ -753,6 +753,30 @@ src/HTTP/RequestHandler.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/RequestHandler.cpp.s
 .PHONY : src/HTTP/RequestHandler.cpp.s
 
+src/HTTP/Response/Autoindex.o: src/HTTP/Response/Autoindex.cpp.o
+.PHONY : src/HTTP/Response/Autoindex.o
+
+# target to build an object file
+src/HTTP/Response/Autoindex.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/Autoindex.cpp.o
+.PHONY : src/HTTP/Response/Autoindex.cpp.o
+
+src/HTTP/Response/Autoindex.i: src/HTTP/Response/Autoindex.cpp.i
+.PHONY : src/HTTP/Response/Autoindex.i
+
+# target to preprocess a source file
+src/HTTP/Response/Autoindex.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/Autoindex.cpp.i
+.PHONY : src/HTTP/Response/Autoindex.cpp.i
+
+src/HTTP/Response/Autoindex.s: src/HTTP/Response/Autoindex.cpp.s
+.PHONY : src/HTTP/Response/Autoindex.s
+
+# target to generate assembly for a file
+src/HTTP/Response/Autoindex.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/Autoindex.cpp.s
+.PHONY : src/HTTP/Response/Autoindex.cpp.s
+
 src/HTTP/Response/Response.o: src/HTTP/Response/Response.cpp.o
 .PHONY : src/HTTP/Response/Response.o
 
@@ -1488,6 +1512,9 @@ help:
 	@echo "... src/HTTP/RequestHandler.o"
 	@echo "... src/HTTP/RequestHandler.i"
 	@echo "... src/HTTP/RequestHandler.s"
+	@echo "... src/HTTP/Response/Autoindex.o"
+	@echo "... src/HTTP/Response/Autoindex.i"
+	@echo "... src/HTTP/Response/Autoindex.s"
 	@echo "... src/HTTP/Response/Response.o"
 	@echo "... src/HTTP/Response/Response.i"
 	@echo "... src/HTTP/Response/Response.s"

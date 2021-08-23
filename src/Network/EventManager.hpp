@@ -7,7 +7,7 @@
 #include <sys/types.h>  // |
 #include <unistd.h>     // close()
 
-#include <vector>  // stl vectors
+#include <list>  // stl list
 
 #include "HTTP/RequestHandler.hpp"
 #include "ServerSocket.hpp"  // network::ServerSockets
@@ -33,7 +33,6 @@ class EventManager {
   static void send_response(int index);
 
   static int get_nb_events(void);
-  static Socket &get_socket(int index);
   static int get_total_requests(void);
   static unsigned long get_size(void);
 
@@ -46,7 +45,7 @@ class EventManager {
   static int _total_requests;
   static fd_set _read_set;
   static fd_set _write_set;
-  static std::vector<Socket> _sockets;
+  static std::list<Socket*> _sockets;
 
   static void add(int fd, int port, struct sockaddr_in client_addr);
 };
