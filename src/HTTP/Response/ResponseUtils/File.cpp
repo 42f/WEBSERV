@@ -29,6 +29,15 @@ File::~File(void) {
 
 /* ................................. ACCESSOR ................................*/
 
+void		File::init(std::string const& path, int flags) {
+  if (_fd != FD_UNSET)  {
+    close(_fd);
+  }
+  _path = path;
+  _flags = flags;
+  openFile();
+}
+
 void File::openFile() {
   _error = 0;
   errno = 0;
@@ -54,14 +63,14 @@ std::string File::getLastModified() const {
 }
 
 size_t File::getSize() const {
-  if (_path.empty() == false) {
-    struct stat st;
-    if (stat(_path.c_str(), &st) != 0) {
-      return 0;
-    }
-    return st.st_size;
+  if (_path.empty()) {
+    return 0;
   }
-  return 0;
+  struct stat st;
+  if (stat(_path.c_str(), &st) != 0) {
+    return 0;
+  }
+  return st.st_size;
 }
 
 int File::getFD() const { return _fd; }
@@ -69,13 +78,8 @@ int File::getFD() const { return _fd; }
 int File::getError() const { return _error; }
 
 bool File::isGood() const {
-  if (_fd == FD_UNSET) return false;
-
   struct stat st;
-  if (fstat(_fd, &st) == 0 && st.st_ino == _inode)
-    return true;
-  else
-    return false;
+  return _fd != FD_UNSET && fstat(_fd, &st) == 0 && st.st_ino == _inode;
 }
 
 // returns the content-type header field for the file instance
@@ -92,15 +96,13 @@ std::string File::getExt(void) const { return getExtFromPath(_path); }
 std::string File::getPath(void) const { return _path; }
 
 bool File::isFileFromPath(std::string const& path) {
-  if (path.empty())
-    return false;
+  if (path.empty()) return false;
   size_t lastPartHead = path.find_last_of('/');
   return path.find('.', lastPartHead) != std::string::npos;
 }
 
 bool File::isDirFromPath(std::string const& path) {
-  if (path.empty())
-    return false;
+  if (path.empty()) return false;
   return !isFileFromPath(path);
 }
 
@@ -168,16 +170,6 @@ void File::initContentTypes(char const* pathTypesConf) {
 }
 
 /* ................................. OVERLOAD ................................*/
-
-File& File::operator=(File const& rhs) {
-  if (this != &rhs) {
-    _flags = rhs._flags;
-    _path = rhs._path;
-    _error = 0;
-    openFile();
-  }
-  return *this;
-}
 
 /* ................................... DEBUG .................................*/
 

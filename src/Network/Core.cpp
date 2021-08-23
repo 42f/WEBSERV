@@ -33,13 +33,13 @@ void Core::run_servers(void) {
     for (;;) {
         std::cout << "update" << std::endl;
         update_events();
-        // std::cout << "check sockets" << std::endl;
+        std::cout << "check sockets" << std::endl;
         check_sockets();
-        // std::cout << "check requests" << std::endl;
+        std::cout << "check requests" << std::endl;
         check_requests();
-        // std::cout << "check responses" << std::endl;
+        std::cout << "check responses" << std::endl;
         check_responses();
-        // std::cout << "done loop" << std::endl;
+        std::cout << "done loop" << std::endl;
     }
 }
 

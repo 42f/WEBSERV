@@ -42,7 +42,6 @@ class Response	{
 		Response( Response const & src );
 		Response( Version version, status::StatusCode statusCode );
 
-		Response &		operator=( Response const & rhs );
 		~Response( void );
 
 		void	setVersion( const Version& version );
@@ -58,7 +57,7 @@ class Response	{
 
 		void	setFile( std::string const & filePath );
 
-		CGI &				 	getCgiInst( void );
+		CGI  &			 		getCgiInst( void ) ;
 
 		files::File const & 	getFileInst( void ) const;
 		int						getFileFD( void ) const;

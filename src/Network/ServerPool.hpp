@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Config/Directives/Location.hpp"
+#include "File.hpp"
 
 namespace network {
 

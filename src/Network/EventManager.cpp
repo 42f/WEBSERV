@@ -4,7 +4,6 @@ namespace network {
 int EventManager::_kq = 0;
 int EventManager::_timeout = 0;
 int EventManager::_nb_events = 0;
-int EventManager::_max_ssocket = 0;
 int EventManager::_total_requests = 0;
 fd_set EventManager::_read_set;
 fd_set EventManager::_write_set;
@@ -28,12 +27,9 @@ void EventManager::init(std::vector<network::ServerSocket> s) {
     FD_SET(it->get_id(), &EventManager::_read_set);
     EventManager::_sockets.push_back(
         Socket(it->get_id(), it->get_port(), NULL, fd_status::listener));
-
-    if (it->get_id() > EventManager::_max_ssocket)
-      EventManager::_max_ssocket = it->get_id();
+    if (it->get_id() > _max_fd) _max_fd = it->get_id();
     i++;
   }
-  EventManager::_max_fd = EventManager::_max_ssocket;
 }
 
 EventManager::~EventManager() {}
@@ -50,7 +46,7 @@ int EventManager::get_nb_events(void) { return EventManager::_nb_events; }
 
 int EventManager::get_total_requests(void) { return _total_requests; }
 
-Socket& EventManager::get_socket(int index) {
+Socket &EventManager::get_socket(int index) {
   if (index < 0 || index >= static_cast<int>(_sockets.size()))
     throw(std::exception());
   return _sockets[index];
@@ -67,15 +63,13 @@ Socket& EventManager::get_socket(int index) {
  */
 
 void EventManager::do_select(void) {
-  struct timeval tv = {1, 0};
   FD_ZERO(&EventManager::_read_set);
   FD_ZERO(&EventManager::_write_set);
 
   std::vector<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
-    // std::cout << itr->get_fd() << std::endl;
-    if (itr->get_fd() > _max_ssocket) {
+    if (itr->get_status() != fd_status::listener) {
       FD_SET(itr->get_fd(), &EventManager::_read_set);
       FD_SET(itr->get_fd(), &EventManager::_write_set);
     } else
@@ -86,7 +80,6 @@ void EventManager::do_select(void) {
              &EventManager::_write_set, NULL, NULL);
   if (EventManager::_nb_events < 0) {
     perror("select");
-    exit(0);
     std::cerr << EventManager::_max_fd + 1 << std::endl;
   }
 }
@@ -106,10 +99,8 @@ void EventManager::add(int fd, int port, struct sockaddr_in client_addr) {
     EventManager::_sockets.push_back(
         Socket(fd, port, client_ip, fd_status::accepted));
 
-    if (fd > _max_ssocket) {
-      FD_SET(fd, &EventManager::_read_set);
-      FD_SET(fd, &EventManager::_write_set);
-    }
+    FD_SET(fd, &EventManager::_read_set);
+    FD_SET(fd, &EventManager::_write_set);
   } else {
     std::cerr << "Error: cannot add fd < 0" << std::endl;
   }
@@ -138,7 +129,7 @@ void EventManager::accept_request(int fd) {
       socklen_t addr_len = sizeof(client_addr);
 
       tmp_fd = accept(EventManager::_sockets[i].get_fd(),
-                      (struct sockaddr*)&client_addr, &addr_len);
+                      (struct sockaddr *)&client_addr, &addr_len);
       if (tmp_fd < 0)
         perror("Accept");
       else {

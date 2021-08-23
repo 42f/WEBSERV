@@ -9,7 +9,7 @@
 			"type": "lldb",
 			"request": "launch",
 			"program": "${workspaceFolder}/webserv",
-			"args": ["${workspaceFolder}/assets/conf_MAC/locationTest.conf"],
+			"args": ["${workspaceFolder}/assets/conf_MAC/locationPostMethod.conf"],
 		}
 	]
 }

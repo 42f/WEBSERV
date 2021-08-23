@@ -25,8 +25,9 @@ void ServerPool::init(const std::string &configFilePath) {
 }
 
 void ServerPool::locationsInit(config::Server &serv) {
-  std::vector<LocationConfig> &locations = serv.get_locations();
+  cleanRoot(serv.get_root());
 
+  std::vector<LocationConfig> &locations = serv.get_locations();
   if (locations.empty() == false) {
     std::vector<LocationConfig>::iterator it = locations.begin();
     std::vector<LocationConfig>::iterator ite = locations.end();
@@ -47,9 +48,8 @@ void ServerPool::cleanPath(std::string &locPath) {
   if (locPath[locPath.length() - 1] != '/') locPath.push_back('/');
 }
 
-void ServerPool::cleanRoot(std::string &locRoot) {
-  if (locRoot.size() > 1 && locRoot[locRoot.length() - 1] != '/')
-    locRoot.push_back('/');
+void ServerPool::cleanRoot(std::string &root) {
+  if (root.size() > 1 && root[root.length() - 1] != '/') root.push_back('/');
 }
 
 /* ................................. ACCESSOR ................................*/
@@ -98,14 +98,23 @@ LocationConfig const ServerPool::getLocationMatch(config::Server const &serv,
 
   if (locs.empty() == false) {
     std::vector<LocationConfig>::const_iterator it;
-    std::vector<LocationConfig>::const_iterator ite = locs.end();
     std::string targetPath = target.decoded_path;
+
+    if (files::File::isFileFromPath(targetPath)) {
+      targetPath.resize(targetPath.find_last_of('/') + 1);
+    }
     while (targetPath.empty() == false) {
-      for (it = locs.begin(); it != ite; it++) {
+      for (it = locs.begin(); it != locs.end(); it++) {
+        // LogStream s; s << "Trying "  << targetPath << " vs. " <<
+        // it->get_path(); // TODO remove
         if (targetPath == it->get_path() || targetPath + '/' == it->get_path())
           return *it;
       }
-      targetPath.resize(targetPath.find_last_of('/'));
+      if (targetPath.find_last_of('/') == targetPath.find_first_of('/') &&
+          targetPath.size() > 1)
+        targetPath.resize(targetPath.find_last_of('/') + 1);
+      else
+        targetPath.resize(targetPath.find_last_of('/'));
     }
   }
   return (LocationConfig(serv));
