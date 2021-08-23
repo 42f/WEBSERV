@@ -129,11 +129,16 @@ class ResponseHandler {
       }
     }
 
+    static void setRespNoBody(Response& resp, status::StatusCode code) {
+        resp.getState() = respState::noBodyResp;
+        resp.setStatus(code);
+    }
+
     static void setRespForErrorBuff(Response& resp,
                                     const std::string& optionalMessage = "") {
       resp.loadErrorHtmlBuffer(resp.getStatusCode(), optionalMessage);
       resp.setHeader(headerTitle::Content_Length,
-                     resp.getErrorBuffer().length());
+                     resp.getBuffer().length());
       if (optionalMessage.empty())
         resp.setHeader(headerTitle::Content_Type, "html");
       resp.getState() = respState::buffResp;
@@ -189,9 +194,10 @@ class ResponseHandler {
           resp.setStatus(status::Ok);
         }
       } else
-        return makeStandardResponse(resp, status::NotFound, serv);
+        resp.setStatus(status::Ok);               // debug
       // TODO ADD else if autoindex : send autodindex
       // set rep for autoindex -> respState::(to create)
+      // TODO if target is dir and has query -> find index ?
     }
 
   };  // --- end GET METHOD
@@ -223,14 +229,16 @@ class ResponseHandler {
 
       if (file.isGood()) {
         std::string cgiBin = getCgiBinPath(serv, file);
-        if (cgiBin.empty() == false) {
-          return handleCgiFile(resp, cgiBin, serv, loc, req);
+        if (cgiBin.empty()) {
+          // TODO what if post to html ?...
+          return makeStandardResponse(resp, status::Unauthorized,serv);
         } else {
-          return makeStandardResponse(resp, status::Unauthorized,
-                                      serv);  // TODO what if post to html ?...
+          return handleCgiFile(resp, cgiBin, serv, loc, req);
         }
       } else if (req.get_body().empty() == false) {
         handleUpload(loc, req, resp);
+        // TODO what if post to html ?...
+        return makeStandardResponse(resp, status::Ok, serv);
       }
     }
 
@@ -261,19 +269,22 @@ class ResponseHandler {
       LogStream s;
       s << "Target in DELETE: " << target;
       struct stat st;
+
       if (stat(target.c_str(), &st) == 0) {
         resp.getState() = respState::noBodyResp;
         errno = 0;
-        if (files::File::isDirFromPath(target) && rmdir(target.c_str()) == 0)
-          resp.setStatus(status::NoContent);
-        else if (errno == ENOTEMPTY)
+        if (files::File::isDirFromPath(target) && rmdir(target.c_str()) == 0) {
+          return setRespNoBody(resp, status::NoContent);
+        } else if (errno == ENOTEMPTY) {
           return makeStandardResponse(resp, status::Conflict, serv,
                                       strerror(errno));
-        else if (files::File::isFileFromPath(target) &&
-                 unlink(target.c_str()) == 0)
-          resp.setStatus(status::NoContent);
-        else
+        } else if (files::File::isFileFromPath(target) &&
+                   unlink(target.c_str()) == 0) {
+          return setRespNoBody(resp, status::NoContent);
+        } else {
           return makeStandardResponse(resp, status::Unauthorized, serv);
+        }
+
       } else
         return makeStandardResponse(resp, status::NotFound, serv);
     }

@@ -9,6 +9,9 @@ Brian :
 
         🚧 POST
 
+        - Version: rfc.
+
+
 Calixte : autoindex, finish system error cgi, rethink execve fail, check nginx response when cgi code fails
         - Your program should call the cgi with the file requested as first argument = ask Prawda
         - check cgi execution directory

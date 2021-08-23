@@ -62,7 +62,7 @@ class Response	{
 		files::File const & 	getFileInst( void ) const;
 		int						getFileFD( void ) const;
 		status::StatusCode		getStatusCode( void ) const;
-		std::string &			getErrorBuffer( void );
+		std::string &			getBuffer( void );
 		int &					getState( void );
 
 		void	reset( Version const & vers = Version(), status::StatusCode code = status::None );
@@ -81,7 +81,7 @@ class Response	{
 		// body data
 		files::File									_file;
 		CGI											_cgi;
-		std::string									_htmlErrorBuffer;
+		std::string									_htmlBuffer;
 
 		friend std::ostream&	operator<<( std::ostream & o, Response const & i );
 };

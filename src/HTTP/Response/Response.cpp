@@ -73,7 +73,7 @@ CGI & Response::getCgiInst(void)  { return _cgi; }
 files::File const& Response::getFileInst(void) const { return _file; }
 int Response::getFileFD(void) const { return _file.getFD(); }
 status::StatusCode Response::getStatusCode(void) const { return _statusCode; }
-std::string& Response::getErrorBuffer(void) { return _htmlErrorBuffer; }
+std::string& Response::getBuffer(void) { return _htmlBuffer; }
 int& Response::getState(void) { return _respState; }
 
 void Response::loadErrorHtmlBuffer(const status::StatusCode& code,
@@ -96,28 +96,15 @@ void Response::loadErrorHtmlBuffer(const status::StatusCode& code,
             << "	<center>Webserv Team ABC</center>" << '\n'
             << "</body>" << '\n'
             << "</html>" << '\n';
-  _htmlErrorBuffer.assign(tmpBuff.str());
+  _htmlBuffer.assign(tmpBuff.str());
   } else {
-  _htmlErrorBuffer.assign(optionalMessage);
+  _htmlBuffer.assign(optionalMessage);
   }
 }
 
 /* ................................. ACCESSOR ................................*/
 
 /* ................................. OVERLOAD ................................*/
-
-// Response& Response::operator=(Response const& rhs) {
-//   if (this != &rhs) {
-//     this->_respState = rhs._respState;
-//     this->_version = rhs._version;
-//     this->_statusCode = rhs._statusCode;
-//     this->_headers = rhs._headers;
-//     this->_file.init(rhs;
-//     this->_cgi = rhs._cgi;
-//     this->_htmlErrorBuffer = rhs._htmlErrorBuffer;
-//   }
-//   return *this;
-// }
 
 // Writes the response's content to the client's connection fd
 std::ostream& operator<<(std::ostream& o, Response const& i) {

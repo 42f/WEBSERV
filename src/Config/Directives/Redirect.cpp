@@ -25,7 +25,7 @@ std::string redirect::resolveRedirect(Target const& target) const {
   size_t paramPos = 0;
   for (int i = 0; i < sizeof(params) / sizeof(char**); i++) {
     paramPos = 0;
-    while ((paramPos = redirUri.find(params[i])) != std::string::npos) {
+    while ((paramPos = redirUri.find(params[i]), paramPos) != std::string::npos) {
       redirUri.replace(paramPos, strlen(params[i]), newVal[i]);
     }
   }

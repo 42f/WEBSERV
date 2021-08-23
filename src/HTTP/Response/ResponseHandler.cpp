@@ -64,17 +64,20 @@ void ResponseHandler::processRequest() {
   LocationConfig const locMatch =
       network::ServerPool::getLocationMatch(serverMatch, req.target);
 
-  redirect red = locMatch.get_redirect();
-  if (red.status != 0) {
-    return manageRedirect(red);
-  }
-
+  // Check if the location resolved allows the requested method
   if (locMatch.get_methods().has(req.method) == false) {
     A_Method::makeStandardResponse(_response, status::MethodNotAllowed,
                                    config::Server());
     return;
   }
-  // Case where no location was resolved, and parent server has no root
+
+  // Check if the location resolved has a redirection in place
+  redirect red = locMatch.get_redirect();
+  if (red.status != 0) {
+    return manageRedirect(red);
+  }
+
+  // Check if the location resolved has a redirection in place
   if (locMatch.get_root().empty()) {
     A_Method::makeStandardResponse(_response, status::Unauthorized,
                                    serverMatch);
@@ -223,7 +226,7 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
   std::cout << BLUE << "RESPONSE:\n"
             << _response << NC << std::endl;                                      // TODO remove db
 
-  output << _response << "\r\n" << _response.getErrorBuffer();
+  output << _response << "\r\n" << _response.getBuffer();
   send(fdDest, output.str().c_str(), output.str().length(), flags);
   _response.getState() = respState::entirelySent;
 }
