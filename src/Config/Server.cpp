@@ -20,7 +20,7 @@ namespace config
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
-	Server::Server() : _port(80), _address("0.0.0.0"), _name(""), _body_size(1048576) { }
+	Server::Server() : _port(80), _address("0.0.0.0"), _name(""), _body_size(1048576), _auto_index(false) { }
 
 	Server Server::invalid(slice input) {
 		static_cast<void>(input);
