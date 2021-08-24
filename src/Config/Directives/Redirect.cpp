@@ -16,20 +16,35 @@ redirect	redirect::parse(tuple<slice, slice> input)
 }
 
 std::string redirect::resolveRedirect(Target const& target) const {
-  std::string redirUri(uri);
-  const char* params[] = {PARAM_REDIR_REQ_SCHEME, PARAM_REDIR_REQ_URI,
-                          PARAM_REDIR_REQ_QUERY};
-  const char* newVal[] = {target.scheme.c_str(), target.path.c_str(),
-                          target.query.c_str()};
+	static const std::string params[] = {
+		PARAM_REDIR_REQ_SCHEME, PARAM_REDIR_REQ_URI, PARAM_REDIR_REQ_QUERY
+	};
+	static const std::string *values[] = { &target.scheme, &target.path, &target.query };
 
-  size_t paramPos = 0;
-  for (int i = 0; i < sizeof(params) / sizeof(char**); i++) {
-    paramPos = 0;
-    while ((paramPos = redirUri.find(params[i])) != std::string::npos) {
-      redirUri.replace(paramPos, strlen(params[i]), newVal[i]);
-    }
-  }
-  return redirUri;
+	std::string redirUri(uri);
+	size_t pos = 0;
+	while (pos != std::string::npos) {
+		int param = -1;
+		size_t rpos = redirUri.find(PARAM_REDIR_REQ_SCHEME, pos);
+		size_t upos = redirUri.find(PARAM_REDIR_REQ_URI, pos);
+		size_t qpos = redirUri.find(PARAM_REDIR_REQ_QUERY, pos);
+		if ((pos = rpos) != std::string::npos)
+			param = 0;
+		if (pos == std::string::npos || (upos != std::string::npos && upos < pos)) {
+			pos = upos;
+			param = 1;
+		}
+		if (pos == std::string::npos || (qpos != std::string::npos && qpos < pos)) {
+			pos = qpos;
+			param = 2;
+		}
+		if (pos != std::string::npos && param != -1)
+		{
+			redirUri.replace(pos, params[param].length(), *values[param]);
+			pos += values[param]->length();
+		}
+	}
+	return redirUri;
 }
 
 /*
