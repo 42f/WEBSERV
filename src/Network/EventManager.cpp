@@ -4,12 +4,11 @@ namespace network {
 int EventManager::_kq = 0;
 int EventManager::_timeout = 0;
 int EventManager::_nb_events = 0;
-int EventManager::_max_ssocket = 0;
 int EventManager::_total_requests = 0;
 fd_set EventManager::_read_set;
 fd_set EventManager::_write_set;
 int EventManager::_max_fd = 0;
-std::vector<Socket> EventManager::_sockets;
+std::list<Socket> EventManager::_sockets;
 
 /***************************************************
     Getters
@@ -28,12 +27,9 @@ void EventManager::init(std::vector<network::ServerSocket> s) {
     FD_SET(it->get_id(), &EventManager::_read_set);
     EventManager::_sockets.push_back(
         Socket(it->get_id(), it->get_port(), NULL, fd_status::listener));
-
-    if (it->get_id() > EventManager::_max_ssocket)
-      EventManager::_max_ssocket = it->get_id();
+    if (it->get_id() > _max_fd) _max_fd = it->get_id();
     i++;
   }
-  EventManager::_max_fd = EventManager::_max_ssocket;
 }
 
 EventManager::~EventManager() {}
@@ -50,12 +46,6 @@ int EventManager::get_nb_events(void) { return EventManager::_nb_events; }
 
 int EventManager::get_total_requests(void) { return _total_requests; }
 
-Socket& EventManager::get_socket(int index) {
-  if (index < 0 || index >= static_cast<int>(_sockets.size()))
-    throw(std::exception());
-  return _sockets[index];
-}
-
 /***************************************************
     Functions
 ***************************************************/
@@ -67,15 +57,13 @@ Socket& EventManager::get_socket(int index) {
  */
 
 void EventManager::do_select(void) {
-  struct timeval tv = {1, 0};
   FD_ZERO(&EventManager::_read_set);
   FD_ZERO(&EventManager::_write_set);
 
-  std::vector<Socket>::iterator itr;
+  std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
-    // std::cout << itr->get_fd() << std::endl;
-    if (itr->get_fd() > _max_ssocket) {
+    if (itr->get_status() != fd_status::listener) {
       FD_SET(itr->get_fd(), &EventManager::_read_set);
       FD_SET(itr->get_fd(), &EventManager::_write_set);
     } else
@@ -86,7 +74,6 @@ void EventManager::do_select(void) {
              &EventManager::_write_set, NULL, NULL);
   if (EventManager::_nb_events < 0) {
     perror("select");
-    exit(0);
     std::cerr << EventManager::_max_fd + 1 << std::endl;
   }
 }
@@ -106,10 +93,8 @@ void EventManager::add(int fd, int port, struct sockaddr_in client_addr) {
     EventManager::_sockets.push_back(
         Socket(fd, port, client_ip, fd_status::accepted));
 
-    if (fd > _max_ssocket) {
-      FD_SET(fd, &EventManager::_read_set);
-      FD_SET(fd, &EventManager::_write_set);
-    }
+    FD_SET(fd, &EventManager::_read_set);
+    FD_SET(fd, &EventManager::_write_set);
   } else {
     std::cerr << "Error: cannot add fd < 0" << std::endl;
   }
@@ -129,21 +114,23 @@ void EventManager::add(int fd, int port, struct sockaddr_in client_addr) {
 
 void EventManager::accept_request(int fd) {
   (void)fd;
-  for (unsigned long i = 0; i < EventManager::_sockets.size(); i++) {
-    if (FD_ISSET(EventManager::_sockets[i].get_fd(),
-                 &EventManager::_read_set) &&
-        EventManager::_sockets[i].get_status() == fd_status::listener) {
+
+  std::list<Socket>::iterator itr;
+  for (itr = EventManager::_sockets.begin();
+       itr != EventManager::_sockets.end(); ++itr) {
+    if (FD_ISSET(itr->get_fd(), &EventManager::_read_set) &&
+        itr->get_status() == fd_status::listener) {
       int tmp_fd;
       struct sockaddr_in client_addr;
       socklen_t addr_len = sizeof(client_addr);
 
-      tmp_fd = accept(EventManager::_sockets[i].get_fd(),
-                      (struct sockaddr*)&client_addr, &addr_len);
+      tmp_fd =
+          accept(itr->get_fd(), (struct sockaddr *)&client_addr, &addr_len);
       if (tmp_fd < 0)
         perror("Accept");
       else {
         // std::cout << EventManager::get_total_requests() << std::endl;
-        add(tmp_fd, EventManager::_sockets[i].get_port(), client_addr);
+        add(tmp_fd, itr->get_port(), client_addr);
         EventManager::_total_requests++;
       }
     }
@@ -164,16 +151,17 @@ void EventManager::accept_request(int fd) {
 
 void EventManager::recv_request(int index) {
   (void)index;
-  for (unsigned long i = 0; i < EventManager::_sockets.size(); i++) {
-    if (FD_ISSET(EventManager::_sockets[i].get_fd(), &_read_set) &&
-        EventManager::_sockets[i].get_status() == fd_status::accepted) {
+  std::list<Socket>::iterator itr;
+  for (itr = EventManager::_sockets.begin();
+       itr != EventManager::_sockets.end(); ++itr) {
+    if (FD_ISSET(itr->get_fd(), &_read_set) &&
+        itr->get_status() == fd_status::accepted) {
       char buffer[4096];
       int ret;
 
-      ret =
-          recv(EventManager::_sockets[i].get_fd(), buffer, 4096, MSG_DONTWAIT);
+      ret = recv(itr->get_fd(), buffer, 4096, MSG_DONTWAIT);
       if (ret > 0) {
-        EventManager::_sockets[i].manage_raw_request(buffer, ret);
+        itr->manage_raw_request(buffer, ret);
       }
     }
   }
@@ -193,14 +181,13 @@ void EventManager::recv_request(int index) {
 
 void EventManager::send_response(int index) {
   (void)index;
-  for (unsigned long i = 0; i < EventManager::_sockets.size(); i++) {
-    if (FD_ISSET(EventManager::_sockets[i].get_fd(), &_write_set) &&
-        EventManager::_sockets[i].get_status() == fd_status::read) {
-      // std::cout << "sending a chunk" << std::endl;
-      // usleep(1000);
-      if (EventManager::_sockets[i].manage_response() ==
-          RESPONSE_SENT_ENTIRELY) {
-        EventManager::_sockets[i].set_status(fd_status::closed);
+  std::list<Socket>::iterator itr;
+  for (itr = EventManager::_sockets.begin();
+       itr != EventManager::_sockets.end(); ++itr) {
+    if (FD_ISSET(itr->get_fd(), &_write_set) &&
+        itr->get_status() == fd_status::read) {
+      if (itr->manage_response() == RESPONSE_SENT_ENTIRELY) {
+        itr->set_status(fd_status::closed);
       }
       // TO DO : check with Brian the other cases a fd needs to be closed
     }
@@ -213,13 +200,18 @@ void EventManager::send_response(int index) {
  */
 
 void EventManager::resize(void) {
-  for (unsigned long i = 0; i < EventManager::_sockets.size(); i++) {
-    if (EventManager::_sockets[i].get_status() == fd_status::closed) {
-      FD_CLR(EventManager::_sockets[i].get_fd(), &EventManager::_read_set);
-      FD_CLR(EventManager::_sockets[i].get_fd(), &EventManager::_write_set);
-      close(EventManager::_sockets[i].get_fd());
-
-      EventManager::_sockets.erase(EventManager::_sockets.begin() + i);
+  std::list<Socket>::iterator itr;
+  for (itr = EventManager::_sockets.begin();
+       itr != EventManager::_sockets.end();) {
+    if (itr->get_status() == fd_status::closed) {
+      FD_CLR(itr->get_fd(), &EventManager::_read_set);
+      FD_CLR(itr->get_fd(), &EventManager::_write_set);
+      close(itr->get_fd());
+      std::list<Socket>::iterator itr_tmp = itr;
+      itr++;
+      EventManager::_sockets.erase(itr_tmp);
+    } else {
+      itr++;
     }
   }
 }

@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "../Request/RequestLine.hpp"
+#include "Autoindex.hpp"
 #include "CGI.hpp"
 #include "Config/Directives/Redirect.hpp"
 #include "Config/Server.hpp"
@@ -159,7 +160,9 @@ class ResponseHandler {
     static void setRespForAutoIndexBuff(Response& resp, std::string const&) {
       // TODO call autoindex maker
       // loadAutoIndexBuffer();
-      std::cout << "MAKING AUTO INDEX" << std::endl;
+      // std::cout << "MAKING AUTO INDEX" << std::endl;
+      std::string path = "/tmp/server/";
+      Autoindex::make(path, resp);
       resp.setHeader(headerTitle::Content_Length, resp.getBuffer().length());
       resp.setHeader(headerTitle::Content_Type, "html");
       resp.getState() = respState::buffResp;

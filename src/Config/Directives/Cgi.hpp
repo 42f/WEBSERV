@@ -5,20 +5,21 @@
 #ifndef WEBSERV_CGI_HPP
 #define WEBSERV_CGI_HPP
 
+#include <unistd.h>
+
 #include "parser/export.hpp"
 #include "parsing/Tokens.hpp"
 
 /*
  * Cgi = cgi .extension Path
  */
-class Cgi : public Parser<tuple<slice, slice > >
-{
-public :
-	Cgi();
+class Cgi : public Parser<tuple<slice, slice> > {
+ public:
+  Cgi();
 
-	result_type operator()(const slice &input);
+  result_type operator()(const slice &input);
 };
 
 /* ************************************************************************** */
 
-#endif //WEBSERV_CGI_HPP
+#endif  // WEBSERV_CGI_HPP

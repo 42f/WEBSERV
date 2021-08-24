@@ -27,32 +27,32 @@ void ResponseHandler::init(ReqResult const requestResult, int receivedPort) {
   if (_request.is_ok()) {
     switch (_request.unwrap().method) {
       case methods::GET:
-        _method = new(std::nothrow) GetMethod;
+        _method = new (std::nothrow) GetMethod;
         break;
       case methods::POST:
-        _method = new(std::nothrow) PostMethod;
+        _method = new (std::nothrow) PostMethod;
         break;
       case methods::DELETE:
-        _method = new(std::nothrow) DeleteMethod;
+        _method = new (std::nothrow) DeleteMethod;
         break;
 
       default:
-        _method = new(std::nothrow) UnsupportedMethod;
+        _method = new (std::nothrow) UnsupportedMethod;
         break;
     }
     if (_method == NULL)
       A_Method::makeStandardResponse(_response, status::InternalServerError,
-                                  config::Server());
+                                     config::Server());
   }
 }
 
 void ResponseHandler::processRequest() {
-  if (_response.getState() != respState::emptyResp){
+  if (_response.getState() != respState::emptyResp) {
     return;
   }
   if (_request.is_err()) {
     A_Method::makeStandardResponse(_response, status::InternalServerError,
-                                   config::Server());                            // TODO segfault !
+                                   config::Server());  // TODO segfault !
     // A_Method::makeStandardResponse(_response, _request.unwrap_err(),
     //                                config::Server());
     return;
@@ -102,9 +102,9 @@ int ResponseHandler::doSend(int fdDest, int flags) {
       state & (respState::entirelySent | respState::ioError)) {
     return RESPONSE_SENT_ENTIRELY;
   }
-  if (state & respState::cgiResp)
+  if (state & respState::cgiResp) {
     sendFromCgi(fdDest, flags);
-  else if (state & respState::fileResp)
+  } else if (state & respState::fileResp)
     sendFromFile(fdDest, flags);
   else if (state & respState::buffResp)
     sendFromBuffer(fdDest, flags);
@@ -126,11 +126,11 @@ bool ResponseHandler::isReady() {
 void ResponseHandler::sendHeaders(int fdDest, int flags) {
   int& state = _response.getState();
   if ((state & respState::headerSent) == false) {
-    if (_request.is_ok())
-      std::cout << RED << "REQEST:\n"
-                << _request.unwrap() << NC << std::endl;                         // TODO remove db
-    std::cout << BLUE << "RESPONSE:\n"
-              << _response << NC << std::endl;                                   // TODO remove db
+    // if (_request.is_ok())
+    //   std::cout << RED << "REQEST:\n"
+    //             << _request.unwrap() << NC << std::endl; // TODO remove db
+    // std::cout << BLUE << "RESPONSE:\n"
+    //           << _response << NC << std::endl; // TODO remove db
 
     std::stringstream output;
     output << _response;
@@ -151,6 +151,7 @@ void ResponseHandler::sendFromCgi(int fdDest, int flags) {
   if (_response.getCgiInst().status() == cgi_status::CGI_ERROR ||
       _response.getCgiInst().status() == cgi_status::SYSTEM_ERROR) {
     _response.getState() = respState::ioError;
+    std::cout << "cgi error" << std::endl;
     return;
   }
   if ((_response.getState() & respState::cgiHeadersSent) == false)
@@ -220,11 +221,11 @@ void ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
 void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
   std::stringstream output;
 
-  if (_request.is_ok())
-    std::cout << RED << "REQEST:\n"
-              << _request.unwrap() << NC << std::endl;                            // TODO remove db
-  std::cout << BLUE << "RESPONSE:\n"
-            << _response << NC << std::endl;                                      // TODO remove db
+  // if (_request.is_ok())
+  //   std::cout << RED << "REQEST:\n"
+  //             << _request.unwrap() << NC << std::endl; // TODO remove db
+  // std::cout << BLUE << "RESPONSE:\n"
+  //           << _response << NC << std::endl; // TODO remove db
 
   output << _response << "\r\n" << _response.getBuffer();
   send(fdDest, output.str().c_str(), output.str().length(), flags);
