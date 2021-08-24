@@ -32,7 +32,6 @@ set(FILES
 
         src/HTTP/Response/Response.cpp
         src/HTTP/Response/Response.hpp
-        src/HTTP/Response/Autoindex.cpp
         src/HTTP/Response/Autoindex.hpp
         src/HTTP/Response/ResponseHandler.cpp
         src/HTTP/Response/ResponseHandler.hpp

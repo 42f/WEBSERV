@@ -106,14 +106,13 @@ class ResponseHandler {
     }
 
    public:
-    static void handleCgiFile(
-        Response& resp, std::string& cgiBin, config::Server const& serv,
-        LocationConfig const& loc,
-        Request const& req) {  // TODO remove param once execute_cig is simplier
-      resp.getCgiInst().execute_cgi(
-          cgiBin, resp.getFileInst(), req, loc,
-          serv);  // TODO send responseHandler const& instead ! So it can get
-                  // everything itself
+    // TODO remove param once execute_cig is simplier
+    static void handleCgiFile(Response& resp, std::string& cgiBin,
+                              config::Server const& serv,
+                              LocationConfig const& loc, Request const& req) {
+      resp.getCgiInst().execute_cgi(cgiBin, resp.getFileInst(), req, loc, serv);
+      // TODO send responseHandler const& instead ! So it can get
+      // everything itself
       if (resp.getCgiInst().status() == cgi_status::SYSTEM_ERROR) {
         return makeStandardResponse(resp, status::InternalServerError, serv);
       } else {
@@ -161,6 +160,7 @@ class ResponseHandler {
     static void setRespForAutoIndexBuff(Response& resp, std::string const&) {
       // TODO call autoindex maker
       // loadAutoIndexBuffer();
+      // std::cout << "MAKING AUTO INDEX" << std::endl;
       std::string path = "/tmp/server/";
       Autoindex::make(path, resp);
       resp.setHeader(headerTitle::Content_Length, resp.getBuffer().length());
@@ -202,8 +202,12 @@ class ResponseHandler {
       std::string targetPath = resolveTargetPath(loc, req);
       LogStream s;
       s << "File targeted in GET: " << targetPath;
-      struct stat st;
 
+      if (targetPath.empty()) {
+        return makeStandardResponse(resp, status::Unauthorized, serv);
+      }
+
+      struct stat st;
       if (files::File::isFileFromPath(targetPath)) {
         resp.setFile(targetPath);
         files::File const& file = resp.getFileInst();
@@ -212,15 +216,16 @@ class ResponseHandler {
           if (cgiBin.empty() == false) {
             return handleCgiFile(resp, cgiBin, serv, loc, req);
           } else {
+            resp.setStatus(status::Ok);
             return setRespForFile(resp, file);
           }
+        } else {
+          return makeStandardResponse(resp, status::NotFound, serv);
         }
       } else if (loc.get_auto_index() == true &&
                  stat(targetPath.c_str(), &st) == 0) {
-        setRespForAutoIndexBuff(resp, targetPath);
         resp.setStatus(status::Ok);
-      } else {
-        return makeStandardResponse(resp, status::NotFound, serv);
+        return setRespForAutoIndexBuff(resp, targetPath);
       }
     }
   };  // --- end GET METHOD

@@ -88,6 +88,8 @@ std::vector<char *> CGI::set_meta_variables(std::string cgi_path,
 void CGI::execute_cgi(std::string cgi_path, files::File const &file,
                       Request const &req, LocationConfig const &loc,
                       config::Server const &serv) {
+
+  
   _status = cgi_status::NON_INIT;
   int pipes[2];
 
@@ -102,7 +104,7 @@ void CGI::execute_cgi(std::string cgi_path, files::File const &file,
   env[i] = NULL;
 
   char *cgi = strdup(cgi_path.c_str());
-  if (cgi == NULL) {
+  if (cgi == NULL || file.isGood() == false) {
     _status = cgi_status::SYSTEM_ERROR;
     return;
   }
@@ -121,6 +123,8 @@ void CGI::execute_cgi(std::string cgi_path, files::File const &file,
     return;
   }
   if (_child_pid == 0) {
+    std::string exec_path = files::File::getDirFromPath(file.getPath());
+    std::cout << "executing CGI from : " << exec_path << std::endl;
     close(pipes[0]);
     if (dup2(pipes[1], 1) < 0) {
       perror("System Error : dup2()");
@@ -128,6 +132,7 @@ void CGI::execute_cgi(std::string cgi_path, files::File const &file,
       return;
     }
     close(pipes[1]);
+    chdir(exec_path.c_str());
     if (execve(args[0], args, env) < 0) {
       exit(1);
     }

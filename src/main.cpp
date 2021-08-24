@@ -20,10 +20,10 @@
 #include "Config/Server.hpp"
 #include "HTTP/RequestHandler.hpp"
 #include "HTTP/Response/Response.hpp"
-#include "HTTP/Response/ResponseHandler.hpp"
 #include "Network/Core.hpp"
 #include "Network/ServerPool.hpp"
 #include "utils/Logger.hpp"
+#include "HTTP/Response/ResponseHandler.hpp"
 
 #define BACKLOG 100  // nb of connection queued when listen is called
 #define MAXLINE 1024

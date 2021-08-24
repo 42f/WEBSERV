@@ -29,8 +29,8 @@ File::~File(void) {
 
 /* ................................. ACCESSOR ................................*/
 
-void		File::init(std::string const& path, int flags) {
-  if (_fd != FD_UNSET)  {
+void File::init(std::string const& path, int flags) {
+  if (_fd != FD_UNSET) {
     close(_fd);
   }
   _path = path;
@@ -114,6 +114,17 @@ std::string File::getFileFromPath(std::string const& path) {
     return output.substr(lastPartHead);
   } else
     return std::string();
+}
+
+std::string File::getDirFromPath(std::string const& path) {
+  if (isFileFromPath(path)) {
+    std::string output = path;
+    size_t lastPartHead = output.find_last_of('/');
+    if (lastPartHead != std::string::npos) output.resize(lastPartHead);
+    output += "/";
+    return output;
+  } else
+    return path;
 }
 
 // returns the extension of a given path, if it is a file path
