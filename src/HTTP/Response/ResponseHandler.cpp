@@ -51,10 +51,10 @@ void ResponseHandler::processRequest() {
     return;
   }
   if (_request.is_err()) {
-    A_Method::makeStandardResponse(_response, status::InternalServerError,
-                                   config::Server());  // TODO segfault !
-    // A_Method::makeStandardResponse(_response, _request.unwrap_err(),
-    //                                config::Server());
+    // A_Method::makeStandardResponse(_response, status::InternalServerError,
+    //                                config::Server());  // TODO segfault !
+    A_Method::makeStandardResponse(_response, _request.unwrap_err(),
+                                   config::Server());
     return;
   }
   Request req = _request.unwrap();

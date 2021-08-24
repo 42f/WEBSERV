@@ -22,9 +22,8 @@ class CGI {
   ~CGI();
 
   void execute_cgi(void);
-  void execute_cgi(std::string cgi_path, files::File const &file,
-                   Request const &req, LocationConfig const &loc,
-                   config::Server const &serv);
+  void execute_cgi(std::string const &cgi_path, files::File const &file,
+                   Request const &req, config::Server const &serv);
   cgi_status::status status(void);
   int get_readable_pipe(void) const;
   int get_fd(void) const;
@@ -44,10 +43,9 @@ class CGI {
     _variables.push_back(strdup(ss.str().c_str()));
   }
 
-  std::vector<char *> set_meta_variables(std::string cgi_path,
+  std::vector<char *> set_meta_variables(std::string const &cgi_path,
                                          files::File const &file,
                                          Request const &req,
-                                         LocationConfig const &loc,
                                          config::Server const &serv);
 };
 

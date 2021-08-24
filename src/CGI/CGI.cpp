@@ -27,10 +27,9 @@ cgi_status::status CGI::status(void) {
 
 int CGI::get_readable_pipe(void) const { return (_pipe); }
 
-std::vector<char *> CGI::set_meta_variables(std::string cgi_path,
+std::vector<char *> CGI::set_meta_variables(std::string const &cgi_path,
                                             files::File const &file,
                                             Request const &req,
-                                            LocationConfig const &loc,
                                             config::Server const &serv) {
   RequestLine req_lines;
   std::vector<char *> variables;
@@ -85,16 +84,13 @@ std::vector<char *> CGI::set_meta_variables(std::string cgi_path,
   return variables;
 }
 
-void CGI::execute_cgi(std::string cgi_path, files::File const &file,
-                      Request const &req, LocationConfig const &loc,
-                      config::Server const &serv) {
-
-  
+void CGI::execute_cgi(std::string const& cgi_path, files::File const &file,
+                      Request const &req, config::Server const &serv) {
   _status = cgi_status::NON_INIT;
   int pipes[2];
 
   int i = 0;
-  set_meta_variables(cgi_path, file, req, loc, serv);
+  set_meta_variables(cgi_path, file, req, serv);
 
   char *env[_variables.size() + 1];
   for (; i < _variables.size();) {

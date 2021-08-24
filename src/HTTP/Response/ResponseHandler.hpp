@@ -107,10 +107,9 @@ class ResponseHandler {
    public:
 
     // TODO remove param once execute_cig is simplier
-    static void handleCgiFile(Response& resp, std::string& cgiBin,
-                              config::Server const& serv,
-                              LocationConfig const& loc, Request const& req) {
-      resp.getCgiInst().execute_cgi(cgiBin, resp.getFileInst(), req, loc, serv);
+    static void handleCgiFile(Response& resp, std::string const& cgiBin,
+                              config::Server const& serv, Request const& req) {
+      resp.getCgiInst().execute_cgi(cgiBin, resp.getFileInst(), req, serv);
       // TODO send responseHandler const& instead ! So it can get
       // everything itself
       if (resp.getCgiInst().status() == cgi_status::SYSTEM_ERROR) {
@@ -213,7 +212,7 @@ class ResponseHandler {
         if (file.isGood()) {
           std::string cgiBin = getCgiBinPath(serv, file);
           if (cgiBin.empty() == false) {
-            return handleCgiFile(resp, cgiBin, serv, loc, req);
+            return handleCgiFile(resp, cgiBin, serv, req);
           } else {
             resp.setStatus(status::Ok);
             return setRespForFile(resp, file);
@@ -260,7 +259,7 @@ class ResponseHandler {
             // TODO what if post to html ?...
             return makeStandardResponse(resp, status::Unauthorized, serv);
           } else {
-            return handleCgiFile(resp, cgiBin, serv, loc, req);
+            return handleCgiFile(resp, cgiBin, serv, req);
           }
         } else if (req.get_body().empty() == false) {
           handleUpload(loc, req, resp);
