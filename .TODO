@@ -1,6 +1,3 @@
-Alena : check cgi in config file directly
-        - operator= for every socket componenet
-
 Brian :
         ✅ fix location resolver pour /
         ✅ check autoindex with non existing pouette.html -> ok 404 returned
@@ -19,15 +16,15 @@ Brian :
                                 return code URL;
                                 return URL;
 
+
 Calixte :
-        - autoindex, finish system error cgi, rethink execve fail, check nginx response when cgi code fails
         - Your program should call the cgi with the file requested as first argument = ask Prawda
 
-        - add post body and query parameters to cgi = WIP (need to find an efficient way to put request data on stdin for execve);
+        - cgi = add post body
 
-        - check cgi execution directory ? ok merci Brian
+        - autoindex = filter files
 
-        - autoindex = WIP
+        - free all allocations
 
 
 Network: close fd on send response when not successful ?
