@@ -199,8 +199,12 @@ class ResponseHandler {
       std::string targetPath = resolveTargetPath(loc, req);
       LogStream s;
       s << "File targeted in GET: " << targetPath;
-      struct stat st;
 
+      if (targetPath.empty()) {
+        return makeStandardResponse(resp, status::Unauthorized, serv);
+      }
+
+      struct stat st;
       if (files::File::isFileFromPath(targetPath)) {
         resp.setFile(targetPath);
         files::File const& file = resp.getFileInst();
@@ -209,130 +213,132 @@ class ResponseHandler {
           if (cgiBin.empty() == false) {
             return handleCgiFile(resp, cgiBin, serv, loc, req);
           } else {
+            resp.setStatus(status::Ok);
             return setRespForFile(resp, file);
           }
+        } else {
+          return makeStandardResponse(resp, status::NotFound, serv);
         }
       } else if (loc.get_auto_index() == true &&
                  stat(targetPath.c_str(), &st) == 0) {
-        setRespForAutoIndexBuff(resp, targetPath);
         resp.setStatus(status::Ok);
-      } else {
-        return makeStandardResponse(resp, status::NotFound, serv);
+        return setRespForAutoIndexBuff(resp, targetPath);
       }
-    }
-  };  // --- end GET METHOD
-
-  // *----------------------------------------------------------------------------------------------------
-  // *----------------------------------------------------------------------------------------------------
-  // *----------------------------------------------------------------------------------------------------
-  // *----------------------------------------------------------------------------------------------------
-
-  class PostMethod : public A_Method {
-   public:
-    PostMethod(){};
-    ~PostMethod(){};
-
-    void handler(config::Server const& serv, LocationConfig const& loc,
-                 Request const& req, Response& resp) {
-      if (req.get_body().empty() && req.target.decoded_query.empty()) {
-        // TODO implement if empty body ? What does nginx do ?
-        std::cout << "Empty body in post request..." << std::endl;
-        return makeStandardResponse(resp, status::BadRequest, serv);
       }
+    };  // --- end GET METHOD
 
-      std::string targetPath = resolveTargetPath(loc, req);
-      LogStream s;
-      s << "File targeted in POST: " << targetPath;
+    // *----------------------------------------------------------------------------------------------------
+    // *----------------------------------------------------------------------------------------------------
+    // *----------------------------------------------------------------------------------------------------
+    // *----------------------------------------------------------------------------------------------------
 
-      resp.setFile(targetPath);
-      files::File const& file = resp.getFileInst();
+    class PostMethod : public A_Method {
+     public:
+      PostMethod(){};
+      ~PostMethod(){};
 
-      if (file.isGood()) {
-        std::string cgiBin = getCgiBinPath(serv, file);
-        if (cgiBin.empty()) {
+      void handler(config::Server const& serv, LocationConfig const& loc,
+                   Request const& req, Response& resp) {
+        if (req.get_body().empty() && req.target.decoded_query.empty()) {
+          // TODO implement if empty body ? What does nginx do ?
+          std::cout << "Empty body in post request..." << std::endl;
+          return makeStandardResponse(resp, status::BadRequest, serv);
+        }
+
+        std::string targetPath = resolveTargetPath(loc, req);
+        LogStream s;
+        s << "File targeted in POST: " << targetPath;
+
+        resp.setFile(targetPath);
+        files::File const& file = resp.getFileInst();
+
+        if (file.isGood()) {
+          std::string cgiBin = getCgiBinPath(serv, file);
+          if (cgiBin.empty()) {
+            // TODO what if post to html ?...
+            return makeStandardResponse(resp, status::Unauthorized, serv);
+          } else {
+            return handleCgiFile(resp, cgiBin, serv, loc, req);
+          }
+        } else if (req.get_body().empty() == false) {
+          handleUpload(loc, req, resp);
           // TODO what if post to html ?...
-          return makeStandardResponse(resp, status::Unauthorized, serv);
-        } else {
-          return handleCgiFile(resp, cgiBin, serv, loc, req);
+          return makeStandardResponse(resp, status::Ok, serv);
         }
-      } else if (req.get_body().empty() == false) {
-        handleUpload(loc, req, resp);
-        // TODO what if post to html ?...
-        return makeStandardResponse(resp, status::Ok, serv);
       }
-    }
 
-    void handleUpload(LocationConfig const& loc, Request const& req,
-                      Response& resp) {
-      (void)resp;
-      (void)loc;
-      std::cout << "sep = [" << req.get_header("Content-Type").unwrap_or("")
-                << "]" << std::endl;
-      std::cout << "IN POST, GOT BODY: "
-                << std::string(req.get_body().begin(), req.get_body().end());
-    }
-  };  // --- end POST METHOD
+      void handleUpload(LocationConfig const& loc, Request const& req,
+                        Response& resp) {
+        (void)resp;
+        (void)loc;
+        std::cout << "sep = [" << req.get_header("Content-Type").unwrap_or("")
+                  << "]" << std::endl;
+        std::cout << "IN POST, GOT BODY: "
+                  << std::string(req.get_body().begin(), req.get_body().end());
+      }
+    };  // --- end POST METHOD
 
-  // *----------------------------------------------------------------------------------------------------
-  // *----------------------------------------------------------------------------------------------------
-  // *----------------------------------------------------------------------------------------------------
-  // *----------------------------------------------------------------------------------------------------
+    // *----------------------------------------------------------------------------------------------------
+    // *----------------------------------------------------------------------------------------------------
+    // *----------------------------------------------------------------------------------------------------
+    // *----------------------------------------------------------------------------------------------------
 
-  class DeleteMethod : public A_Method {
-   public:
-    DeleteMethod(){};
-    ~DeleteMethod(){};
+    class DeleteMethod : public A_Method {
+     public:
+      DeleteMethod(){};
+      ~DeleteMethod(){};
 
-    void handler(config::Server const& serv, LocationConfig const& loc,
-                 Request const& req, Response& resp) {
-      std::string target = resolveTargetPath(loc, req);
-      LogStream s;
-      s << "Target in DELETE: " << target;
-      struct stat st;
+      void handler(config::Server const& serv, LocationConfig const& loc,
+                   Request const& req, Response& resp) {
+        std::string target = resolveTargetPath(loc, req);
+        LogStream s;
+        s << "Target in DELETE: " << target;
+        struct stat st;
 
-      if (stat(target.c_str(), &st) == 0) {
-        resp.getState() = respState::noBodyResp;
-        errno = 0;
-        if (files::File::isDirFromPath(target) && rmdir(target.c_str()) == 0) {
-          return setRespNoBody(resp, status::NoContent);
-        } else if (errno == ENOTEMPTY) {
-          return makeStandardResponse(resp, status::Conflict, serv,
-                                      strerror(errno));
-        } else if (files::File::isFileFromPath(target) &&
-                   unlink(target.c_str()) == 0) {
-          return setRespNoBody(resp, status::NoContent);
+        if (stat(target.c_str(), &st) == 0) {
+          resp.getState() = respState::noBodyResp;
+          errno = 0;
+          if (files::File::isDirFromPath(target) &&
+              rmdir(target.c_str()) == 0) {
+            return setRespNoBody(resp, status::NoContent);
+          } else if (errno == ENOTEMPTY) {
+            return makeStandardResponse(resp, status::Conflict, serv,
+                                        strerror(errno));
+          } else if (files::File::isFileFromPath(target) &&
+                     unlink(target.c_str()) == 0) {
+            return setRespNoBody(resp, status::NoContent);
+          } else {
+            return makeStandardResponse(resp, status::Unauthorized, serv);
+          }
+
+        } else
+          return makeStandardResponse(resp, status::NotFound, serv);
+      }
+
+      std::string resolveTargetPath(LocationConfig const& loc,
+                                    Request const& req) {
+        std::string target(loc.get_root());
+
+        // if the request aims to a subdir of the location path,
+        // we remove the location path part
+        if (req.target.decoded_path.find(loc.get_path()) == 0) {
+          target += req.target.decoded_path.substr(loc.get_path().length());
         } else {
-          return makeStandardResponse(resp, status::Unauthorized, serv);
+          target += req.target.decoded_path;
         }
-
-      } else
-        return makeStandardResponse(resp, status::NotFound, serv);
-    }
-
-    std::string resolveTargetPath(LocationConfig const& loc,
-                                  Request const& req) {
-      std::string target(loc.get_root());
-
-      // if the request aims to a subdir of the location path,
-      // we remove the location path part
-      if (req.target.decoded_path.find(loc.get_path()) == 0) {
-        target += req.target.decoded_path.substr(loc.get_path().length());
-      } else {
-        target += req.target.decoded_path;
+        return target;
       }
-      return target;
-    }
-  };  // --- end DELETE METHOD
+    };  // --- end DELETE METHOD
 
-  class UnsupportedMethod : public A_Method {
-   public:
-    UnsupportedMethod(){};
-    ~UnsupportedMethod(){};
+    class UnsupportedMethod : public A_Method {
+     public:
+      UnsupportedMethod(){};
+      ~UnsupportedMethod(){};
 
-    void handler(config::Server const&, LocationConfig const&, Request const&,
-                 Response&) {
-      std::cout << __func__ << " of UNSUPPORTED." << std::endl;
-    }
-  };
+      void handler(config::Server const&, LocationConfig const&, Request const&,
+                   Response&) {
+        std::cout << __func__ << " of UNSUPPORTED." << std::endl;
+      }
+    };
 
-};  // end reponseHandler
+  };  // end reponseHandler

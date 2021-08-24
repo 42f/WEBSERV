@@ -232,11 +232,15 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
 }
 
 void ResponseHandler::manageRedirect(redirect red) {
-  A_Method::makeStandardResponse(_response,
-                                 static_cast<status::StatusCode>(red.status),
-                                 config::Server(), red.uri);
   if (red.status >= 301 && red.status <= 308) {
     _response.setHeader("Location", red.resolveRedirect(_request.unwrap().target));
+    A_Method::makeStandardResponse(_response,
+                                 static_cast<status::StatusCode>(red.status),
+                                 config::Server());
+  } else {
+    A_Method::makeStandardResponse(_response,
+                                 static_cast<status::StatusCode>(red.status),
+                                 config::Server(), red.uri);
   }
 }
 

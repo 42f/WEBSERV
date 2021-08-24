@@ -4,13 +4,20 @@ Alena : check cgi in config file directly
 Brian :
         ✅ fix location resolver pour /
         ✅ check autoindex with non existing pouette.html -> ok 404 returned
-        🟥 operator= for every socket componenet
+        🔴 operator= for every socket componenet
         ✅ check redirect variables
 
+        🚧 autoindex: test
         🚧 POST
 
-        - Version: rfc.
-
+        - GET with query
+        - Version: rfc (client ><= server).
+        - redirect:
+                - double quotes in string argument of config file, should they stay ?
+                - we should allow empty argument : `return 404;`
+                        Syntax:	return code [text];
+                                return code URL;
+                                return URL;
 
 Calixte : autoindex, finish system error cgi, rethink execve fail, check nginx response when cgi code fails
         - Your program should call the cgi with the file requested as first argument = ask Prawda
