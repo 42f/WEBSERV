@@ -161,7 +161,7 @@ class ResponseHandler {
       // TODO call autoindex maker
       // loadAutoIndexBuffer();
       // std::cout << "MAKING AUTO INDEX" << std::endl;
-      std::string path = "/tmp/server/";
+      std::string path = "/tmp/server/0";
       Autoindex::make(path, resp);
       resp.setHeader(headerTitle::Content_Length, resp.getBuffer().length());
       resp.setHeader(headerTitle::Content_Type, "html");

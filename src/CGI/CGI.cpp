@@ -124,7 +124,6 @@ void CGI::execute_cgi(std::string cgi_path, files::File const &file,
   }
   if (_child_pid == 0) {
     std::string exec_path = files::File::getDirFromPath(file.getPath());
-    std::cout << "executing CGI from : " << exec_path << std::endl;
     close(pipes[0]);
     if (dup2(pipes[1], 1) < 0) {
       perror("System Error : dup2()");
