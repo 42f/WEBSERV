@@ -5,45 +5,45 @@
 #ifndef WEBSERV_REQUEST_HPP
 #define WEBSERV_REQUEST_HPP
 
-#include "RequestLine.hpp"
-#include "HTTP/Headers/Headers.hpp"
-#include "Config/Directives/Redirect.hpp"
-
 #include <map>
+
+#include "Config/Directives/Redirect.hpp"
+#include "HTTP/Headers/Headers.hpp"
+#include "RequestLine.hpp"
 
 /*
  * Request
  */
-struct Request
-{
-private:
-	std::map<std::string, Header>			_headers;
-	std::vector<char>						_body;
-	size_t									_length;
+struct Request {
+ private:
+  std::map<std::string, Header> _headers;
+  std::vector<char> _body;
+  size_t _length;
+  char *_client_ip;
 
-	bool		receive_chunked(std::vector<char> &buff);
-	bool		receive_raw(std::vector<char> &buff);
+  bool receive_chunked(std::vector<char> &buff);
+  bool receive_raw(std::vector<char> &buff);
 
-public:
-	methods::s_method						method;
-	Target									target;
-	Version									version;
+ public:
+  methods::s_method method;
+  Target target;
+  Version version;
 
-	Request();
-	Request(methods::s_method method, Target target, Version version);
+  Request();
+  Request(methods::s_method method, Target target, Version version);
 
-	void					set_header(const Header& header);
+  void set_header(const Header &header);
 
-	Result<std::string>		get_header(const std::string& name) const;
-	const std::vector<char>	&get_body() const;
+  Result<std::string> get_header(const std::string &name) const;
+  const std::vector<char> &get_body() const;
+  char *get_client_ip(void) const;
+  void set_client_ip(char *client_ip);
 
-	bool receive(std::vector<char> &vector);
+  bool receive(std::vector<char> &vector);
 
-
-	friend std::ostream &operator<<(std::ostream & stream, const Request &req);
-
+  friend std::ostream &operator<<(std::ostream &stream, const Request &req);
 };
 
 /* ************************************************************************** */
 
-#endif //WEBSERV_REQUEST_HPP
+#endif  // WEBSERV_REQUEST_HPP

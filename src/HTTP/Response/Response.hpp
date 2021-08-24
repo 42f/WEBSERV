@@ -15,20 +15,22 @@
 #include "utils/Logger.hpp"
 #include "utils/Timer.hpp"
 #include "Status.hpp"
+#include "CGI.hpp"
 
 namespace respState {
 
 	// bit mask on a int
 	enum states {
 		emptyResp		= 0,
-		entirelySent	= 1<<1,
-		readError 		= 1<<2,
-		headerSent		= 1<<3,
-		buffResp 		= 1<<4,
-		pipeResp 		= 1<<5,
-		fileResp 		= 1<<6,
-		chunkedResp		= 1<<7,
-		noBodyResp		= 1<<8
+		entirelySent	= 1<<0,
+		ioError 		= 1<<1,
+		headerSent		= 1<<2,
+		buffResp 		= 1<<3,
+		cgiResp 		= 1<<4,
+		fileResp 		= 1<<5,
+		chunkedResp		= 1<<6,
+		noBodyResp		= 1<<7,
+		cgiHeadersSent	= 1<<8
 	};
 }
 
@@ -40,7 +42,6 @@ class Response	{
 		Response( Response const & src );
 		Response( Version version, status::StatusCode statusCode );
 
-		Response &		operator=( Response const & rhs );
 		~Response( void );
 
 		void	setVersion( const Version& version );
@@ -51,9 +52,12 @@ class Response	{
 		void	setHeader( std::string const& field, int value );
 		void	setHeader( headerTitle::Title title, int value );
 
-		void	loadErrorHtmlBuffer( const status::StatusCode& code );
+		void	loadErrorHtmlBuffer( const status::StatusCode& code,
+									const std::string& optionalMessage = "" );
 
 		void	setFile( std::string const & filePath );
+
+		CGI  &			 		getCgiInst( void ) ;
 
 		files::File const & 	getFileInst( void ) const;
 		int						getFileFD( void ) const;
@@ -76,7 +80,7 @@ class Response	{
 
 		// body data
 		files::File									_file;
-		// int											_pipe;
+		CGI											_cgi;
 		std::string									_htmlErrorBuffer;
 
 		friend std::ostream&	operator<<( std::ostream & o, Response const & i );

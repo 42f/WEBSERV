@@ -94,6 +94,7 @@ namespace config
 		int									Server::get_port() const { return _port; }
 		std::string const&					Server::get_address() const { return _address; }
 		std::string const&					Server::get_name() const { return _name; }
+		std::string &						Server::get_root() { return _root; }
 		std::string const&					Server::get_root() const { return _root; }
 		std::string const&					Server::get_index() const { return _index; }
 		bool const&							Server::get_auto_index() const { return _auto_index; }

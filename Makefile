@@ -123,6 +123,33 @@ webserv/fast:
 	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/build
 .PHONY : webserv/fast
 
+src/CGI/CGI.o: src/CGI/CGI.cpp.o
+
+.PHONY : src/CGI/CGI.o
+
+# target to build an object file
+src/CGI/CGI.cpp.o:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/CGI/CGI.cpp.o
+.PHONY : src/CGI/CGI.cpp.o
+
+src/CGI/CGI.i: src/CGI/CGI.cpp.i
+
+.PHONY : src/CGI/CGI.i
+
+# target to preprocess a source file
+src/CGI/CGI.cpp.i:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/CGI/CGI.cpp.i
+.PHONY : src/CGI/CGI.cpp.i
+
+src/CGI/CGI.s: src/CGI/CGI.cpp.s
+
+.PHONY : src/CGI/CGI.s
+
+# target to generate assembly for a file
+src/CGI/CGI.cpp.s:
+	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/CGI/CGI.cpp.s
+.PHONY : src/CGI/CGI.cpp.s
+
 src/Config/ConfigParser.o: src/Config/ConfigParser.cpp.o
 
 .PHONY : src/Config/ConfigParser.o
@@ -906,33 +933,6 @@ src/HTTP/Response/ResponseUtils/ResponseHeader.cpp.s:
 	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/ResponseUtils/ResponseHeader.cpp.s
 .PHONY : src/HTTP/Response/ResponseUtils/ResponseHeader.cpp.s
 
-src/HTTP/Response/ResponseUtils/TypesMime.o: src/HTTP/Response/ResponseUtils/TypesMime.cpp.o
-
-.PHONY : src/HTTP/Response/ResponseUtils/TypesMime.o
-
-# target to build an object file
-src/HTTP/Response/ResponseUtils/TypesMime.cpp.o:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/ResponseUtils/TypesMime.cpp.o
-.PHONY : src/HTTP/Response/ResponseUtils/TypesMime.cpp.o
-
-src/HTTP/Response/ResponseUtils/TypesMime.i: src/HTTP/Response/ResponseUtils/TypesMime.cpp.i
-
-.PHONY : src/HTTP/Response/ResponseUtils/TypesMime.i
-
-# target to preprocess a source file
-src/HTTP/Response/ResponseUtils/TypesMime.cpp.i:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/ResponseUtils/TypesMime.cpp.i
-.PHONY : src/HTTP/Response/ResponseUtils/TypesMime.cpp.i
-
-src/HTTP/Response/ResponseUtils/TypesMime.s: src/HTTP/Response/ResponseUtils/TypesMime.cpp.s
-
-.PHONY : src/HTTP/Response/ResponseUtils/TypesMime.s
-
-# target to generate assembly for a file
-src/HTTP/Response/ResponseUtils/TypesMime.cpp.s:
-	$(MAKE) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/HTTP/Response/ResponseUtils/TypesMime.cpp.s
-.PHONY : src/HTTP/Response/ResponseUtils/TypesMime.cpp.s
-
 src/HTTP/Status.o: src/HTTP/Status.cpp.o
 
 .PHONY : src/HTTP/Status.o
@@ -1563,6 +1563,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... webserv"
+	@echo "... src/CGI/CGI.o"
+	@echo "... src/CGI/CGI.i"
+	@echo "... src/CGI/CGI.s"
 	@echo "... src/Config/ConfigParser.o"
 	@echo "... src/Config/ConfigParser.i"
 	@echo "... src/Config/ConfigParser.s"
@@ -1650,9 +1653,6 @@ help:
 	@echo "... src/HTTP/Response/ResponseUtils/ResponseHeader.o"
 	@echo "... src/HTTP/Response/ResponseUtils/ResponseHeader.i"
 	@echo "... src/HTTP/Response/ResponseUtils/ResponseHeader.s"
-	@echo "... src/HTTP/Response/ResponseUtils/TypesMime.o"
-	@echo "... src/HTTP/Response/ResponseUtils/TypesMime.i"
-	@echo "... src/HTTP/Response/ResponseUtils/TypesMime.s"
 	@echo "... src/HTTP/Status.o"
 	@echo "... src/HTTP/Status.i"
 	@echo "... src/HTTP/Status.s"

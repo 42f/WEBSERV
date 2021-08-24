@@ -59,6 +59,7 @@ namespace config
 		int									get_port() const;
 		std::string const&					get_address() const;
 		std::string const&					get_name() const;
+		std::string &						get_root();
 		std::string const&					get_root() const;
 		std::string const&					get_index() const;
 		bool const&							get_auto_index() const;

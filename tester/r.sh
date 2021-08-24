@@ -1,9 +1,9 @@
 #!/bin/bash
 
 counter=0
-while [ $counter -le 257 ]
+while [ $counter -le 25007 ]
 do
-	curl -s -S -v 127.0.0.1:18000/bonjour > /dev/null & 
+	curl -s -S -v -H "User-agent:" google.fr > /dev/null & 
 	ret=$?
 	if [ $ret -ne 0 ]; then
 		kill $!
