@@ -45,7 +45,7 @@ class EventManager {
   static int _total_requests;
   static fd_set _read_set;
   static fd_set _write_set;
-  static std::list<Socket*> _sockets;
+  static std::list<Socket> _sockets;
 
   static void add(int fd, int port, struct sockaddr_in client_addr);
 };
