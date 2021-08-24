@@ -6,7 +6,7 @@
 #include "Response.hpp"
 
 namespace Autoindex {
-inline void make(std::string &path, Response &res) {
+inline void make(LocationConfig const & loc, std::string const &path, Response &res) {
   DIR *dir;
   struct dirent *ent;
   std::stringstream page;
@@ -17,10 +17,8 @@ inline void make(std::string &path, Response &res) {
        << "	<center>Webserv Team ABC</center>" << '\n';
   if ((dir = opendir(path.c_str())) != NULL) {
     while ((ent = readdir(dir)) != NULL) {
-      std::string file = ent->d_name;
-      std::string full_path = path + file;
+      std::string file = loc.get_path() + ent->d_name;
       page << "<a href=\"" << file << "\">" << file << "</a></br>" << std::endl;
-      std::cout << "link = " << page.str() << std::endl;
     }
     closedir(dir);
   }

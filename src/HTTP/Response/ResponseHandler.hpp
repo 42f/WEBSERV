@@ -157,12 +157,11 @@ class ResponseHandler {
 
     // static void setRespForAutoIndexBuff(Response& resp, std::string const&
     // path) {
-    static void setRespForAutoIndexBuff(Response& resp, std::string const&) {
+    static void setRespForAutoIndexBuff(LocationConfig const & loc, Response& resp, std::string const& path) {
       // TODO call autoindex maker
       // loadAutoIndexBuffer();
       // std::cout << "MAKING AUTO INDEX" << std::endl;
-      std::string path = "/tmp/server/";
-      Autoindex::make(path, resp);
+      Autoindex::make(loc, path, resp);
       resp.setHeader(headerTitle::Content_Length, resp.getBuffer().length());
       resp.setHeader(headerTitle::Content_Type, "html");
       resp.getState() = respState::buffResp;
@@ -225,7 +224,7 @@ class ResponseHandler {
       } else if (loc.get_auto_index() == true &&
                  stat(targetPath.c_str(), &st) == 0) {
         resp.setStatus(status::Ok);
-        return setRespForAutoIndexBuff(resp, targetPath);
+        return setRespForAutoIndexBuff(loc, resp, targetPath);
       }
       }
     };  // --- end GET METHOD

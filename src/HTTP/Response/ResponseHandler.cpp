@@ -221,7 +221,7 @@ void ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
 void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
   std::stringstream output;
 
-  // if (_request.is_ok())
+  if (_request.is_ok())
   //   std::cout << RED << "REQEST:\n"
   //             << _request.unwrap() << NC << std::endl; // TODO remove db
   // std::cout << BLUE << "RESPONSE:\n"
