@@ -24,6 +24,7 @@ ServerContent::result_type ServerContent::operator()(const slice &input)
 			as_slice(map(directive(ClientMaxBodySize()), config::Server::max_size)),
 			as_slice(map(directive(Index()), config::Server::index)),
 			alt(
+					as_slice(map(directive(AutoIndex()), config::Server::auto_index)),
 					as_slice(map(directive(ErrorPage()), config::Server::error_codes)),
 					as_slice(map(comment, config::Server::dump)),
 					as_slice(map(empty_line, config::Server::dump))

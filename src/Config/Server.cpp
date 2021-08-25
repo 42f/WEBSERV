@@ -20,7 +20,7 @@ namespace config
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
-	Server::Server() : _port(80), _address("0.0.0.0"), _name(""), _body_size(1048576) { }
+	Server::Server() : _port(80), _address("0.0.0.0"), _name(""), _body_size(1048576), _auto_index(false) { }
 
 	Server Server::invalid(slice input) {
 		static_cast<void>(input);
@@ -78,6 +78,11 @@ namespace config
 		return active;
 	}
 
+	Server *Server::auto_index(bool auto_index) {
+		active->_auto_index = auto_index;
+		return active;
+	}
+
 	Server *Server::with_location(LocationConfig config) {
 		active->_locations.push_back(config);
 		return active;
@@ -92,6 +97,7 @@ namespace config
 		std::string &						Server::get_root() { return _root; }
 		std::string const&					Server::get_root() const { return _root; }
 		std::string const&					Server::get_index() const { return _index; }
+		bool const&							Server::get_auto_index() const { return _auto_index; }
 		size_t								Server::get_body_size() const { return _body_size; }
 		std::vector<LocationConfig>&		Server::get_locations() { return _locations; }
 		std::vector<LocationConfig> const&	Server::get_locations() const { return _locations; }
@@ -124,6 +130,7 @@ namespace config
 				<< "Server_name : " << cfg._name << std::endl
 				<< "Root : " << cfg._root << std::endl
 				<< "Index : " << cfg._index << std::endl
+				<< "AutoIndex : " << (cfg._auto_index ? "on" : "off") << std::endl
 				<< "Client_max_body_size : " << cfg._body_size << " bytes" << std::endl;
 		for (std::map<std::string, std::string>::const_iterator it = cfg._cgis.begin();
 			 it != cfg._cgis.end(); it++) {

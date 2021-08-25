@@ -67,14 +67,16 @@ std::vector<char *> CGI::set_meta_variables(std::string const &cgi_path,
     _status = cgi_status::UNSUPPORTED;
     return variables;
   }
-  Result<std::__1::string> content_length = req.get_header("content-length");
+  //----------------------------------------
+  Result<std::string> content_length = req.get_header("content-length");
   if (content_length.is_ok()) {
     std::cout << "content length: " << content_length.unwrap() << std::endl;
     add_variable("CONTENT_LENGTH", content_length.unwrap());
   } else {
     add_variable("CONTENT_LENGTH", "");
   }
-  Result<std::__1::string> content_type = req.get_header("content-type");
+  //----------------------------------------
+  Result<std::string> content_type = req.get_header("content-type");
   if (content_type.is_ok()) {
     add_variable("CONTENT_TYPE", content_type.unwrap());
   } else {

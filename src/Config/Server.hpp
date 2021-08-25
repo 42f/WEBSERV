@@ -23,6 +23,7 @@ namespace config
 		std::string							_name;
 		std::string							_root;
 		std::string							_index;
+		bool								_auto_index;
 		size_t								_body_size;		// in bytes
 		std::vector<LocationConfig>			_locations;
 		std::map<int, std::string>			_error_pages;
@@ -49,6 +50,7 @@ namespace config
 		static Server	*cgi(tuple<slice, slice> cgi);
 		static Server	*error_codes(std::vector<std::pair<int, std::string> > errors);
 		static Server	*index(slice index);
+		static Server	*auto_index(bool auto_index);
 		static Server	*with_location(LocationConfig config);
 
 /*
@@ -60,6 +62,7 @@ namespace config
 		std::string &						get_root();
 		std::string const&					get_root() const;
 		std::string const&					get_index() const;
+		bool const&							get_auto_index() const;
 		size_t								get_body_size() const;
 		std::vector<LocationConfig>&		get_locations();
 		std::vector<LocationConfig> const&	get_locations() const;

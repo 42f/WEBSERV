@@ -16,7 +16,7 @@ const size_t	LocationConfig::SIZE_UNSET = std::numeric_limits<size_t>::max();
 LocationConfig::LocationConfig():
 	_path(""),
 	_methods(methods::GET),
-	_auto_index(true),
+	_auto_index(false),
 	_upload(false),
 	_body_size(SIZE_UNSET),
 	_root("")
