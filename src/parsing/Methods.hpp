@@ -38,12 +38,18 @@ namespace methods
 
 		bool	has(s_method method) const { return (_raw & method) != 0; }
 
-		friend std::ostream	&operator<<(std::ostream& stream, const Methods& m)
+		friend std::ostream	&operator<<(std::ostream& s, const Methods& m)
 		{
-			if (m.has(GET)) {stream << "GET "; }
-			if (m.has(POST)) {stream << "POST "; }
-			if (m.has(DELETE)) {stream << "DELETE "; }
-			return stream;
+			if (m.has(GET)) {
+				s << "GET" << (m.has(POST) ? "," : (m.has(DELETE)) ? "," : "");
+			}
+			if (m.has(POST)) {
+				s << "POST" << (m.has(DELETE) ? "," : "");
+			}
+			if (m.has(DELETE)) {
+				s << "DELETE";
+			}
+			return s;
 		}
 	};
 }

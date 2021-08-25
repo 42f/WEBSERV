@@ -15,6 +15,8 @@ Brian :
                         Syntax:	return code [text];
                                 return code URL;
                                 return URL;
+        - if enought time: redirect 301 for location missing final `/`
+
 
 
 Calixte :

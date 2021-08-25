@@ -68,6 +68,9 @@ void ResponseHandler::processRequest() {
   if (locMatch.get_methods().has(req.method) == false) {
     A_Method::makeStandardResponse(_response, status::MethodNotAllowed,
                                    config::Server());
+    std::stringstream allowed;
+    allowed << locMatch.get_methods();
+    _response.setHeader(headerTitle::Allow, allowed.str());
     return;
   }
 
@@ -232,7 +235,7 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
   _response.getState() = respState::entirelySent;
 }
 
-void ResponseHandler::manageRedirect(redirect red) {
+void ResponseHandler::manageRedirect(redirect const& red) {
   if (red.status >= 301 && red.status <= 308) {
     _response.setHeader("Location", red.resolveRedirect(_request.unwrap().target));
     A_Method::makeStandardResponse(_response,

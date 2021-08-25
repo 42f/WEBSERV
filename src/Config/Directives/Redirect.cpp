@@ -8,7 +8,7 @@
  * struct de Redirect
  */
 redirect::redirect() : status(0), uri("") { }
-redirect::redirect(int code, std::string uri): status(code), uri(uri) { }
+redirect::redirect(status::StatusCode code, std::string uri): status(code), uri(uri) { }
 
 redirect	redirect::parse(tuple<slice, slice> input)
 {

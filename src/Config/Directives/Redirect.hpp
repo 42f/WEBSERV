@@ -13,11 +13,12 @@
 
 struct redirect
 {
-	unsigned int	status;
-	std::string		uri;
+	status::StatusCode	status;
+	std::string			uri;
 
 	redirect();
 	redirect(int code, std::string uri);
+	redirect(status::StatusCode code, std::string uri);
 
 	static redirect	parse(tuple<slice, slice> input);
 	std::string resolveRedirect(Target const& target) const;
