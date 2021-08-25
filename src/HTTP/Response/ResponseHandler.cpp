@@ -24,8 +24,8 @@ void ResponseHandler::init(ReqResult const requestResult, int receivedPort) {
   _method = NULL;
   _requestRes = requestResult;
   if (_requestRes.is_ok()) {
-    _request = _requestRes.unwrap();
-    switch (_request.method) {
+    _req = _requestRes.unwrap();
+    switch (_req.method) {
       case methods::GET:
         _method = new (std::nothrow) GetMethod(*this);
         break;
@@ -46,22 +46,22 @@ void ResponseHandler::init(ReqResult const requestResult, int receivedPort) {
 }
 
 void ResponseHandler::processRequest() {
-  if (_response.getState() != respState::emptyResp) {
+  if (_resp.getState() != respState::emptyResp) {
     return;
   }
   if (_requestRes.is_err()) {
     return GetMethod(*this).makeStandardResponse(_requestRes.unwrap_err());
     // TODO check segfault ?
   }
-  _serverMatch = network::ServerPool::getServerMatch(getReqHeader("Host"), _port);
-  _loc = network::ServerPool::getLocationMatch(_serverMatch, _request.target);
+  _serv = network::ServerPool::getServerMatch(getReqHeader("Host"), _port);
+  _loc = network::ServerPool::getLocationMatch(_serv, _req.target);
 
   // Check if the location resolved allows the requested method
-  if (_loc.get_methods().has(_request.method) == false) {
+  if (_loc.get_methods().has(_req.method) == false) {
     _method->makeStandardResponse(status::MethodNotAllowed);
     std::stringstream allowed;
     allowed << _loc.get_methods();
-    _response.setHeader(headerTitle::Allow, allowed.str());
+    _resp.setHeader(headerTitle::Allow, allowed.str());
     return;
   }
 
@@ -80,7 +80,7 @@ void ResponseHandler::processRequest() {
 
 // safely returns the value of a header if it exists, an empty string otherwise
 std::string ResponseHandler::getReqHeader(const std::string& target) {
-  return _request.get_header(target).unwrap_or("");
+  return _req.get_header(target).unwrap_or("");
 }
 
 int ResponseHandler::doSend(int fdDest, int flags) {
@@ -88,7 +88,7 @@ int ResponseHandler::doSend(int fdDest, int flags) {
   int set = 1;
   setsockopt(fdDest, SOL_SOCKET, SO_NOSIGPIPE, (void*)&set, sizeof(int));
 #endif
-  int& state = _response.getState();
+  int& state = _resp.getState();
   if (state == respState::emptyResp ||
       state & (respState::entirelySent | respState::ioError)) {
     return RESPONSE_SENT_ENTIRELY;
@@ -109,22 +109,22 @@ int ResponseHandler::doSend(int fdDest, int flags) {
 }
 
 bool ResponseHandler::isReady() {
-  int state = _response.getState();
+  int state = _resp.getState();
   return state != respState::emptyResp &&
          (state & (respState::ioError | respState::entirelySent)) == false;
 };
 
 void ResponseHandler::sendHeaders(int fdDest, int flags) {
-  int& state = _response.getState();
+  int& state = _resp.getState();
   if ((state & respState::headerSent) == false) {
     if (_requestRes.is_ok())
       std::cout << RED << "REQEST:\n"
                 << _requestRes.unwrap() << NC << std::endl; // TODO remove db
     std::cout << BLUE << "RESPONSE:\n"
-              << _response << NC << std::endl; // TODO remove db
+              << _resp << NC << std::endl; // TODO remove db
 
     std::stringstream output;
-    output << _response;
+    output << _resp;
     if ((state & respState::cgiResp) == false) output << "\r\n";
     send(fdDest, output.str().c_str(), output.str().length(), flags);
     if (state & respState::noBodyResp)
@@ -135,23 +135,23 @@ void ResponseHandler::sendHeaders(int fdDest, int flags) {
 }
 
 void ResponseHandler::sendFromCgi(int fdDest, int flags) {
-  if ((_response.getState() & respState::headerSent) == false)
+  if ((_resp.getState() & respState::headerSent) == false)
     sendHeaders(fdDest, flags);
-  int cgiPipe = _response.getCgiInst().get_readable_pipe();
+  int cgiPipe = _resp.getCgiInst().get_readable_pipe();
 
-  if (_response.getCgiInst().status() == cgi_status::CGI_ERROR ||
-      _response.getCgiInst().status() == cgi_status::SYSTEM_ERROR) {
-    _response.getState() = respState::ioError;
+  if (_resp.getCgiInst().status() == cgi_status::CGI_ERROR ||
+      _resp.getCgiInst().status() == cgi_status::SYSTEM_ERROR) {
+    _resp.getState() = respState::ioError;
     std::cout << "cgi error" << std::endl;
     return;
   }
-  if ((_response.getState() & respState::cgiHeadersSent) == false)
+  if ((_resp.getState() & respState::cgiHeadersSent) == false)
     sendCgiHeaders(cgiPipe, fdDest, flags);
   doSendFromFD(cgiPipe, fdDest, flags);
 }
 
 void ResponseHandler::sendCgiHeaders(int fdSrc, int fdDest, int flags) {
-  int& state = _response.getState();
+  int& state = _resp.getState();
   char cBuff;
   std::string output;
   int retRead = 1;
@@ -171,12 +171,12 @@ void ResponseHandler::sendCgiHeaders(int fdSrc, int fdDest, int flags) {
 }
 
 void ResponseHandler::sendFromFile(int fdDest, int flags) {
-  if ((_response.getState() & respState::headerSent) == false)
+  if ((_resp.getState() & respState::headerSent) == false)
     sendHeaders(fdDest, flags);
-  if (_response.getFileInst().isGood()) {
-    doSendFromFD(_response.getFileInst().getFD(), fdDest, flags);
+  if (_resp.getFileInst().isGood()) {
+    doSendFromFD(_resp.getFileInst().getFD(), fdDest, flags);
   } else {
-    _response.getState() = respState::ioError;
+    _resp.getState() = respState::ioError;
     return;
   }
 }
@@ -186,7 +186,7 @@ void ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
   char buff[DEFAULT_SEND_SIZE + 2];
   bzero(buff, DEFAULT_SEND_SIZE + 2);
   ssize_t retRead = 0;
-  int& state = _response.getState();
+  int& state = _resp.getState();
 
   if ((retRead = read(fdSrc, buff, DEFAULT_SEND_SIZE)) < 0) {
     state = respState::ioError;
@@ -216,11 +216,11 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
       std::cout << RED << "REQEST:\n"
                 << _requestRes.unwrap() << NC << std::endl; // TODO remove db
     std::cout << BLUE << "RESPONSE:\n"
-              << _response << NC << std::endl; // TODO remove db
+              << _resp << NC << std::endl; // TODO remove db
 
-    output << _response << "\r\n" << _response.getBuffer();
+    output << _resp << "\r\n" << _resp.getBuffer();
   send(fdDest, output.str().c_str(), output.str().length(), flags);
-  _response.getState() = respState::entirelySent;
+  _resp.getState() = respState::entirelySent;
 }
 
 /* ................................. ACCESSOR ................................*/
@@ -229,8 +229,8 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
  * Returns the result processed. If no call to processRequest was made prior
  * to a call to getResult, result sould not be unwrapped.
  */
-Response const& ResponseHandler::getResponse()const  { return _response; }
-Request const& ResponseHandler::getRequest() const { return _request; }
+Response const& ResponseHandler::getResponse()const  { return _resp; }
+Request const& ResponseHandler::getRequest() const { return _req; }
 
 /* ................................. OVERLOAD ................................*/
 
