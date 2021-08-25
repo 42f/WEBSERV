@@ -70,8 +70,10 @@ class ResponseHandler {
    */
 
   class A_Method {
+  protected:
+    ResponseHandler const& _inst;
    public:
-    A_Method(){};
+    A_Method(ResponseHandler const& inst) : _inst(inst) {};
     virtual ~A_Method(){};
 
     virtual void handler(config::Server const& serv, LocationConfig const& loc,
@@ -185,7 +187,7 @@ class ResponseHandler {
 
   class GetMethod : public A_Method {
    public:
-    GetMethod(){};
+    GetMethod(ResponseHandler const& inst) : A_Method(inst) {};
     ~GetMethod(){};
 
     void handler(config::Server const& serv, LocationConfig const& loc,
@@ -231,7 +233,7 @@ class ResponseHandler {
 
   class PostMethod : public A_Method {
    public:
-    PostMethod(){};
+    PostMethod(ResponseHandler const& inst) : A_Method(inst) {};
     ~PostMethod(){};
 
     void handler(config::Server const& serv, LocationConfig const& loc,
@@ -278,7 +280,7 @@ class ResponseHandler {
 
   class DeleteMethod : public A_Method {
    public:
-    DeleteMethod(){};
+    DeleteMethod(ResponseHandler const& inst) : A_Method(inst) {};
     ~DeleteMethod(){};
 
     void handler(config::Server const& serv, LocationConfig const& loc,
@@ -324,7 +326,7 @@ class ResponseHandler {
 
   class UnsupportedMethod : public A_Method {
    public:
-    UnsupportedMethod(){};
+    UnsupportedMethod(ResponseHandler const& inst) : A_Method(inst) {};
     ~UnsupportedMethod(){};
 
     void handler(config::Server const&, LocationConfig const&, Request const&,
