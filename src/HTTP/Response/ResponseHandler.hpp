@@ -13,18 +13,18 @@
 #include <string>
 #include <vector>
 
-#include "RequestLine.hpp"
-#include "Autoindex.hpp"
 #include "CGI.hpp"
 #include "Config/Directives/Redirect.hpp"
 #include "Config/Server.hpp"
 #include "HTTP/Request/Request.hpp"
 #include "Headers/Headers.hpp"
+#include "Logger.hpp"
 #include "RequestHandler.hpp"
+#include "RequestLine.hpp"
 #include "Response.hpp"
 #include "Status.hpp"
 #include "Timer.hpp"
-#include "Logger.hpp"
+#include "Autoindex.hpp"
 
 class ResponseHandler {
   class A_Method;
@@ -41,7 +41,8 @@ class ResponseHandler {
 #endif
 
   bool isReady(void);
-  Response const& getResponse(void);
+  Response const& getResponse(void) const;
+  Request const& getRequest(void) const;
 
   ResponseHandler(void);
   ResponseHandler(ReqResult requestResult, int receivedPort);
@@ -56,7 +57,7 @@ class ResponseHandler {
   config::Server _serverMatch;
   LocationConfig _loc;
 
-  std::string getHeader(const std::string& target);
+  std::string getReqHeader(const std::string& target);
   void sendHeaders(int fdDest, int flags);
   void sendCgiHeaders(int fdSrc, int fdDest, int flags);
   void sendFromBuffer(int fdDest, int flags);
@@ -74,10 +75,10 @@ class ResponseHandler {
 
   class A_Method {
    protected:
-    ResponseHandler & _inst;
+    ResponseHandler& _inst;
 
    public:
-    A_Method(ResponseHandler & inst) : _inst(inst){};
+    A_Method(ResponseHandler& inst) : _inst(inst){};
     virtual ~A_Method(){};
 
     virtual void handler() = 0;
@@ -89,12 +90,12 @@ class ResponseHandler {
       if (files::File::isFileFromPath(target)) {
         resolved += removeLocPath(target);
       } else if (_inst._loc.get_auto_index() == true) {
-        // if (target[target.length() - 1] != '/') {
+        // if (target[target.length() - 1] != '/') {                            // TODO remove if completely fixed
         //   target += '/';
         // }
         resolved += removeLocPath(target);
       } else if (_inst._loc.get_index().empty() == false) {
-        resolved += _inst._loc.get_index();
+        resolved += (target[target.length() - 1] == '/' ? "" : "/") + _inst._loc.get_index();
       } else {
         return std::string();
       }
@@ -109,9 +110,10 @@ class ResponseHandler {
     }
 
    public:
-    void handleCgiFile(std::string const & cgiBin) {
+    void handleCgiFile(std::string const& cgiBin) {
       CGI& cgiInst = _inst._response.getCgiInst();
-      cgiInst.execute_cgi(cgiBin, _inst._response.getFileInst(), _inst._request, _inst._serverMatch);
+      cgiInst.execute_cgi(cgiBin, _inst._response.getFileInst(), _inst._request,
+                          _inst._serverMatch);
 
       if (cgiInst.status() == cgi_status::SYSTEM_ERROR) {
         return makeStandardResponse(status::InternalServerError);
@@ -155,7 +157,7 @@ class ResponseHandler {
     }
 
     void setRespForAutoIndexBuff(std::string const& path) {
-      Autoindex::make(_inst._loc, path, _inst._response);
+      Autoindex::make(_inst._request.target.path, path, _inst._response);
       _inst._response.setHeader(headerTitle::Content_Length,
                                 _inst._response.getBuffer().length());
       _inst._response.setHeader(headerTitle::Content_Type, "html");
@@ -173,7 +175,7 @@ class ResponseHandler {
     }
 
     void setRespForCgi() {
-      files::File const &file = _inst._response.getFileInst();
+      files::File const& file = _inst._response.getFileInst();
       _inst._response.setHeader(headerTitle::Last_Modified,
                                 file.getLastModified());
       _inst._response.setHeader(headerTitle::Transfer_Encoding, "chunked");
@@ -181,7 +183,7 @@ class ResponseHandler {
     }
 
     void setRespForFile() {
-      files::File const &file = _inst._response.getFileInst();
+      files::File const& file = _inst._response.getFileInst();
       _inst._response.setHeader(headerTitle::Content_Type, file.getType());
       _inst._response.setHeader(headerTitle::Last_Modified,
                                 file.getLastModified());
@@ -191,8 +193,9 @@ class ResponseHandler {
 
     void manageRedirect(redirect const& red) {
       if (red.status >= 301 && red.status <= 308) {
-        _inst._response.setHeader("Location", red.resolveRedirect(_inst._request.target));
         makeStandardResponse(red.status);
+        _inst._response.setHeader("Location",
+                                  _inst._request.target.path + '/');
       } else {
         makeStandardResponse(red.status, red.uri);
       }
@@ -202,7 +205,7 @@ class ResponseHandler {
 
   class GetMethod : public A_Method {
    public:
-    GetMethod(ResponseHandler & inst) : A_Method(inst){};
+    GetMethod(ResponseHandler& inst) : A_Method(inst){};
     ~GetMethod(){};
 
     void handler() {
@@ -231,10 +234,9 @@ class ResponseHandler {
         }
       } else if (_inst._loc.get_auto_index() == true &&
                  stat(targetPath.c_str(), &st) == 0) {
-        // if (targetPath[targetPath.length() - 1] != '/') {
-        //   return manageRedirect( redirect(status::MovedPermanently,
-        //   targetPath + '/') );
-        // }
+        if (targetPath[targetPath.length() - 1] != '/') {
+          return manageRedirect(redirect(status::MovedPermanently, targetPath + '/') );
+        }
         _inst._response.setStatus(status::Ok);
         return setRespForAutoIndexBuff(targetPath);
       }
@@ -248,7 +250,7 @@ class ResponseHandler {
 
   class PostMethod : public A_Method {
    public:
-    PostMethod(ResponseHandler & inst) : A_Method(inst){};
+    PostMethod(ResponseHandler& inst) : A_Method(inst){};
     ~PostMethod(){};
 
     void handler() {
@@ -293,7 +295,7 @@ class ResponseHandler {
 
   class DeleteMethod : public A_Method {
    public:
-    DeleteMethod(ResponseHandler & inst) : A_Method(inst){};
+    DeleteMethod(ResponseHandler& inst) : A_Method(inst){};
     ~DeleteMethod(){};
 
     void handler() {
@@ -336,12 +338,10 @@ class ResponseHandler {
 
   class UnsupportedMethod : public A_Method {
    public:
-    UnsupportedMethod(ResponseHandler & inst) : A_Method(inst){};
+    UnsupportedMethod(ResponseHandler& inst) : A_Method(inst){};
     ~UnsupportedMethod(){};
 
-    void handler() {
-      std::cout << __func__ << " of UNSUPPORTED." << std::endl;
-    }
+    void handler() { std::cout << __func__ << " of UNSUPPORTED." << std::endl; }
   };
 
 };  // end reponseHandler

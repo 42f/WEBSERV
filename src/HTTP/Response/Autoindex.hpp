@@ -2,23 +2,23 @@
 #define RESPONSE_AUTOINDEX_HPP
 
 #include <dirent.h>
-
-#include "Response.hpp"
+#include "ResponseHandler.hpp"
 
 namespace Autoindex {
-inline void make(LocationConfig const & loc, std::string const &path, Response &res) {
+inline void make(std::string const &target, std::string const &path,
+                 Response &res) {
   DIR *dir;
   struct dirent *ent;
   std::stringstream page;
-
   page << "<html>" << '\n'
        << "<body>" << '\n'
        << "	<hr>" << '\n'
        << "	<center>Webserv Team ABC</center>" << '\n';
   if ((dir = opendir(path.c_str())) != NULL) {
     while ((ent = readdir(dir)) != NULL) {
-      std::string file = loc.get_path() + ent->d_name;
-      page << "<a href=\"" << file << "\">" << file << "</a></br>" << std::endl;
+      std::string file = ent->d_name;
+      page << "<a href=\"" << target << (target.empty() ? "/" : "") << file
+           << "\">" << file << "</a></br>" << std::endl;
     }
     closedir(dir);
   }

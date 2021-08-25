@@ -43,13 +43,13 @@ void ServerPool::locationsInit(config::Server &serv) {
   }
 }
 
-void ServerPool::cleanPath(std::string &locPath) {
-  if (locPath[0] != '/') locPath = '/' + locPath;
-  if (locPath[locPath.length() - 1] != '/') locPath.push_back('/');
+void ServerPool::cleanPath(std::string &locPath) {                              // TODO remove if fixed completely with redirection
+  // if (locPath[0] != '/') locPath = '/' + locPath;
+  // if (locPath[locPath.length() - 1] != '/') locPath.push_back('/');
 }
 
 void ServerPool::cleanRoot(std::string &root) {
-  if (root.size() > 1 && root[root.length() - 1] != '/') root.push_back('/');
+  // if (root.size() > 1 && root[root.length() - 1] != '/') root.push_back('/');
 }
 
 /* ................................. ACCESSOR ................................*/

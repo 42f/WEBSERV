@@ -16,7 +16,7 @@ Brian :
                                 return code URL;
                                 return URL;
         - if enought time: redirect 301 for location missing final `/`
-
+        - serverPool update autoindex from parent server to location
 
 
 Calixte :

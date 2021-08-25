@@ -1,5 +1,6 @@
 #! /bin/bash
 
+rm -rf /tmp/server /tmp/cgi_bin
 cp -rf ./assets/HTML_for_locationtest/server /tmp
 
 mkdir -p /tmp/cgi_bin

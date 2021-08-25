@@ -9,8 +9,7 @@ ResponseHandler::ResponseHandler(ReqResult requestResult, int receivedPort)
 
 /* ..............................COPY CONSTRUCTOR.............................*/
 
-ResponseHandler::ResponseHandler(void)
-    : _port(0), _method(NULL) {}
+ResponseHandler::ResponseHandler(void) : _port(0), _method(NULL) {}
 
 /* ................................ DESTRUCTOR ...............................*/
 
@@ -51,9 +50,10 @@ void ResponseHandler::processRequest() {
     return;
   }
   if (_requestRes.is_err()) {
-    return GetMethod(*this).makeStandardResponse(_requestRes.unwrap_err());                           // TODO check segfault ?
+    return GetMethod(*this).makeStandardResponse(_requestRes.unwrap_err());
+    // TODO check segfault ?
   }
-  _serverMatch = network::ServerPool::getServerMatch(getHeader("Host"), _port);
+  _serverMatch = network::ServerPool::getServerMatch(getReqHeader("Host"), _port);
   _loc = network::ServerPool::getLocationMatch(_serverMatch, _request.target);
 
   // Check if the location resolved allows the requested method
@@ -79,7 +79,7 @@ void ResponseHandler::processRequest() {
 }
 
 // safely returns the value of a header if it exists, an empty string otherwise
-std::string ResponseHandler::getHeader(const std::string& target) {
+std::string ResponseHandler::getReqHeader(const std::string& target) {
   return _request.get_header(target).unwrap_or("");
 }
 
@@ -117,11 +117,11 @@ bool ResponseHandler::isReady() {
 void ResponseHandler::sendHeaders(int fdDest, int flags) {
   int& state = _response.getState();
   if ((state & respState::headerSent) == false) {
-    // if (_request.is_ok())
-    //   std::cout << RED << "REQEST:\n"
-    //             << _request.unwrap() << NC << std::endl; // TODO remove db
-    // std::cout << BLUE << "RESPONSE:\n"
-    //           << _response << NC << std::endl; // TODO remove db
+    if (_requestRes.is_ok())
+      std::cout << RED << "REQEST:\n"
+                << _requestRes.unwrap() << NC << std::endl; // TODO remove db
+    std::cout << BLUE << "RESPONSE:\n"
+              << _response << NC << std::endl; // TODO remove db
 
     std::stringstream output;
     output << _response;
@@ -213,12 +213,12 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
   std::stringstream output;
 
   if (_requestRes.is_ok())
-  //   std::cout << RED << "REQEST:\n"
-  //             << _request.unwrap() << NC << std::endl; // TODO remove db
-  // std::cout << BLUE << "RESPONSE:\n"
-  //           << _response << NC << std::endl; // TODO remove db
+      std::cout << RED << "REQEST:\n"
+                << _requestRes.unwrap() << NC << std::endl; // TODO remove db
+    std::cout << BLUE << "RESPONSE:\n"
+              << _response << NC << std::endl; // TODO remove db
 
-  output << _response << "\r\n" << _response.getBuffer();
+    output << _response << "\r\n" << _response.getBuffer();
   send(fdDest, output.str().c_str(), output.str().length(), flags);
   _response.getState() = respState::entirelySent;
 }
@@ -229,7 +229,8 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
  * Returns the result processed. If no call to processRequest was made prior
  * to a call to getResult, result sould not be unwrapped.
  */
-Response const& ResponseHandler::getResponse() { return _response; }
+Response const& ResponseHandler::getResponse()const  { return _response; }
+Request const& ResponseHandler::getRequest() const { return _request; }
 
 /* ................................. OVERLOAD ................................*/
 
