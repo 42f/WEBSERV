@@ -3,14 +3,14 @@
 /* ............................... CONSTRUCTOR ...............................*/
 
 ResponseHandler::ResponseHandler(ReqResult requestResult, int receivedPort)
-    : _method(NULL) {
+    : _port(0), _method(NULL) {
   this->init(requestResult, receivedPort);
 }
 
 /* ..............................COPY CONSTRUCTOR.............................*/
 
 ResponseHandler::ResponseHandler(void)
-    : _port(0), _request(ReqResult()), _method(NULL) {}
+    : _port(0), _method(NULL) {}
 
 /* ................................ DESTRUCTOR ...............................*/
 
@@ -23,9 +23,10 @@ ResponseHandler::~ResponseHandler(void) {
 void ResponseHandler::init(ReqResult const requestResult, int receivedPort) {
   _port = receivedPort;
   _method = NULL;
-  _request = requestResult;
-  if (_request.is_ok()) {
-    switch (_request.unwrap().method) {
+  _requestRes = requestResult;
+  if (_requestRes.is_ok()) {
+    _request = _requestRes.unwrap();
+    switch (_request.method) {
       case methods::GET:
         _method = new (std::nothrow) GetMethod(*this);
         break;
@@ -41,8 +42,7 @@ void ResponseHandler::init(ReqResult const requestResult, int receivedPort) {
         break;
     }
     if (_method == NULL)
-      A_Method::makeStandardResponse(_response, status::InternalServerError,
-                                     config::Server());
+      GetMethod(*this).makeStandardResponse(status::InternalServerError);
   }
 }
 
@@ -50,49 +50,37 @@ void ResponseHandler::processRequest() {
   if (_response.getState() != respState::emptyResp) {
     return;
   }
-  if (_request.is_err()) {
-    // A_Method::makeStandardResponse(_response, status::InternalServerError,
-    //                                config::Server());  // TODO segfault !
-    A_Method::makeStandardResponse(_response, _request.unwrap_err(),
-                                   config::Server());
-    return;
+  if (_requestRes.is_err()) {
+    return GetMethod(*this).makeStandardResponse(_requestRes.unwrap_err());                           // TODO check segfault ?
   }
-  Request req = _request.unwrap();
-
-  config::Server const& serverMatch =
-      network::ServerPool::getServerMatch(getHeader(req, "Host"), _port);
-  LocationConfig const locMatch =
-      network::ServerPool::getLocationMatch(serverMatch, req.target);
+  _serverMatch = network::ServerPool::getServerMatch(getHeader("Host"), _port);
+  _loc = network::ServerPool::getLocationMatch(_serverMatch, _request.target);
 
   // Check if the location resolved allows the requested method
-  if (locMatch.get_methods().has(req.method) == false) {
-    A_Method::makeStandardResponse(_response, status::MethodNotAllowed,
-                                   config::Server());
+  if (_loc.get_methods().has(_request.method) == false) {
+    _method->makeStandardResponse(status::MethodNotAllowed);
     std::stringstream allowed;
-    allowed << locMatch.get_methods();
+    allowed << _loc.get_methods();
     _response.setHeader(headerTitle::Allow, allowed.str());
     return;
   }
 
   // Check if the location resolved has a redirection in place
-  redirect red = locMatch.get_redirect();
+  redirect red = _loc.get_redirect();
   if (red.status != 0) {
-    return manageRedirect(red);
+    return _method->manageRedirect(red);
   }
 
   // Check if the location resolved has a redirection in place
-  if (locMatch.get_root().empty()) {
-    A_Method::makeStandardResponse(_response, status::Unauthorized,
-                                   serverMatch);
-    return;
+  if (_loc.get_root().empty()) {
+    return _method->makeStandardResponse(status::Unauthorized);
   }
-  _method->handler(serverMatch, locMatch, req, _response);
+  _method->handler();
 }
 
 // safely returns the value of a header if it exists, an empty string otherwise
-std::string ResponseHandler::getHeader(const Request& req,
-                                       const std::string& target) {
-  return req.get_header(target).unwrap_or("");
+std::string ResponseHandler::getHeader(const std::string& target) {
+  return _request.get_header(target).unwrap_or("");
 }
 
 int ResponseHandler::doSend(int fdDest, int flags) {
@@ -224,7 +212,7 @@ void ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
 void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
   std::stringstream output;
 
-  if (_request.is_ok())
+  if (_requestRes.is_ok())
   //   std::cout << RED << "REQEST:\n"
   //             << _request.unwrap() << NC << std::endl; // TODO remove db
   // std::cout << BLUE << "RESPONSE:\n"
@@ -233,19 +221,6 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
   output << _response << "\r\n" << _response.getBuffer();
   send(fdDest, output.str().c_str(), output.str().length(), flags);
   _response.getState() = respState::entirelySent;
-}
-
-void ResponseHandler::manageRedirect(redirect const& red) {
-  if (red.status >= 301 && red.status <= 308) {
-    _response.setHeader("Location", red.resolveRedirect(_request.unwrap().target));
-    A_Method::makeStandardResponse(_response,
-                                 static_cast<status::StatusCode>(red.status),
-                                 config::Server());
-  } else {
-    A_Method::makeStandardResponse(_response,
-                                 static_cast<status::StatusCode>(red.status),
-                                 config::Server(), red.uri);
-  }
 }
 
 /* ................................. ACCESSOR ................................*/
