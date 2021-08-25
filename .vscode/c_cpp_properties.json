@@ -1,14 +1,27 @@
 {
   "configurations": [
     {
-      "name": "macos-gcc-x64",
+      "name": "macos-clang-x64",
       "includePath": [
-        "${workspaceFolder}/**"
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/src/**",
+        "${workspaceFolder}/src/HTTP/**",
+        "${workspaceFolder}/src/config/**",
+        "${workspaceFolder}/src/HTTP/Headers/**",
+        "${workspaceFolder}/src/HTTP/Request/**",
+        "${workspaceFolder}/src/HTTP/Request/RequestTarget/**",
+        "${workspaceFolder}/src/HTTP/Response/**",
+        "${workspaceFolder}/src/HTTP/Response/ResponseUtils/**",
+        "${workspaceFolder}/src/parser/**",
+        "${workspaceFolder}/src/parsing/**",
+        "${workspaceFolder}/src/Network/**",
+        "${workspaceFolder}/src/CGI/**",
+        "${workspaceFolder}/src/utils/**"
       ],
       "compilerPath": "/usr/bin/clang",
       "cStandard": "${default}",
       "cppStandard": "${default}",
-      "intelliSenseMode": "macos-gcc-x64",
+      "intelliSenseMode": "macos-clang-x64",
       "compilerArgs": [
         "-Wall",
         "-Wextra",

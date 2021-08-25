@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "../Request/RequestLine.hpp"
+#include "RequestLine.hpp"
 #include "Autoindex.hpp"
 #include "CGI.hpp"
 #include "Config/Directives/Redirect.hpp"
@@ -24,7 +24,7 @@
 #include "Response.hpp"
 #include "Status.hpp"
 #include "Timer.hpp"
-#include "utils/Logger.hpp"
+#include "Logger.hpp"
 
 class ResponseHandler {
   class A_Method;
@@ -49,11 +49,14 @@ class ResponseHandler {
 
  private:
   int _port;
-  ReqResult _request;
+  ReqResult _requestRes;
+  Request _request;
   Response _response;
   A_Method* _method;
+  config::Server _serverMatch;
+  LocationConfig _loc;
 
-  std::string getHeader(const Request& req, const std::string& target);
+  std::string getHeader(const std::string& target);
   void sendHeaders(int fdDest, int flags);
   void sendCgiHeaders(int fdSrc, int fdDest, int flags);
   void sendFromBuffer(int fdDest, int flags);
@@ -70,27 +73,28 @@ class ResponseHandler {
    */
 
   class A_Method {
+   protected:
+    ResponseHandler & _inst;
+
    public:
-    A_Method(){};
+    A_Method(ResponseHandler & inst) : _inst(inst){};
     virtual ~A_Method(){};
 
-    virtual void handler(config::Server const& serv, LocationConfig const& loc,
-                         Request const& req, Response& resp) = 0;
+    virtual void handler() = 0;
 
-    virtual std::string resolveTargetPath(LocationConfig const& loc,
-                                          Request const& req) {
-      std::string resolved(loc.get_root());
-      std::string target(req.target.decoded_path);
+    virtual std::string resolveTargetPath() {
+      std::string resolved(_inst._loc.get_root());
+      std::string target(_inst._request.target.decoded_path);
 
       if (files::File::isFileFromPath(target)) {
-        resolved += removeLocPath(loc, target);
-      } else if (loc.get_auto_index() == true) {
+        resolved += removeLocPath(target);
+      } else if (_inst._loc.get_auto_index() == true) {
         // if (target[target.length() - 1] != '/') {
         //   target += '/';
         // }
-        resolved += removeLocPath(loc, target);
-      } else if (loc.get_index().empty() == false) {
-        resolved += loc.get_index();
+        resolved += removeLocPath(target);
+      } else if (_inst._loc.get_index().empty() == false) {
+        resolved += _inst._loc.get_index();
       } else {
         return std::string();
       }
@@ -98,128 +102,141 @@ class ResponseHandler {
     }
 
    private:
-    virtual std::string removeLocPath(LocationConfig const& loc,
-                                      std::string const& target) {
-      if (target.find(loc.get_path()) == 0)
-        return target.substr(loc.get_path().length());
+    virtual std::string removeLocPath(std::string const& target) {
+      if (target.find(_inst._loc.get_path()) == 0)
+        return target.substr(_inst._loc.get_path().length());
       return target;
     }
-   public:
 
-    static void handleCgiFile(Response& resp, std::string const& cgiBin,
-                              config::Server const& serv, Request const& req) {
-      resp.getCgiInst().execute_cgi(cgiBin, resp.getFileInst(), req, serv);
-      if (resp.getCgiInst().status() == cgi_status::SYSTEM_ERROR) {
-        return makeStandardResponse(resp, status::InternalServerError, serv);
+   public:
+    void handleCgiFile(std::string const & cgiBin) {
+      CGI& cgiInst = _inst._response.getCgiInst();
+      cgiInst.execute_cgi(cgiBin, _inst._response.getFileInst(), _inst._request, _inst._serverMatch);
+
+      if (cgiInst.status() == cgi_status::SYSTEM_ERROR) {
+        return makeStandardResponse(status::InternalServerError);
       } else {
-        setRespForCgi(resp, resp.getFileInst());  // TODO REMOVE debug
-        resp.setStatus(status::Ok);               // TODO REMOVE debug
+        setRespForCgi();                        // TODO REMOVE debug
+        _inst._response.setStatus(status::Ok);  // TODO REMOVE debug
       }
     }
 
-    std::string getCgiBinPath(config::Server const& serv,
-                              files::File const& file) {
-      std::string fileExt = file.getExt();
+    std::string getCgiBinPath() {
+      std::string fileExt = _inst._response.getFileInst().getExt();
       std::map<std::string, std::string>::const_iterator it =
-          serv.get_cgis().begin();
+          _inst._serverMatch.get_cgis().begin();
 
-      for (; it != serv.get_cgis().end(); it++) {
+      for (; it != _inst._serverMatch.get_cgis().end(); it++) {
         if (fileExt == it->first) return it->second;
       }
       return std::string();
     }
 
-    static void makeStandardResponse(Response& resp, status::StatusCode code,
-                                     config::Server const& serv,
-                                     const std::string& optionalMessage = "") {
-      resp.reset(Version(), code);
+    void makeStandardResponse(status::StatusCode code,
+                              const std::string& optionalMessage = "") {
+      _inst._response.reset(Version(), code);
+      std::map<int, std::string> const& err_pages =
+          _inst._serverMatch.get_error_pages();
 
-      std::map<int, std::string>::const_iterator errIt =
-          serv.get_error_pages().find(code);
-      if (errIt != serv.get_error_pages().end()) {
-        std::string errorPagePath = serv.get_error_pages().find(code)->second;
-        resp.setFile(errorPagePath);
-        if (resp.getFileInst().isGood()) {
-          return setRespForFile(resp, resp.getFileInst());
+      std::map<int, std::string>::const_iterator errIt = err_pages.find(code);
+      if (errIt != err_pages.end()) {
+        std::string errorPagePath = err_pages.find(code)->second;
+        _inst._response.setFile(errorPagePath);
+        if (_inst._response.getFileInst().isGood()) {
+          return setRespForFile();
         }
       }
-      setRespForErrorBuff(resp, optionalMessage);
+      setRespForErrorBuff(optionalMessage);
     }
 
-    static void setRespNoBody(Response& resp, status::StatusCode code) {
-      resp.getState() = respState::noBodyResp;
-      resp.setStatus(code);
+    void setRespNoBody(status::StatusCode code) {
+      _inst._response.getState() = respState::noBodyResp;
+      _inst._response.setStatus(code);
     }
 
-    static void setRespForAutoIndexBuff(LocationConfig const & loc,
-                                      Response& resp, std::string const& path) {
-      Autoindex::make(loc, path, resp);
-      resp.setHeader(headerTitle::Content_Length, resp.getBuffer().length());
-      resp.setHeader(headerTitle::Content_Type, "html");
-      resp.getState() = respState::buffResp;
+    void setRespForAutoIndexBuff(std::string const& path) {
+      Autoindex::make(_inst._loc, path, _inst._response);
+      _inst._response.setHeader(headerTitle::Content_Length,
+                                _inst._response.getBuffer().length());
+      _inst._response.setHeader(headerTitle::Content_Type, "html");
+      _inst._response.getState() = respState::buffResp;
     }
 
-    static void setRespForErrorBuff(Response& resp,
-                                    const std::string& optionalMessage = "") {
-      resp.loadErrorHtmlBuffer(resp.getStatusCode(), optionalMessage);
-      resp.setHeader(headerTitle::Content_Length, resp.getBuffer().length());
+    void setRespForErrorBuff(const std::string& optionalMessage = "") {
+      _inst._response.loadErrorHtmlBuffer(_inst._response.getStatusCode(),
+                                          optionalMessage);
+      _inst._response.setHeader(headerTitle::Content_Length,
+                                _inst._response.getBuffer().length());
       if (optionalMessage.empty())
-        resp.setHeader(headerTitle::Content_Type, "html");
-      resp.getState() = respState::buffResp;
+        _inst._response.setHeader(headerTitle::Content_Type, "html");
+      _inst._response.getState() = respState::buffResp;
     }
 
-    static void setRespForCgi(Response& resp, files::File const& file) {
-      resp.setHeader(headerTitle::Last_Modified, file.getLastModified());
-      resp.setHeader(headerTitle::Transfer_Encoding, "chunked");
-      resp.getState() = respState::cgiResp | respState::chunkedResp;
+    void setRespForCgi() {
+      files::File const &file = _inst._response.getFileInst();
+      _inst._response.setHeader(headerTitle::Last_Modified,
+                                file.getLastModified());
+      _inst._response.setHeader(headerTitle::Transfer_Encoding, "chunked");
+      _inst._response.getState() = respState::cgiResp | respState::chunkedResp;
     }
 
-    static void setRespForFile(Response& resp, files::File const& file) {
-      resp.setHeader(headerTitle::Content_Type, file.getType());
-      resp.setHeader(headerTitle::Last_Modified, file.getLastModified());
-      resp.setHeader(headerTitle::Content_Length, file.getSize());
-      resp.getState() = respState::fileResp;
+    void setRespForFile() {
+      files::File const &file = _inst._response.getFileInst();
+      _inst._response.setHeader(headerTitle::Content_Type, file.getType());
+      _inst._response.setHeader(headerTitle::Last_Modified,
+                                file.getLastModified());
+      _inst._response.setHeader(headerTitle::Content_Length, file.getSize());
+      _inst._response.getState() = respState::fileResp;
+    }
+
+    void manageRedirect(redirect const& red) {
+      if (red.status >= 301 && red.status <= 308) {
+        _inst._response.setHeader("Location", red.resolveRedirect(_inst._request.target));
+        makeStandardResponse(red.status);
+      } else {
+        makeStandardResponse(red.status, red.uri);
+      }
     }
 
   };  // -- end of A_METHODE
 
   class GetMethod : public A_Method {
    public:
-    GetMethod(){};
+    GetMethod(ResponseHandler & inst) : A_Method(inst){};
     ~GetMethod(){};
 
-    void handler(config::Server const& serv, LocationConfig const& loc,
-                 Request const& req, Response& resp) {
-      std::string targetPath = resolveTargetPath(loc, req);
+    void handler() {
+      std::string targetPath = resolveTargetPath();
       LogStream s;
       s << "File targeted in GET: " << targetPath;
 
       if (targetPath.empty()) {
-        return makeStandardResponse(resp, status::Unauthorized, serv);
+        return makeStandardResponse(status::Unauthorized);
       }
 
       struct stat st;
       if (files::File::isFileFromPath(targetPath)) {
-        resp.setFile(targetPath);
-        files::File const& file = resp.getFileInst();
+        _inst._response.setFile(targetPath);
+        files::File const& file = _inst._response.getFileInst();
         if (file.isGood()) {
-          std::string cgiBin = getCgiBinPath(serv, file);
+          std::string cgiBin = getCgiBinPath();
           if (cgiBin.empty() == false) {
-            return handleCgiFile(resp, cgiBin, serv, req);
+            return handleCgiFile(cgiBin);
           } else {
-            resp.setStatus(status::Ok);
-            return setRespForFile(resp, file);
+            _inst._response.setStatus(status::Ok);
+            return setRespForFile();
           }
         } else {
-          return makeStandardResponse(resp, status::NotFound, serv);
+          return makeStandardResponse(status::NotFound);
         }
-      } else if (loc.get_auto_index() == true &&
+      } else if (_inst._loc.get_auto_index() == true &&
                  stat(targetPath.c_str(), &st) == 0) {
         // if (targetPath[targetPath.length() - 1] != '/') {
-        //   return manageRedirect( redirect(status::MovedPermanently, targetPath + '/') );
+        //   return manageRedirect( redirect(status::MovedPermanently,
+        //   targetPath + '/') );
         // }
-        resp.setStatus(status::Ok);
-        return setRespForAutoIndexBuff(loc, resp, targetPath);
+        _inst._response.setStatus(status::Ok);
+        return setRespForAutoIndexBuff(targetPath);
       }
     }
   };  // --- end GET METHOD
@@ -231,43 +248,41 @@ class ResponseHandler {
 
   class PostMethod : public A_Method {
    public:
-    PostMethod(){};
+    PostMethod(ResponseHandler & inst) : A_Method(inst){};
     ~PostMethod(){};
 
-    void handler(config::Server const& serv, LocationConfig const& loc,
-                 Request const& req, Response& resp) {
-      if (req.get_body().empty() && req.target.decoded_query.empty()) {
+    void handler() {
+      if (_inst._request.get_body().empty() &&
+          _inst._request.target.decoded_query.empty()) {
         // TODO implement if empty body ? What does nginx do ?
         std::cout << "Empty body in post request..." << std::endl;
-        return makeStandardResponse(resp, status::BadRequest, serv);
+        return makeStandardResponse(status::BadRequest);
       }
 
-      std::string targetPath = resolveTargetPath(loc, req);
+      std::string targetPath = resolveTargetPath();
       LogStream s;
       s << "File targeted in POST: " << targetPath;
 
-      resp.setFile(targetPath);
-      files::File const& file = resp.getFileInst();
+      _inst._response.setFile(targetPath);
+      files::File const& file = _inst._response.getFileInst();
 
       if (file.isGood()) {
-        std::string cgiBin = getCgiBinPath(serv, file);
+        std::string cgiBin = getCgiBinPath();
         if (cgiBin.empty()) {
           // TODO what if post to html ?...
-          return makeStandardResponse(resp, status::Unauthorized, serv);
+          return makeStandardResponse(status::Unauthorized);
         } else {
-          return handleCgiFile(resp, cgiBin, serv, req);
+          return handleCgiFile(cgiBin);
         }
-      } else if (req.get_body().empty() == false) {
-        handleUpload(loc, req, resp);
+      } else if (_inst._request.get_body().empty() == false) {
+        handleUpload();
         // TODO what if post to html ?...
-        return makeStandardResponse(resp, status::Ok, serv);
+        return setRespNoBody(status::NoContent);  // ? is it
       }
     }
 
-    void handleUpload(LocationConfig const& loc, Request const& req,
-                      Response& resp) {
-      (void)resp;
-      (void)loc;
+    void handleUpload() {
+      std::cout << "PERFORM UPLOAD OF FILE IN BODY" << std::endl;
     }
   };  // --- end POST METHOD
 
@@ -278,57 +293,53 @@ class ResponseHandler {
 
   class DeleteMethod : public A_Method {
    public:
-    DeleteMethod(){};
+    DeleteMethod(ResponseHandler & inst) : A_Method(inst){};
     ~DeleteMethod(){};
 
-    void handler(config::Server const& serv, LocationConfig const& loc,
-                 Request const& req, Response& resp) {
-      std::string target = resolveTargetPath(loc, req);
+    void handler() {
+      std::string target = resolveTargetPath();
       LogStream s;
       s << "Target in DELETE: " << target;
       struct stat st;
 
       if (stat(target.c_str(), &st) == 0) {
-        resp.getState() = respState::noBodyResp;
         errno = 0;
         if (files::File::isDirFromPath(target) && rmdir(target.c_str()) == 0) {
-          return setRespNoBody(resp, status::NoContent);
+          return setRespNoBody(status::NoContent);
         } else if (errno == ENOTEMPTY) {
-          return makeStandardResponse(resp, status::Conflict, serv,
-                                      strerror(errno));
+          return makeStandardResponse(status::Conflict, strerror(errno));
         } else if (files::File::isFileFromPath(target) &&
                    unlink(target.c_str()) == 0) {
-          return setRespNoBody(resp, status::NoContent);
+          return setRespNoBody(status::NoContent);
         } else {
-          return makeStandardResponse(resp, status::Unauthorized, serv);
+          return makeStandardResponse(status::Unauthorized);
         }
 
       } else
-        return makeStandardResponse(resp, status::NotFound, serv);
+        return makeStandardResponse(status::NotFound);
     }
 
-    std::string resolveTargetPath(LocationConfig const& loc,
-                                  Request const& req) {
-      std::string target(loc.get_root());
+    std::string resolveTargetPath() {
+      std::string resolved(_inst._loc.get_root());
+      std::string target(_inst._request.target.decoded_path);
 
       // if the request aims to a subdir of the location path,
       // we remove the location path part
-      if (req.target.decoded_path.find(loc.get_path()) == 0) {
-        target += req.target.decoded_path.substr(loc.get_path().length());
+      if (target.find(_inst._loc.get_path()) == 0) {
+        resolved += target.substr(_inst._loc.get_path().length());
       } else {
-        target += req.target.decoded_path;
+        resolved += target;
       }
-      return target;
+      return resolved;
     }
   };  // --- end DELETE METHOD
 
   class UnsupportedMethod : public A_Method {
    public:
-    UnsupportedMethod(){};
+    UnsupportedMethod(ResponseHandler & inst) : A_Method(inst){};
     ~UnsupportedMethod(){};
 
-    void handler(config::Server const&, LocationConfig const&, Request const&,
-                 Response&) {
+    void handler() {
       std::cout << __func__ << " of UNSUPPORTED." << std::endl;
     }
   };

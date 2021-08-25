@@ -7,12 +7,14 @@
 /*
  * struct de Redirect
  */
-redirect::redirect() : status(0), uri("") { }
-redirect::redirect(status::StatusCode code, std::string uri): status(code), uri(uri) { }
+redirect::redirect() : status(status::None), uri("") {}
+redirect::redirect(int code, std::string uri)
+    : status(static_cast<status::StatusCode>(code)), uri(uri) {}
+redirect::redirect(status::StatusCode code, std::string uri)
+    : status(code), uri(uri) {}
 
-redirect	redirect::parse(tuple<slice, slice> input)
-{
-	return redirect(input.first.to_int(), input.second.to_string());
+redirect redirect::parse(tuple<slice, slice> input) {
+  return redirect(input.first.to_int(), input.second.to_string());
 }
 
 std::string redirect::resolveRedirect(Target const& target) const {
@@ -25,7 +27,8 @@ std::string redirect::resolveRedirect(Target const& target) const {
   size_t paramPos = 0;
   for (int i = 0; i < sizeof(params) / sizeof(char**); i++) {
     paramPos = 0;
-    while ((paramPos = redirUri.find(params[i]), paramPos) != std::string::npos) {
+    while ((paramPos = redirUri.find(params[i]), paramPos) !=
+           std::string::npos) {
       redirUri.replace(paramPos, strlen(params[i]), newVal[i]);
     }
   }
