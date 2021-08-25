@@ -14,9 +14,9 @@
 #include "Config/Directives/Index.hpp"
 #include "Config/Directives/Location.hpp"
 
-#include "Server.hpp"
-#include "Structure/Bloc.hpp"
-#include "Structure/Line.hpp"
+#include "Config/Server.hpp"
+#include "Config/Structure/Bloc.hpp"
+#include "Config/Structure/Line.hpp"
 
 /*
  * ServerContent is a line for block server

@@ -5,7 +5,7 @@
 #ifndef WEBSERV_CONFIGPARSER_HPP
 #define WEBSERV_CONFIGPARSER_HPP
 
-#include "ServerBlock.hpp"
+#include "Config/Directives/ServerBlock.hpp"
 
 class ConfigParser : public Parser<std::vector<config::Server> >
 {

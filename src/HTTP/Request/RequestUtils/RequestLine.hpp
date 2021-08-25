@@ -9,7 +9,7 @@
 #include "parsing/Tokens.hpp"
 #include "parsing/Methods.hpp"
 
-#include "HTTP/Request/RequestTarget/OriginForm.hpp"
+#include "HTTP/Request/RequestUtils/Path.hpp"
 
 #ifdef minor
 #undef minor

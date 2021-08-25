@@ -2,8 +2,8 @@
 // Created by alena on 18/06/2021.
 //
 
-#ifndef WEBSERV_SEGMENT_HPP
-#define WEBSERV_SEGMENT_HPP
+#ifndef WEBSERV_CHARSET_HPP
+#define WEBSERV_CHARSET_HPP
 
 #include "export.hpp"
 
@@ -70,4 +70,4 @@ public :
 
 /* ************************************************************************** */
 
-#endif //WEBSERV_SEGMENT_HPP
+#endif //WEBSERV_CHARSET_HPP

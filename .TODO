@@ -31,7 +31,10 @@ Calixte :
 
 Network: close fd on send response when not successful ?
 
-Delete : src/server.hpp/.cpp ?
+Delete :
+		- main_brian.cpp ?
+		- main.cpp => includes qui sert a rien
+		- enleve les todos dans les fichiers
 
 Check copy sockets
 

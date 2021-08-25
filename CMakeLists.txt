@@ -14,7 +14,7 @@ include_directories(
         src/HTTP/config
         src/HTTP/Headers
         src/HTTP/Request
-        src/HTTP/Request/RequestTarget
+        src/HTTP/Request/RequestUtils
         src/HTTP/Response
         src/HTTP/Response/ResponseUtils
         src/parser
@@ -118,19 +118,19 @@ set(FILES
         src/HTTP/Status.hpp
         src/HTTP/Request/RequestParser.cpp
         src/HTTP/Request/RequestParser.hpp
-        src/HTTP/RequestHandler.cpp
-        src/HTTP/RequestHandler.hpp
-        src/HTTP/Request/RequestLine.cpp
-        src/HTTP/Request/RequestLine.hpp
-        src/HTTP/Request/Chunk.cpp
-        src/HTTP/Request/Chunk.hpp
-        src/HTTP/Request/RequestTarget/OriginForm.cpp
-        src/HTTP/Request/RequestTarget/OriginForm.hpp
-        src/HTTP/Request/RequestTarget/Segment.cpp
-        src/HTTP/Request/RequestTarget/Segment.hpp
-        src/HTTP/Request/RequestTarget/Scheme.cpp
-        src/HTTP/Request/RequestTarget/Scheme.hpp
-        src/HTTP/Request/RequestTarget/Target.hpp
+        src/HTTP/Request/RequestHandler.cpp
+        src/HTTP/Request/RequestHandler.hpp
+        src/HTTP/Request/RequestUtils/RequestLine.cpp
+        src/HTTP/Request/RequestUtils/RequestLine.hpp
+        src/HTTP/Request/RequestUtils/Chunk.cpp
+        src/HTTP/Request/RequestUtils/Chunk.hpp
+        src/HTTP/Request/RequestUtils/Path.cpp
+        src/HTTP/Request/RequestUtils/Path.hpp
+        src/HTTP/Request/RequestUtils/Charset.cpp
+        src/HTTP/Request/RequestUtils/Charset.hpp
+        src/HTTP/Request/RequestUtils/Scheme.cpp
+        src/HTTP/Request/RequestUtils/Scheme.hpp
+        src/HTTP/Request/RequestUtils/Target.hpp
 
         src/HTTP/Headers/Header.cpp
         src/HTTP/Headers/Header.hpp
@@ -144,8 +144,8 @@ set(FILES
         src/Config/ConfigParser.hpp
         src/Config/Server.cpp
         src/Config/Server.hpp
-        src/Config/ServerBlock.cpp
-        src/Config/ServerBlock.hpp
+        src/Config/Directives/ServerBlock.cpp
+        src/Config/Directives/ServerBlock.hpp
 
         src/Config/Directives/Cgi.cpp
         src/Config/Directives/Cgi.hpp

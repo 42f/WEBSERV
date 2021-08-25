@@ -118,7 +118,7 @@ void ResponseHandler::sendHeaders(int fdDest, int flags) {
   int& state = _resp.getState();
   if ((state & respState::headerSent) == false) {
     if (_requestRes.is_ok())
-      std::cout << RED << "REQEST:\n"
+      std::cout << RED << "REQUEST:\n"
                 << _requestRes.unwrap() << NC << std::endl; // TODO remove db
     std::cout << BLUE << "RESPONSE:\n"
               << _resp << NC << std::endl; // TODO remove db
@@ -213,7 +213,7 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
   std::stringstream output;
 
   if (_requestRes.is_ok())
-      std::cout << RED << "REQEST:\n"
+      std::cout << RED << "REQUEST:\n"
                 << _requestRes.unwrap() << NC << std::endl; // TODO remove db
     std::cout << BLUE << "RESPONSE:\n"
               << _resp << NC << std::endl; // TODO remove db

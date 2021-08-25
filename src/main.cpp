@@ -18,7 +18,7 @@
 #include "CGI.hpp"
 #include "Config/ConfigParser.hpp"
 #include "Config/Server.hpp"
-#include "HTTP/RequestHandler.hpp"
+#include "HTTP/Request/RequestHandler.hpp"
 #include "HTTP/Response/Response.hpp"
 #include "Network/Core.hpp"
 #include "Network/ServerPool.hpp"

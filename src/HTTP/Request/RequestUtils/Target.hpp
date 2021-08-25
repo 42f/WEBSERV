@@ -5,7 +5,7 @@
 #ifndef WEBSERV_TARGET_HPP
 #define WEBSERV_TARGET_HPP
 
-#include "Segment.hpp"
+#include "Charset.hpp"
 
 struct Target
 {

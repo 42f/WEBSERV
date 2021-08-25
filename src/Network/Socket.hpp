@@ -1,7 +1,7 @@
 #ifndef NETWORK_SOCKET_HPP
 #define NETWORK_SOCKET_HPP
 
-#include "HTTP/RequestHandler.hpp"
+#include "HTTP/Request/RequestHandler.hpp"
 #include "HTTP/Response/ResponseHandler.hpp"
 #include <netinet/in.h>
 

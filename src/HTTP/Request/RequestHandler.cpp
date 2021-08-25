@@ -41,8 +41,6 @@ RequestHandler::result_type RequestHandler::update(const char *buff, size_t read
 	if (_status == request_status::Waiting)
 	{
 		RequestHandler::result_type t = receive();
-		// if (_req.is_ok())
-		// 	std::cout << _req.unwrap() << std::endl; //TODO remove if
 		return t;
 	}
 	return _req;

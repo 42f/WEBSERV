@@ -2,17 +2,16 @@
 // Created by alena on 24/06/2021.
 //
 
-#include "OriginForm.hpp"
+#include "Path.hpp"
 
 /*
- * AbsolutePath = 1*( "/" segment )
+ * AbsolutePath = 1*( "/" Segment )
  */
 AbsolutePath::AbsolutePath() { }
 
 AbsolutePath::result_type	AbsolutePath::operator()(const slice &input)
 {
-	ParserResult<std::vector<slice> >	res = many(preceded(Char('/'),
-		Segment()))(input);
+	ParserResult<std::vector<slice> >	res = many(preceded(Char('/'), Segment()))(input);
 	if (res.is_err())
 		return res.convert<std::string>();
 	std::vector<slice>	v = res.unwrap();

@@ -7,7 +7,7 @@
 
 #include "parser/export.hpp"
 #include "parsing/Tokens.hpp"
-#include "HTTP/Request/RequestLine.hpp"
+#include "HTTP/Request/RequestUtils/RequestLine.hpp"
 
 
 /*

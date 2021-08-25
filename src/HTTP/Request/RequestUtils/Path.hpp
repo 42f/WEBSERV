@@ -2,12 +2,12 @@
 // Created by alena on 18/06/2021.
 //
 
-#ifndef WEBSERV_ORIGINFORM_HPP
-#define WEBSERV_ORIGINFORM_HPP
+#ifndef WEBSERV_PATH_HPP
+#define WEBSERV_PATH_HPP
 
 #include "Parser.hpp"
 #include "Tokens.hpp"
-#include "Segment.hpp"
+#include "Charset.hpp"
 
 #include "Target.hpp"
 
@@ -53,4 +53,4 @@ public :
 /* ************************************************************************** */
 
 
-#endif //WEBSERV_ORIGINFORM_HPP
+#endif //WEBSERV_PATH_HPP

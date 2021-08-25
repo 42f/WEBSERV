@@ -1,6 +1,6 @@
 #include "Config/ConfigParser.hpp"
 #include "Config/Server.hpp"
-#include "HTTP/RequestHandler.hpp"
+#include "HTTP/Request/RequestHandler.hpp"
 #include "ServerPool.hpp"
 #include "Response.hpp"
 #include "ResponseHandler.hpp"
