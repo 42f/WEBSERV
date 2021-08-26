@@ -176,7 +176,7 @@ std::ostream& operator<<(std::ostream& stream, const LocationConfig& cfg)
 	else
 		stream << cfg._body_size << std::endl;
 	stream << "index : " << cfg._index << std::endl
-			<< "Redirect : " << cfg._redirect.status << " | " << cfg._redirect.uri << std::endl
+			<< "Redirect : " <<cfg._redirect.status << " | [" << cfg._redirect.uri << "]" << std::endl
 			<< GREEN << "}" << NC << std::endl;
 
 	return stream;

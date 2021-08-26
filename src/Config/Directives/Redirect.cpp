@@ -52,13 +52,13 @@ std::string redirect::resolveRedirect(Target const& target) const {
 /*
  * Redirect = return digit path
  */
-Redirect::Redirect() {}
+Redirect::Redirect() { }
 
 Redirect::result_type Redirect::operator()(const slice& input) {
-  return map(preceded(sequence(Tag("return"), rws),
-                      sequence(TakeWhile(std::isdigit),
-                               preceded(rws, TakeUntil(";")))),
-             redirect::parse)(input);
+	return map(preceded(sequence(Tag("return"), rws),
+				sequence(TakeWhile(std::isdigit),
+					opt(preceded(rws, TakeUntil(";"))))),
+				redirect::parse)(input);
 }
 
 /* ************************************************************************** */
