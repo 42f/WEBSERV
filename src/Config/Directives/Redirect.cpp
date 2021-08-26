@@ -21,7 +21,7 @@ std::string redirect::resolveRedirect(Target const& target) const {
 	static const std::string params[] = {
 		PARAM_REDIR_REQ_SCHEME, PARAM_REDIR_REQ_URI, PARAM_REDIR_REQ_QUERY
 	};
-	static const std::string *values[] = { &target.scheme, &target.path, &target.query };
+	const std::string *values[] = { &target.scheme, &target.path, &target.query };
 
 	std::string redirUri(uri);
 	size_t pos = 0;

@@ -47,8 +47,8 @@ class Response	{
 		void	setVersion( const Version& version );
 		void	setStatus( status::StatusCode code );
 
-		void	setHeader( std::string const& field, std::string const& value );
-		void	setHeader( headerTitle::Title title, std::string const& value );
+		void	setHeader( std::string const& field, std::string value );
+		void	setHeader( headerTitle::Title title, std::string value );
 		void	setHeader( std::string const& field, int value );
 		void	setHeader( headerTitle::Title title, int value );
 

@@ -43,11 +43,11 @@ void Response::reset(Version const& vers, status::StatusCode code) {
 void Response::setVersion(const Version& version) { _version = version; }
 void Response::setStatus(status::StatusCode code) { _statusCode = code; }
 
-void Response::setHeader(std::string const& field, std::string const& value) {
+void Response::setHeader(std::string const& field, std::string value) {
   _headers.insert(std::make_pair(field, std::make_pair(field, value)));
 }
 
-void Response::setHeader(headerTitle::Title title, std::string const& value) {
+void Response::setHeader(headerTitle::Title title, std::string value) {
   std::string titleStr = headerTitle::HeaderTitleField::get(title);
   _headers.insert(std::make_pair(titleStr, std::make_pair(titleStr, value)));
 }

@@ -192,10 +192,10 @@ class ResponseHandler {
     }
 
     void manageRedirect(redirect const& red) {
-      if (red.status >= 301 && red.status <= 308) {
+      if (red.status >= 300 && red.status <= 308) {
         makeStandardResponse(red.status);
         _inst._resp.setHeader("Location",
-                                  _inst._req.target.path + '/');
+                                  red.resolveRedirect(_inst._req.target));
       } else {
         makeStandardResponse(red.status, red.uri);
       }
@@ -209,6 +209,7 @@ class ResponseHandler {
     ~GetMethod(){};
 
     void handler() {
+      std::cout << YELLOW << _inst._req << NC << std::endl;
       std::string targetPath = resolveTargetPath();
       LogStream s;
       s << "File targeted in GET: " << targetPath;
@@ -235,11 +236,15 @@ class ResponseHandler {
       } else if (_inst._loc.get_auto_index() == true &&
                  stat(targetPath.c_str(), &st) == 0) {
         if (targetPath[targetPath.length() - 1] != '/') {
-          return manageRedirect(redirect(status::MovedPermanently, targetPath + '/') );
+          return manageRedirect(
+              redirect(status::MovedPermanently, _inst._req.target.path + '/'));
+        } else {
+          _inst._resp.setStatus(status::Ok);
+          return setRespForAutoIndexBuff(targetPath);
         }
-        _inst._resp.setStatus(status::Ok);
-        return setRespForAutoIndexBuff(targetPath);
       }
+      // Default response to avoid empty response
+      return makeStandardResponse(status::InternalServerError);
     }
   };  // --- end GET METHOD
 

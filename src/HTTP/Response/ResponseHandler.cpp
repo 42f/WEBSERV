@@ -71,7 +71,6 @@ void ResponseHandler::processRequest() {
     return _method->manageRedirect(red);
   }
 
-  // Check if the location resolved has a redirection in place
   if (_loc.get_root().empty()) {
     return _method->makeStandardResponse(status::Unauthorized);
   }
