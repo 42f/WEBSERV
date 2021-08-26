@@ -209,7 +209,6 @@ class ResponseHandler {
     ~GetMethod(){};
 
     void handler() {
-      std::cout << YELLOW << _inst._req << NC << std::endl;
       std::string targetPath = resolveTargetPath();
       LogStream s;
       s << "File targeted in GET: " << targetPath;

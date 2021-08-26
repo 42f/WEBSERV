@@ -25,35 +25,20 @@ void ServerPool::init(const std::string &configFilePath) {
 }
 
 void ServerPool::locationsInit(config::Server &serv) {
-  std::cout << RED << "______________________________________________" << NC << std::endl;
-  // cleanRoot(serv.get_root());
-
   std::vector<LocationConfig> &locations = serv.get_locations();
   if (locations.empty() == false) {
     std::vector<LocationConfig>::iterator it = locations.begin();
     std::vector<LocationConfig>::iterator ite = locations.end();
     for (; it != ite; it++) {
-      it->_auto_index = serv.get_auto_index() == true ? true: it->_auto_index;
+      it->_auto_index = serv.get_auto_index() == true ?: it->_auto_index;
       it->_root.assign((it->_root.empty()) ? serv.get_root() : it->_root);
       it->_index.assign((it->_index.empty()) ? serv.get_index() : it->_index);
       it->_body_size = (it->_body_size == LocationConfig::SIZE_UNSET)
                            ? serv.get_body_size()
                            : it->_body_size;
-      // cleanPath(it->_path);
-      // cleanRoot(it->_root);
-    std::cout << *it << std::endl;
     }
   }
 }
-
-// void ServerPool::cleanPath(std::string &locPath) {                              // TODO remove if fixed completely with redirection
-//   // if (locPath[0] != '/') locPath = '/' + locPath;
-//   // if (locPath[locPath.length() - 1] != '/') locPath.push_back('/');
-// }
-
-// void ServerPool::cleanRoot(std::string &root) {
-//   // if (root.size() > 1 && root[root.length() - 1] != '/') root.push_back('/');
-// }
 
 /* ................................. ACCESSOR ................................*/
 

@@ -5,18 +5,18 @@ Brian :
         ✅ check redirect variables
         ✅ autoindex: test
         ✅ if enought time: redirect 301 for location missing final `/`
+        ✅ serverPool update autoindex from parent server to location
+        ✅ redirect:
+                - double quotes in string argument of config file, should they stay ?
+                - we should allow empty argument : `return 404;`
+                        Syntax:	return code [text];
+                                return code URL;
+                                return URL; <- pas webserv
 
         🚧 GET with query -> to be tested !
         🚧 POST
 
         - Version: rfc (client ><= server) + status 505.
-        - redirect:
-                - double quotes in string argument of config file, should they stay ?
-                - we should allow empty argument : `return 404;`
-                        Syntax:	return code [text];
-                                return code URL;
-                                return URL;
-        - serverPool update autoindex from parent server to location
 
 
 Calixte :
