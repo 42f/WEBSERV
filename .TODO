@@ -3,19 +3,19 @@ Brian :
         ✅ check autoindex with non existing pouette.html -> ok 404 returned
         🔴 operator= for every socket componenet
         ✅ check redirect variables
+        ✅ autoindex: test
+        ✅ if enought time: redirect 301 for location missing final `/`
 
-        🚧 autoindex: test
+        🚧 GET with query -> to be tested !
         🚧 POST
 
-        - GET with query
-        - Version: rfc (client ><= server).
+        - Version: rfc (client ><= server) + status 505.
         - redirect:
                 - double quotes in string argument of config file, should they stay ?
                 - we should allow empty argument : `return 404;`
                         Syntax:	return code [text];
                                 return code URL;
                                 return URL;
-        - if enought time: redirect 301 for location missing final `/`
         - serverPool update autoindex from parent server to location
 
 
