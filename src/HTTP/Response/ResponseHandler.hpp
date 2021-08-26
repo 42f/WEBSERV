@@ -4,7 +4,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-
 #include <fstream>
 #include <iostream>
 #include <istream>
@@ -87,9 +86,8 @@ class ResponseHandler {
       std::string target(_inst._req.target.decoded_path);
 
       output = _inst._loc.get_root();
-      if (output[output.length() - 1] != '/')
+      if (target[0] != '/' && output[output.length() - 1] != '/')
         output += '/';
-
       if (files::File::isFileFromPath(target)) {
         output += removeLocPath(target);
       } else if (_inst._loc.get_auto_index() == true) {
@@ -201,6 +199,11 @@ class ResponseHandler {
 
   };  // -- end of A_METHODE
 
+  // *----------------------------------------------------------------------------------------------------
+  // *----------------------------------------------------------------------------------------------------
+  // *----------------------------------------------------------------------------------------------------
+  // *----------------------------------------------------------------------------------------------------
+
   class GetMethod : public A_Method {
    public:
     GetMethod(ResponseHandler& inst) : A_Method(inst){};
@@ -212,7 +215,7 @@ class ResponseHandler {
       s << "File targeted in GET: " << targetPath;
 
       if (targetPath.empty()) {
-        return makeStandardResponse(status::Unauthorized);
+        return makeStandardResponse(status::Forbidden);
       }
 
       struct stat st;
@@ -227,6 +230,8 @@ class ResponseHandler {
             _inst._resp.setStatus(status::Ok);
             return setRespForFile();
           }
+        } else if (file.getError() & EACCES) {
+          return makeStandardResponse(status::Forbidden, strerror(EACCES));
         } else {
           return makeStandardResponse(status::NotFound);
         }
@@ -270,40 +275,54 @@ class ResponseHandler {
       _inst._resp.setFile(targetPath);
       files::File const& file = _inst._resp.getFileInst();
 
+      if (file.isDir())
+        return makeStandardResponse(status::Forbidden);
       if (file.isGood()) {
         std::string cgiBin = getCgiBinPath();
         if (cgiBin.empty()) {
-          // TODO what if post to html ?...
-          return makeStandardResponse(status::Unauthorized);
+          return makeStandardResponse(status::Conflict, "Existing file.");
         } else {
           return handleCgiFile(cgiBin);
         }
-      } else if (file.isDir() || file.getError() == ENOENT) {
-        return handleUpload();
-      } else if (file.getError() == (EACCES | ELOOP | ENAMETOOLONG)) {
+      } else if (file.getError() & ENOENT) {
+          if (_inst._loc.get_upload() == true)
+            return handleUpload();
+          else
+            return makeStandardResponse(status::Forbidden);
+
+      } else if (file.getError() & (EACCES | ELOOP | ENAMETOOLONG)) {
         return makeStandardResponse(status::Conflict, strerror(errno));
       }
     }
 
     void handleUpload() {
-      std::cout << "PERFORM UPLOAD OF FILE IN BODY" << std::endl;
 
-      // files::File const& file = _inst._resp.getFileInst();
-      // if (file.isFile())  {
-      //   files::File uploadFile(file._path, O_CREAT | O_TRUNC);
-      //   if (uploadFile.isGood())  {
-      //     // TODO check if ok: it could be very long ?
-      //     write(uploadFile.getFD(), _inst._req. )
-      //   }
-      //   else {
-      //     return makeStandardResponse(status::Conflict, strerror(errno));
-      //   }
-      // }
-      // else {
+      files::File const& requestedFile = _inst._resp.getFileInst();
+      if (requestedFile.isFile())  {
+        files::File uploadFile(requestedFile.getPath(), O_CREAT | O_TRUNC | O_WRONLY, 0644);
+        if (uploadFile.isGood())  {
+          // TODO check if ok: it could be very long ?
+          char const * data = _inst._req.get_body().data();             // TODO c11 ! string ?
+          size_t len = _inst._req.get_body().size();
+          write(uploadFile.getFD(), data, len);
 
-      // }
+          return makeStandardResponse(status::Accepted);
+          /*
 
-      return makeStandardResponse(status::Created);
+  ENOSPC -> 507 Insufficient Storage
+
+
+          */
+        }
+        else {
+          return makeStandardResponse(status::Conflict, strerror(errno));
+        }
+      }
+      else {
+        return makeStandardResponse(status::Forbidden);
+
+      }
+
     }
   };  // --- end POST METHOD
 
@@ -333,7 +352,7 @@ class ResponseHandler {
                    unlink(target.c_str()) == 0) {
           return setRespNoBody(status::NoContent);
         } else {
-          return makeStandardResponse(status::Unauthorized);
+          return makeStandardResponse(status::Forbidden);
         }
 
       } else

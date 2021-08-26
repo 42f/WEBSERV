@@ -75,7 +75,7 @@ void ResponseHandler::processRequest() {
   }
 
   if (_loc.get_root().empty()) {
-    return _method->makeStandardResponse(status::Unauthorized);
+    return _method->makeStandardResponse(status::Forbidden);
   }
   _method->handler();
 }

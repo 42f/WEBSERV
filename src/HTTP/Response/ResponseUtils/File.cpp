@@ -8,10 +8,10 @@ std::map<std::string, std::string> files::File::_types;
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-File::File(void) : _fd(FD_UNSET), _error(0), _flags(0) {}
+File::File(void) : _fd(FD_UNSET), _error(0), _flags(0), _mode(644) {}
 
-File::File(std::string const& path, int flags)
-    : _fd(FD_UNSET), _path(path), _error(0), _flags(flags) {
+File::File(std::string const& path, int flags, int mode)
+    : _fd(FD_UNSET), _path(path), _error(0), _flags(flags), _mode(mode) {
   openFile();
 }
 
@@ -29,19 +29,23 @@ File::~File(void) {
 
 /* ................................. ACCESSOR ................................*/
 
-void File::init(std::string const& path, int flags) {
+void File::init(std::string const& path, int flags, int mode) {
   if (_fd != FD_UNSET) {
     close(_fd);
   }
   _path = path;
   _flags = flags;
+  _mode = mode;
   openFile();
 }
 
 void File::openFile() {
   _error = 0;
   errno = 0;
-  _fd = open(_path.c_str(), _flags);
+  if (_flags == O_RDONLY)
+    _fd = open(_path.c_str(), _flags);
+  else
+    _fd = open(_path.c_str(), _flags, _mode);
   if (_fd < 0)
     _error = errno;
   else {

@@ -14,9 +14,9 @@ Brian :
                                 return URL; <- pas webserv
 
         🚧 GET with query -> to be tested !
-        🚧 POST
-
-        🐞 autoindex à la racine ! missing /
+        🚧 POST :
+                - uploads:
+                        case of target = /subdir/subdir/file.ext ?
 
         - Version: rfc (client ><= server) + status 505.
 
