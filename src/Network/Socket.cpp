@@ -12,7 +12,8 @@ Socket::Socket(int fd, int port, char *client_ip, fd_status::status status)
       _has_events(false),
       _is_processed(false),
       _status(status),
-      _res(result_type::err(status::None)) {
+      _res(result_type::err(status::None)),
+      _response_handler(_request_handler, 0)      {
   if (fd < 0) {
     _status = fd_status::error;
   }
@@ -23,9 +24,9 @@ Socket::Socket(int fd, int port, char *client_ip, fd_status::status status)
 }
 
 Socket::Socket(void)
-    : _has_events(false), _res(result_type::err(status::None)) {}
+    : _has_events(false), _res(result_type::err(status::None)), _response_handler(_request_handler, 0) {}
 
-Socket::Socket(Socket const &src) { *this = src; }
+Socket::Socket(Socket const &src) : _response_handler(_request_handler, 0) { *this = src; }
 
 Socket::~Socket(void) {}
 
@@ -84,7 +85,7 @@ void Socket::manage_raw_request(char *buffer, int size) {
   if (_res.is_ok()) {
     set_status(fd_status::read);
     _res.unwrap().set_client_ip(_client_ip);
-    _response_handler.init(_res, _port);
+    _response_handler.init(_request_handler, _port);
   }
 }
 

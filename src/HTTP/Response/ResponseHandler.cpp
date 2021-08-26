@@ -2,14 +2,14 @@
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-ResponseHandler::ResponseHandler(ReqResult requestResult, int receivedPort)
-    : _port(0), _method(NULL) {
-  this->init(requestResult, receivedPort);
+ResponseHandler::ResponseHandler(RequestHandler & reqHandler, int receivedPort)
+    : _requestHandler(reqHandler), _port(0), _method(NULL) {
+  this->init(reqHandler, receivedPort);
 }
 
 /* ..............................COPY CONSTRUCTOR.............................*/
 
-ResponseHandler::ResponseHandler(void) : _port(0), _method(NULL) {}
+// ResponseHandler::ResponseHandler(void) : _reqHandler(RequestHandler()), _port(0), _method(NULL) {}
 
 /* ................................ DESTRUCTOR ...............................*/
 
@@ -19,12 +19,15 @@ ResponseHandler::~ResponseHandler(void) {
 
 /* ................................. METHODS .................................*/
 
-void ResponseHandler::init(ReqResult const requestResult, int receivedPort) {
-  _port = receivedPort;
+void ResponseHandler::init(RequestHandler & reqHandler, int receivedPort) {
+  if (_method != NULL)
+    delete _method;
   _method = NULL;
-  _requestRes = requestResult;
-  if (_requestRes.is_ok()) {
-    _req = _requestRes.unwrap();
+
+  _port = receivedPort;
+  _requestHandler = reqHandler;
+  if (_requestHandler._req.is_ok()) {
+    _req = _requestHandler._req.unwrap();
     switch (_req.method) {
       case methods::GET:
         _method = new (std::nothrow) GetMethod(*this);
@@ -49,8 +52,8 @@ void ResponseHandler::processRequest() {
   if (_resp.getState() != respState::emptyResp) {
     return;
   }
-  if (_requestRes.is_err()) {
-    return GetMethod(*this).makeStandardResponse(_requestRes.unwrap_err());
+  if (_requestHandler._req.is_err()) {
+    return GetMethod(*this).makeStandardResponse(_requestHandler._req.unwrap_err());
     // TODO check segfault ?
   }
   _serv = network::ServerPool::getServerMatch(getReqHeader("Host"), _port);
@@ -116,9 +119,9 @@ bool ResponseHandler::isReady() {
 void ResponseHandler::sendHeaders(int fdDest, int flags) {
   int& state = _resp.getState();
   if ((state & respState::headerSent) == false) {
-    if (_requestRes.is_ok())
+    if (_requestHandler._req.is_ok())
       std::cout << RED << "REQUEST:\n"
-                << _requestRes.unwrap() << NC << std::endl; // TODO remove db
+                << _requestHandler._req.unwrap() << NC << std::endl; // TODO remove db
     std::cout << BLUE << "RESPONSE:\n"
               << _resp << NC << std::endl; // TODO remove db
 
@@ -211,9 +214,9 @@ void ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
 void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
   std::stringstream output;
 
-  if (_requestRes.is_ok())
+  if (_requestHandler._req.is_ok())
       std::cout << RED << "REQUEST:\n"
-                << _requestRes.unwrap() << NC << std::endl; // TODO remove db
+                << _requestHandler._req.unwrap() << NC << std::endl; // TODO remove db
     std::cout << BLUE << "RESPONSE:\n"
               << _resp << NC << std::endl; // TODO remove db
 

@@ -33,10 +33,14 @@ namespace files {
             size_t		getSize( void ) const;
             int         getError( void ) const;
 
+            bool        isFile( void ) const;
+            bool        isDir( void ) const;
+
             std::string         getLastModified( void ) const;
             std::string         getType( void ) const;
             std::string         getPath( void ) const;
             std::string         getExt( void ) const;
+            std::string         getFileName( void ) const;
             std::string         getTypeFromExt( std::string const & ext ) const;
 
             static bool         isFileFromPath( std::string const & path );

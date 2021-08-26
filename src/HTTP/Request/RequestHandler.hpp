@@ -24,6 +24,7 @@ namespace request_status
  */
 class RequestHandler
 {
+	friend class ResponseHandler;
 public:
 	typedef Result<Request, status::StatusCode>	result_type;
 

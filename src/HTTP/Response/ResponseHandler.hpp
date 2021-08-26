@@ -28,10 +28,9 @@
 
 class ResponseHandler {
   class A_Method;
-  typedef RequestHandler::result_type ReqResult;
 
  public:
-  void init(ReqResult const requestResult, int receivedPort);
+  void init(RequestHandler &reqHandler, int receivedPort);
   void processRequest(void);
 
 #if __APPLE__
@@ -45,17 +44,17 @@ class ResponseHandler {
   Request const& getRequest(void) const;
 
   ResponseHandler(void);
-  ResponseHandler(ReqResult requestResult, int receivedPort);
+  ResponseHandler(RequestHandler &reqHandler, int receivedPort);
   ~ResponseHandler(void);
 
  private:
-  int _port;
-  ReqResult _requestRes;
+  RequestHandler &_requestHandler;
   Request _req;
-  Response _resp;
-  A_Method* _method;
+  int _port;
   config::Server _serv;
   LocationConfig _loc;
+  A_Method* _method;
+  Response _resp;
 
   std::string getReqHeader(const std::string& target);
   void sendHeaders(int fdDest, int flags);
@@ -84,22 +83,23 @@ class ResponseHandler {
     virtual void handler() = 0;
 
     virtual std::string resolveTargetPath() {
-      std::string resolved(_inst._loc.get_root());
+      std::string output;
       std::string target(_inst._req.target.decoded_path);
 
+      output = _inst._loc.get_root();
+      if (output[output.length() - 1] != '/')
+        output += '/';
+
       if (files::File::isFileFromPath(target)) {
-        resolved += removeLocPath(target);
+        output += removeLocPath(target);
       } else if (_inst._loc.get_auto_index() == true) {
-        // if (target[target.length() - 1] != '/') {                            // TODO remove if completely fixed
-        //   target += '/';
-        // }
-        resolved += removeLocPath(target);
+        output += removeLocPath(target);
       } else if (_inst._loc.get_index().empty() == false) {
-        resolved += (target[target.length() - 1] == '/' ? "" : "/") + _inst._loc.get_index();
+        output += _inst._loc.get_index();
       } else {
         return std::string();
       }
-      return resolved;
+      return output;
     }
 
    private:
@@ -118,7 +118,7 @@ class ResponseHandler {
       if (cgiInst.status() == cgi_status::SYSTEM_ERROR) {
         return makeStandardResponse(status::InternalServerError);
       } else {
-        setRespForCgi();                        // TODO REMOVE debug
+        setRespForCgi();                    // TODO REMOVE debug
         _inst._resp.setStatus(status::Ok);  // TODO REMOVE debug
       }
     }
@@ -159,16 +159,16 @@ class ResponseHandler {
     void setRespForAutoIndexBuff(std::string const& path) {
       Autoindex::make(_inst._req.target.path, path, _inst._resp);
       _inst._resp.setHeader(headerTitle::Content_Length,
-                                _inst._resp.getBuffer().length());
+                            _inst._resp.getBuffer().length());
       _inst._resp.setHeader(headerTitle::Content_Type, "html");
       _inst._resp.getState() = respState::buffResp;
     }
 
     void setRespForErrorBuff(const std::string& optionalMessage = "") {
       _inst._resp.loadErrorHtmlBuffer(_inst._resp.getStatusCode(),
-                                          optionalMessage);
+                                      optionalMessage);
       _inst._resp.setHeader(headerTitle::Content_Length,
-                                _inst._resp.getBuffer().length());
+                            _inst._resp.getBuffer().length());
       if (optionalMessage.empty())
         _inst._resp.setHeader(headerTitle::Content_Type, "html");
       _inst._resp.getState() = respState::buffResp;
@@ -176,8 +176,7 @@ class ResponseHandler {
 
     void setRespForCgi() {
       files::File const& file = _inst._resp.getFileInst();
-      _inst._resp.setHeader(headerTitle::Last_Modified,
-                                file.getLastModified());
+      _inst._resp.setHeader(headerTitle::Last_Modified, file.getLastModified());
       _inst._resp.setHeader(headerTitle::Transfer_Encoding, "chunked");
       _inst._resp.getState() = respState::cgiResp | respState::chunkedResp;
     }
@@ -185,8 +184,7 @@ class ResponseHandler {
     void setRespForFile() {
       files::File const& file = _inst._resp.getFileInst();
       _inst._resp.setHeader(headerTitle::Content_Type, file.getType());
-      _inst._resp.setHeader(headerTitle::Last_Modified,
-                                file.getLastModified());
+      _inst._resp.setHeader(headerTitle::Last_Modified, file.getLastModified());
       _inst._resp.setHeader(headerTitle::Content_Length, file.getSize());
       _inst._resp.getState() = respState::fileResp;
     }
@@ -195,7 +193,7 @@ class ResponseHandler {
       if (red.status >= 300 && red.status <= 308) {
         makeStandardResponse(red.status);
         _inst._resp.setHeader("Location",
-                                  red.resolveRedirect(_inst._req.target));
+                              red.resolveRedirect(_inst._req.target));
       } else {
         makeStandardResponse(red.status, red.uri);
       }
@@ -280,15 +278,32 @@ class ResponseHandler {
         } else {
           return handleCgiFile(cgiBin);
         }
-      } else if (_inst._req.get_body().empty() == false) {
-        handleUpload();
-        // TODO what if post to html ?...
-        return setRespNoBody(status::NoContent);  // ? is it
+      } else if (file.isDir() || file.getError() == ENOENT) {
+        return handleUpload();
+      } else if (file.getError() == (EACCES | ELOOP | ENAMETOOLONG)) {
+        return makeStandardResponse(status::Conflict, strerror(errno));
       }
     }
 
     void handleUpload() {
       std::cout << "PERFORM UPLOAD OF FILE IN BODY" << std::endl;
+
+      // files::File const& file = _inst._resp.getFileInst();
+      // if (file.isFile())  {
+      //   files::File uploadFile(file._path, O_CREAT | O_TRUNC);
+      //   if (uploadFile.isGood())  {
+      //     // TODO check if ok: it could be very long ?
+      //     write(uploadFile.getFD(), _inst._req. )
+      //   }
+      //   else {
+      //     return makeStandardResponse(status::Conflict, strerror(errno));
+      //   }
+      // }
+      // else {
+
+      // }
+
+      return makeStandardResponse(status::Created);
     }
   };  // --- end POST METHOD
 

@@ -51,6 +51,10 @@ void File::openFile() {
   }
 }
 
+
+bool        File::isFile( void ) const { return isFileFromPath(_path); }
+bool        File::isDir( void ) const { return isDirFromPath(_path); }
+
 std::string File::getLastModified() const {
   if (isGood()) {
     struct stat st;
@@ -89,6 +93,8 @@ std::string File::getType(void) const {
   }
   return std::string(DEFAULT_CONTENT_TYPE);
 }
+
+std::string File::getFileName(void) const { return  getFileFromPath(_path); }
 
 // returns the extension for the file isntance
 std::string File::getExt(void) const { return getExtFromPath(_path); }

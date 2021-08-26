@@ -16,6 +16,8 @@ Brian :
         🚧 GET with query -> to be tested !
         🚧 POST
 
+        🐞 autoindex à la racine ! missing /
+
         - Version: rfc (client ><= server) + status 505.
 
 
