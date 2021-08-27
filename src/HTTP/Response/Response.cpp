@@ -8,8 +8,7 @@ Response::Response()
       _statusCode(status::None) {
   setHeader("Cache-Control:", "no-cache");  // TODO remove debug
   setHeader(headerTitle::Date, Timer::getTimeNow());
-  setHeader(headerTitle::Server,
-            headerTitle::DefaultValues::get(headerTitle::Server));
+  setHeader(headerTitle::Server, WEBSERV_NAME);
 }
 
 Response::Response(Version version, status::StatusCode statusCode)
@@ -17,8 +16,7 @@ Response::Response(Version version, status::StatusCode statusCode)
       _version(version),
       _statusCode(statusCode) {
   setHeader(headerTitle::Date, Timer::getTimeNow());
-  setHeader(headerTitle::Server,
-            headerTitle::DefaultValues::get(headerTitle::Server));
+  setHeader(headerTitle::Server, WEBSERV_NAME);
 }
 
 /* ..............................COPY CONSTRUCTOR.............................*/

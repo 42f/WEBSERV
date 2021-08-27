@@ -22,7 +22,6 @@ namespace headerTitle {
 		Transfer_Encoding,
 		WWW_Authenticate
 	};
-// TODO ------------ REMOVE ? --------------------------------------------------
 	class HeaderTitleField {
 
 		public:
@@ -34,46 +33,4 @@ namespace headerTitle {
 
 			HeaderTitleField();
 	};
-
-
-	class DefaultValues {
-
-		public:
-			static std::string& get(Title title);
-
-		private:
-			std::map<Title, std::string>	_fields;
-			static DefaultValues			_instance;
-
-			DefaultValues();
-
-	};
 }
-
-// class ResponseHeader	{
-
-// 	friend std::ostream &	operator<<( std::ostream & o, ResponseHeader const & i );
-
-// 	public:
-
-// 		typedef std::pair<const std::string, std::string>  			header_t;
-
-// 		ResponseHeader( std::string const& customHeader, std::string const& value = "");
-// 		ResponseHeader( std::string const& customHeader, int value);
-// 		ResponseHeader( headerTitle::Title const& title, std::string const& value = "" );
-// 		ResponseHeader( headerTitle::Title const& title, int value);
-// 		ResponseHeader( ResponseHeader const & src );
-
-// 		header_t&			getData( void );
-// 		const std::string&	field( void ) const;
-// 		const std::string&	value( void ) const;
-
-// 		~ResponseHeader( void );
-
-// 	private:
-
-// 		header_t			_header;
-
-// 		ResponseHeader( void );
-// 		ResponseHeader &		operator=( ResponseHeader const & rhs );
-// };

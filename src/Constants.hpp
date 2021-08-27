@@ -39,6 +39,8 @@
 // # define DEFAULT_SEND_SIZE 2048 			// TODO cleanup
 #endif
 
+#define WEBSERV_NAME			"Webserv Team ABC"
+
 #define RESPONSE_AVAILABLE		0
 #define RESPONSE_SENT_ENTIRELY	-1
 
