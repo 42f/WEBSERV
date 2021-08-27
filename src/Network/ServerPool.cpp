@@ -93,8 +93,6 @@ LocationConfig const ServerPool::getLocationMatch(config::Server const &serv,
     }
     while (targetPath.empty() == false) {
       for (it = locs.begin(); it != locs.end(); it++) {
-        // LogStream s; s << "Trying "  << targetPath << " vs. " <<
-        // it->get_path(); // TODO remove
         if (targetPath == it->get_path() || targetPath + '/' == it->get_path())
           return *it;
       }
