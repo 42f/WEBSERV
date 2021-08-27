@@ -4,6 +4,7 @@
 
 #include "RequestHandler.hpp"
 #include "HTTP/Request/RequestParser.hpp"
+#include <cstdlib>
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -78,8 +79,13 @@ void	RequestHandler::parse()
 		_req = result_type::ok(r);
 		std::vector<char>::iterator		end = _buffer.begin() + (req.left().p - _buffer.data());
 		_buffer.erase(_buffer.begin(), end);
-		if (r.get_header("Content-Length").is_ok() || r.get_header("Transfer-Encoding").is_ok())
+		if (r.get_header("Content-Length").is_ok() || r.get_header("Transfer-Encoding").is_ok()) {
+			if (r.get_header("Content-Length").is_ok())
+				_buffer.reserve(std::atoi(r.get_header("Content-Length").unwrap().c_str()));
+			else
+				_buffer.reserve(65550);
 			_status = request_status::Waiting;
+		}
 		else
 			_status = request_status::Complete;
 	}

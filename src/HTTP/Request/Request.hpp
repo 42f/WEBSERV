@@ -9,7 +9,7 @@
 
 #include "Config/Directives/Redirect.hpp"
 #include "HTTP/Headers/Headers.hpp"
-#include "RequestLine.hpp"
+#include "RequestUtils/RequestLine.hpp"
 
 /*
  * Request

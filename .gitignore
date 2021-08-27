@@ -20,9 +20,9 @@ request.test
 webserv.cbp
 
 # Cmake files
-cmake_install.cmake
-CMakeFiles
-CMakeCache.txt
+/cmake_install.cmake
+/CMakeFiles
+/CMakeCache.txt
 
 # Prerequisites
 *.d

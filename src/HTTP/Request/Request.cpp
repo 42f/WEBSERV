@@ -6,7 +6,7 @@
 
 #include <cstdlib>
 
-#include "Chunk.hpp"
+#include "RequestUtils/Chunk.hpp"
 
 /*
 ** ---------------------------------- PRIVATE ----------------------------------
@@ -25,6 +25,7 @@ bool Request::receive_chunked(std::vector<char> &buff) {
     if (it->end) end = true;
   }
   buff.erase(buff.begin(), buff.begin() + (chunks.left().p - buff.data()));
+  buff.reserve(65550);
   return end;
 }
 
@@ -83,10 +84,6 @@ std::ostream &operator<<(std::ostream &stream, const Request &req) {
   for (std::map<std::string, Header>::const_iterator it = req._headers.begin();
        it != req._headers.end(); it++) {
     stream << "|" << it->second << "|" << std::endl;
-  }
-  for (std::vector<char>::const_iterator it = req._body.begin();
-       it != req._body.end(); it++) {
-    stream << *it;
   }
   stream << std::endl;
   return stream;
