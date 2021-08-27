@@ -40,7 +40,6 @@ void ResponseHandler::init(RequestHandler & reqHandler, int receivedPort) {
         break;
 
       default:
-        _method = new (std::nothrow) UnsupportedMethod(*this);
         break;
     }
     if (_method == NULL)
@@ -55,14 +54,10 @@ void ResponseHandler::processRequest() {
   if (_requestHandler._req.is_err()) {
     return GetMethod(*this).makeStandardResponse(_requestHandler._req.unwrap_err());
   }
-  // if (_req.version.major == '1' && _req.version.minor == '0') {              // TODO soit parser, soit ici.
-  //   std::cout << "HERE" << std::endl;
-  //   GetMethod(*this).makeStandardResponse(status::HTTPVersionNotSupported);
-  //   _resp.setHeader("Upgrade", "HTTP/1.1");
-  //   _resp.setVersion(Version('1', '0'));
-  //   return ;
-  // }
-  _serv = network::ServerPool::getServerMatch(getReqHeader("Host"), _port);
+  std::string host = getReqHeader("Host");
+  if (host.empty())
+    return GetMethod(*this).makeStandardResponse(status::BadRequest);
+  _serv = network::ServerPool::getServerMatch(host, _port);
   _loc = network::ServerPool::getLocationMatch(_serv, _req.target);
 
   // Check if the location resolved allows the requested method

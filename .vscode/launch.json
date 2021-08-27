@@ -9,7 +9,7 @@
 			"type": "lldb",
 			"request": "launch",
 			"program": "${workspaceFolder}/webserv",
-			"args": ["${workspaceFolder}/assets/conf_MAC/test_upload.conf"],
+			"args": ["${workspaceFolder}/assets/conf_MAC/muti_locations_servers.conf"],
 		}
 	]
 }

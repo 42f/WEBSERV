@@ -83,20 +83,23 @@ class ResponseHandler {
 
     virtual std::string resolveTargetPath() {
       std::string output;
+      std::string file;
       std::string target(_inst._req.target.decoded_path);
 
-      output = _inst._loc.get_root();
-      if (target[0] != '/' && output[output.length() - 1] != '/')
-        output += '/';
       if (files::File::isFileFromPath(target)) {
-        output += removeLocPath(target);
+        file = removeLocPath(target);
       } else if (_inst._loc.get_auto_index() == true) {
-        output += removeLocPath(target);
+        file = removeLocPath(target);
       } else if (_inst._loc.get_index().empty() == false) {
-        output += _inst._loc.get_index();
+        file = _inst._loc.get_index();
       } else {
         return std::string();
       }
+
+      output = _inst._loc.get_root();
+      if (file[0] != '/' || output[output.length() - 1] != '/')
+        output += '/';
+      output += file;
       return output;
     }
 
