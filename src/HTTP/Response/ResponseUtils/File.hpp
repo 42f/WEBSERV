@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <map>
+#include <fstream>
 
 # include "utils/Logger.hpp"
 # include "utils/Timer.hpp"
