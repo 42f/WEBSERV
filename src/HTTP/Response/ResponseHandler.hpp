@@ -13,14 +13,14 @@
 #include <string>
 #include <vector>
 
-#include "CGI.hpp"
+#include "CGI/CGI.hpp"
 #include "Config/Directives/Redirect.hpp"
 #include "Config/Server.hpp"
 #include "HTTP/Request/Request.hpp"
-#include "Headers/Headers.hpp"
+#include "HTTP/Headers/Headers.hpp"
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
-#include "RequestLine.hpp"
+#include "RequestUtils/RequestLine.hpp"
 #include "Response.hpp"
 #include "Status.hpp"
 #include "Timer.hpp"

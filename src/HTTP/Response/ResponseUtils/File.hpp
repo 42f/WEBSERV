@@ -9,8 +9,8 @@
 # include <sys/stat.h>
 # include <stdlib.h>
 
-# include "Logger.hpp"
-# include "Timer.hpp"
+# include "utils/Logger.hpp"
+# include "utils/Timer.hpp"
 # include "Constants.hpp"
 
 namespace files {

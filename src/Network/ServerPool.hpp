@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "HTTP/Response/ResponseUtils/File.hpp"
 #include "Config/Directives/Location.hpp"
-#include "File.hpp"
 
 namespace network {
 

@@ -15,7 +15,6 @@
 #include <sstream>
 #include <utility>
 
-#include "CGI.hpp"
 #include "Config/ConfigParser.hpp"
 #include "Config/Server.hpp"
 #include "HTTP/Request/RequestHandler.hpp"

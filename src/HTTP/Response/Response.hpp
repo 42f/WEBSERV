@@ -7,15 +7,15 @@
 
 #include "Config/Directives/Redirect.hpp"
 #include "Config/Server.hpp"
-#include "RequestLine.hpp"
-#include "Headers.hpp"
-#include "ResponseHeader.hpp"
-#include "File.hpp"
+#include "HTTP/Request/RequestUtils/RequestLine.hpp"
+#include "HTTP/Headers/Headers.hpp"
+#include "ResponseUtils/ResponseHeader.hpp"
+#include "ResponseUtils/File.hpp"
 
 #include "utils/Logger.hpp"
 #include "utils/Timer.hpp"
-#include "Status.hpp"
-#include "CGI.hpp"
+#include "HTTP/Status.hpp"
+#include "CGI/CGI.hpp"
 
 namespace respState {
 

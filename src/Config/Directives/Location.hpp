@@ -6,6 +6,7 @@
 #define WEBSERV_LOCATION_HPP
 
 #include "Config/Server.hpp"
+
 namespace config {
 	class Server;
 }
@@ -24,7 +25,7 @@ namespace config {
 #include "Methods.hpp"
 #include "Redirect.hpp"
 #include "Upload.hpp"
-#include "ServerPool.hpp"
+#include "Network/ServerPool.hpp"
 
 
 #include <limits>
