@@ -14,7 +14,7 @@ RM = rm -f
 
 CC = clang++
 
-CFLAGS= -Wall -Wextra -Isrc -Isrc/parser -Isrc/parsing -Isrc/HTTP -Isrc/utils -Isrc/HTTP/Request -Isrc/HTTP/Response
+CFLAGS= -Wall -Wextra -Werror -Isrc -Isrc/parser -Isrc/parsing -Isrc/HTTP -Isrc/utils -Isrc/HTTP/Request -Isrc/HTTP/Response
 
 ifdef fast
 else
