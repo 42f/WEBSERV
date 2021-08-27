@@ -82,6 +82,7 @@ class ResponseHandler {
     virtual void handler() = 0;
 
     virtual std::string resolveTargetPath() {
+
       std::string output;
       std::string file;
       std::string target(_inst._req.target.decoded_path);
@@ -220,7 +221,6 @@ class ResponseHandler {
       if (targetPath.empty()) {
         return makeStandardResponse(status::Forbidden);
       }
-
       struct stat st;
       if (files::File::isFileFromPath(targetPath)) {
         _inst._resp.setFile(targetPath);
@@ -240,7 +240,7 @@ class ResponseHandler {
         }
       } else if (_inst._loc.get_auto_index() == true &&
                  stat(targetPath.c_str(), &st) == 0) {
-        if (targetPath[targetPath.length() - 1] != '/') {
+        if (endsWithSlash(_inst._req.target.decoded_path) == false) {
           return manageRedirect(
               redirect(status::MovedPermanently, _inst._req.target.path + '/'));
         } else {
@@ -251,6 +251,11 @@ class ResponseHandler {
       // Default response to avoid empty response
       return makeStandardResponse(status::InternalServerError);
     }
+
+    bool  endsWithSlash(std::string const & path) {
+        return path.length() > 1 && *(--path.end()) == '/';
+    }
+
   };  // --- end GET METHOD
 
   // *--------------------------------------------------------------------------
