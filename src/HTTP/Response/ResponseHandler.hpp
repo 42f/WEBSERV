@@ -272,7 +272,7 @@ class ResponseHandler {
       files::File const& file = _inst._resp.getFileInst();
 
       if (file.isDir())
-        return makeStandardResponse(status::Forbidden);
+        return makeStandardResponse(status::BadRequest);
       if (file.isGood()) {
         std::string cgiBin = getCgiBinPath();
         if (cgiBin.empty()) {
@@ -286,7 +286,6 @@ class ResponseHandler {
           return handleUpload();
         else
           return makeStandardResponse(status::Forbidden);
-
       } else if (file.getError() & (EACCES | ELOOP | ENAMETOOLONG)) {
         return makeStandardResponse(status::Conflict, strerror(file.getError()));
       }
@@ -300,9 +299,12 @@ class ResponseHandler {
         if (uploadFile.isGood()) {
           size_t len = _inst._req.get_body().size();
           if (len > 0) {
-            // char const* data = _inst._req.get_body().data();                     // *  .data() is c11 ! string ?
-            char const* data = &(*(_inst._req.get_body().begin()));                 // * durty but C98 compliant :/
-            write(uploadFile.getFD(), data, len);
+            char const* data = _inst._req.get_body().data();
+            size_t ret = write(uploadFile.getFD(), data, len);
+            if (ret > 0)
+              return makeStandardResponse(status::Accepted);
+            else
+              return makeStandardResponse(status::InternalServerError);
           }
           return makeStandardResponse(status::Accepted);
         } else {
@@ -328,29 +330,20 @@ class ResponseHandler {
       std::string target = resolveTargetPath();
       LogStream s;
       s << "Target in DELETE: " << target;
-      struct stat st;
 
-      if (target == _inst._loc.get_root() ||
-          target == _inst._loc.get_root() + '/') {
+      if (files::File::isDirFromPath(target)) {
         return makeStandardResponse(status::Forbidden);
       }
-      if (stat(target.c_str(), &st) == 0) {
-        errno = 0;
-        if (files::File::isDirFromPath(target) && rmdir(target.c_str()) == 0) {
-          return setRespNoBody(status::NoContent);
-        } else if (errno & ENOTEMPTY) {
-          return makeStandardResponse(status::Conflict, strerror(errno));
-        } else if (files::File::isFileFromPath(target) &&
-                   unlink(target.c_str()) == 0) {
-          return setRespNoBody(status::NoContent);
-        } else {
-          return makeStandardResponse(status::Forbidden);
-        }
-
-      } else
+      struct stat st;
+      errno = 0;
+      if (stat(target.c_str(), &st) == 0 && unlink(target.c_str()) == 0) {
+        return setRespNoBody(status::NoContent);
+      } else if (errno & ENOENT) {
         return makeStandardResponse(status::NotFound);
+      } else {
+        return makeStandardResponse(status::Forbidden);
+      }
     }
-
   };  // --- end DELETE METHOD
 
   class UnsupportedMethod : public A_Method {
@@ -358,7 +351,7 @@ class ResponseHandler {
     UnsupportedMethod(ResponseHandler& inst) : A_Method(inst){};
     ~UnsupportedMethod(){};
 
-    void handler() { std::cout << __func__ << " of UNSUPPORTED." << std::endl; }
+    void handler() { return makeStandardResponse(status::MethodNotAllowed); }
   };
 
 };  // end reponseHandler
