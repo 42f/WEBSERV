@@ -5,11 +5,18 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Launch_bv",
+			"name": "Launch_bv_autoindex",
 			"type": "lldb",
 			"request": "launch",
 			"program": "${workspaceFolder}/webserv",
 			"args": ["${workspaceFolder}/assets/conf_MAC/test_autoindex.conf"],
+		}
+		{
+			"name": "Launch_bv_muti_locations_servers",
+			"type": "lldb",
+			"request": "launch",
+			"program": "${workspaceFolder}/webserv",
+			"args": ["${workspaceFolder}/assets/conf_MAC/muti_locations_servers.conf"],
 		}
 	]
 }
