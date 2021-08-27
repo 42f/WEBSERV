@@ -261,12 +261,8 @@ class ResponseHandler {
     ~PostMethod(){};
 
     void handler() {
-      if (_inst._req.get_body().empty() &&
-          _inst._req.target.decoded_query.empty()) {
-        // TODO implement if empty body ? What does nginx do ?
-        std::cout << "Empty body in post request..." << std::endl;
+      if (_inst._req.get_body().empty())
         return makeStandardResponse(status::BadRequest);
-      }
 
       std::string targetPath = resolveTargetPath();
       LogStream s;
@@ -280,49 +276,41 @@ class ResponseHandler {
       if (file.isGood()) {
         std::string cgiBin = getCgiBinPath();
         if (cgiBin.empty()) {
-          return makeStandardResponse(status::Conflict, "Existing file.");
+          return makeStandardResponse(status::Conflict,
+                                      "This file already exists.");
         } else {
           return handleCgiFile(cgiBin);
         }
       } else if (file.getError() & ENOENT) {
-          if (_inst._loc.get_upload() == true)
-            return handleUpload();
-          else
-            return makeStandardResponse(status::Forbidden);
+        if (_inst._loc.get_upload() == true)
+          return handleUpload();
+        else
+          return makeStandardResponse(status::Forbidden);
 
       } else if (file.getError() & (EACCES | ELOOP | ENAMETOOLONG)) {
-        return makeStandardResponse(status::Conflict, strerror(errno));
+        return makeStandardResponse(status::Conflict, strerror(file.getError()));
       }
     }
 
     void handleUpload() {
-
       files::File const& requestedFile = _inst._resp.getFileInst();
-      if (requestedFile.isFile())  {
-        files::File uploadFile(requestedFile.getPath(), O_CREAT | O_TRUNC | O_WRONLY, 0644);
-        if (uploadFile.isGood())  {
-          // TODO check if ok: it could be very long ?
-          char const * data = _inst._req.get_body().data();             // TODO c11 ! string ?
+      if (requestedFile.isFile()) {
+        files::File uploadFile(requestedFile.getPath(),
+                               O_CREAT | O_TRUNC | O_WRONLY, 0644);
+        if (uploadFile.isGood()) {
           size_t len = _inst._req.get_body().size();
-          write(uploadFile.getFD(), data, len);
-
+          if (len > 0) {
+            // char const* data = _inst._req.get_body().data();                     // *  .data() is c11 ! string ?
+            char const* data = &(*(_inst._req.get_body().begin()));                 // * durty but C98 compliant :/
+            write(uploadFile.getFD(), data, len);
+          }
           return makeStandardResponse(status::Accepted);
-          /*
-
-  ENOSPC -> 507 Insufficient Storage
-
-
-          */
+        } else {
+          return makeStandardResponse(status::Conflict, strerror(uploadFile.getError()));
         }
-        else {
-          return makeStandardResponse(status::Conflict, strerror(errno));
-        }
-      }
-      else {
+      } else {
         return makeStandardResponse(status::Forbidden);
-
       }
-
     }
   };  // --- end POST METHOD
 
@@ -342,11 +330,15 @@ class ResponseHandler {
       s << "Target in DELETE: " << target;
       struct stat st;
 
+      if (target == _inst._loc.get_root() ||
+          target == _inst._loc.get_root() + '/') {
+        return makeStandardResponse(status::Forbidden);
+      }
       if (stat(target.c_str(), &st) == 0) {
         errno = 0;
         if (files::File::isDirFromPath(target) && rmdir(target.c_str()) == 0) {
           return setRespNoBody(status::NoContent);
-        } else if (errno == ENOTEMPTY) {
+        } else if (errno & ENOTEMPTY) {
           return makeStandardResponse(status::Conflict, strerror(errno));
         } else if (files::File::isFileFromPath(target) &&
                    unlink(target.c_str()) == 0) {
@@ -359,19 +351,6 @@ class ResponseHandler {
         return makeStandardResponse(status::NotFound);
     }
 
-    std::string resolveTargetPath() {
-      std::string resolved(_inst._loc.get_root());
-      std::string target(_inst._req.target.decoded_path);
-
-      // if the request aims to a subdir of the location path,
-      // we remove the location path part
-      if (target.find(_inst._loc.get_path()) == 0) {
-        resolved += target.substr(_inst._loc.get_path().length());
-      } else {
-        resolved += target;
-      }
-      return resolved;
-    }
   };  // --- end DELETE METHOD
 
   class UnsupportedMethod : public A_Method {
