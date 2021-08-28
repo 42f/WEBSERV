@@ -99,7 +99,7 @@ class ResponseHandler {
       }
 
       output = _inst._loc.get_root();
-      if (file[0] != '/' || output[output.length() - 1] != '/') output += '/';
+      if (file[0] != '/' && output[output.length() - 1] != '/') output += '/';
       output += file;
       return output;
     }
@@ -120,8 +120,8 @@ class ResponseHandler {
       if (cgiInst.status() == cgi_status::SYSTEM_ERROR) {
         return makeStandardResponse(status::InternalServerError);
       } else {
-        setRespForCgi();                    // TODO REMOVE debug
-        _inst._resp.setStatus(status::Ok);  // TODO REMOVE debug
+        setRespForCgi();
+        _inst._resp.setStatus(status::Ok);
       }
     }
 

@@ -91,7 +91,6 @@ void	RequestHandler::parse()
 				_buffer.reserve(std::atoi(r.get_header("Content-Length").unwrap().c_str()));
 			}
 			else {
-				std::cout << "chunk" << std::endl;
 				_buffer.reserve(65550);
 			}
 			_status = request_status::Waiting;
@@ -114,7 +113,6 @@ bool RequestHandler::isPayloadAcceptable(Request const &r) {
         r.get_header("Host").unwrap(), _port);
     LocationConfig loc =
         network::ServerPool::getLocationMatch(serv, r.target);
-
 	int reqLen = std::atoi(r.get_header("Content-Length").unwrap().c_str());
 	return reqLen < loc.get_body_size();
   }
