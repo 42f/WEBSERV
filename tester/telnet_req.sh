@@ -20,9 +20,7 @@ request() {
 	echo "Content-type: txt/plain"
 	echo "Content-encoding: chunked"
 	echo
-	# echo "7\r\nMozilla\r\n9\r\nDeveloper\r\n7\r\nNetwork\r\n0\r\n\r\n"
-	# echo "0\r\n\r\n"
-	echo
+	echo "7\r\nMozilla\r\n9\r\nDeveloper\r\n7\r\nNetwork\r\n0\r\n\r\n"
 	sleep 2
 }
 
