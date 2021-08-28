@@ -27,14 +27,14 @@ cgi_status::status CGI::status(void) {
 
 int CGI::get_readable_pipe(void) const { return (_pipe); }
 
-std::vector<char *> CGI::set_meta_variables(std::string const &cgi_path, //TODO <= FLAGS - Werror  unused parameter 'cgi_path'
-                                            files::File const &file,
-                                            Request const &req,
-                                            config::Server const &serv) {
+std::vector<char *> CGI::set_meta_variables(
+    std::string const
+        &cgi_path,  // TODO <= FLAGS - Werror  unused parameter 'cgi_path'
+    files::File const &file, Request const &req, config::Server const &serv) {
   RequestLine req_lines;
   std::vector<char *> variables;
 
-  struct stat sb; //TODO <= FLAGS - Werror :unused variable 'sb'
+  struct stat sb;  // TODO <= FLAGS - Werror :unused variable 'sb'
 
   add_variable("AUTH_TYPE", "");
   add_variable("REMOTE_USER", "");
@@ -86,7 +86,7 @@ std::vector<char *> CGI::set_meta_variables(std::string const &cgi_path, //TODO 
   return variables;
 }
 
-void CGI::execute_cgi(std::string const& cgi_path, files::File const &file,
+void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
                       Request const &req, config::Server const &serv) {
   _status = cgi_status::NON_INIT;
   int pipes[2];
@@ -137,6 +137,10 @@ void CGI::execute_cgi(std::string const& cgi_path, files::File const &file,
     waitpid(_child_pid, &_child_return, WNOHANG);
     close(pipes[1]);
     _pipe = pipes[0];
+    free(cgi);
+    for (i = 0; i < _variables.size(); i++) {
+      free(env[i]);
+    }
     _status = cgi_status::READABLE;
   }
 }

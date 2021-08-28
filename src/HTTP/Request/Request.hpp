@@ -19,7 +19,7 @@ struct Request {
   std::map<std::string, Header> _headers;
   std::vector<char> _body;
   size_t _length;
-  char *_client_ip;
+  std::string _client_ip;
 
   bool receive_chunked(std::vector<char> &buff);
   bool receive_raw(std::vector<char> &buff);
@@ -36,8 +36,8 @@ struct Request {
 
   Result<std::string> get_header(const std::string &name) const;
   const std::vector<char> &get_body() const;
-  char *get_client_ip(void) const;
-  void set_client_ip(char *client_ip);
+  std::string get_client_ip(void) const;
+  void set_client_ip(std::string client_ip);
 
   bool receive(std::vector<char> &vector);
 
