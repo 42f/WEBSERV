@@ -81,7 +81,7 @@ char *Socket::get_client_ip(void) const { return _client_ip; }
 ***************************************************/
 
 void Socket::manage_raw_request(char *buffer, int size) {
-  _res = _request_handler.update(buffer, size);
+  _res = _request_handler.update(buffer, size, _port);
   if (_res.is_ok() || _res.unwrap_err() != status::Incomplete) {
     set_status(fd_status::read);
     if (_res.is_ok())

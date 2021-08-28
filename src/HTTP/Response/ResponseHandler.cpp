@@ -69,6 +69,11 @@ void ResponseHandler::processRequest() {
     return;
   }
 
+  // If any payload, check if acceptable size
+  if (_loc.get_body_size() < _req.get_body().size()) {
+    return _method->makeStandardResponse(status::PayloadTooLarge);
+  }
+
   // Check if the location resolved has a redirection in place
   redirect red = _loc.get_redirect();
   if (red.status != 0) {

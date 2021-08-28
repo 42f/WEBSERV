@@ -32,13 +32,15 @@ private:
 	request_status::Status		_status;
 	result_type 				_req;
 	std::vector<char>			_buffer;
+	int							_port;
 
 	void			parse();
+	bool			isPayloadAcceptable(Request const & r);
 public:
 
 	RequestHandler();
 
-	result_type		update(const char *buff, size_t read);
+	result_type		update(const char *buff, size_t read, int port);
 	result_type		receive();
 
 	void			reset();

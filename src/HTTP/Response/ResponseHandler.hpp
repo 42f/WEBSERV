@@ -91,15 +91,15 @@ class ResponseHandler {
         file = removeLocPath(target);
       } else if (_inst._loc.get_auto_index() == true) {
         file = removeLocPath(target);
-      } else if (_inst._loc.get_index().empty() == false) {
+      } else if (_inst._req.method == methods::GET &&
+                 _inst._loc.get_index().empty() == false) {
         file = _inst._loc.get_index();
       } else {
         return std::string();
       }
 
       output = _inst._loc.get_root();
-      if (file[0] != '/' || output[output.length() - 1] != '/')
-        output += '/';
+      if (file[0] != '/' || output[output.length() - 1] != '/') output += '/';
       output += file;
       return output;
     }
@@ -252,8 +252,8 @@ class ResponseHandler {
       return makeStandardResponse(status::InternalServerError);
     }
 
-    bool  endsWithSlash(std::string const & path) {
-        return path.length() > 1 && *(--path.end()) == '/';
+    bool endsWithSlash(std::string const& path) {
+      return path.length() > 1 && *(--path.end()) == '/';
     }
 
   };  // --- end GET METHOD
@@ -279,8 +279,7 @@ class ResponseHandler {
       _inst._resp.setFile(targetPath);
       files::File const& file = _inst._resp.getFileInst();
 
-      if (file.isDir())
-        return makeStandardResponse(status::BadRequest);
+      if (file.isDir()) return makeStandardResponse(status::BadRequest);
       if (file.isGood()) {
         std::string cgiBin = getCgiBinPath();
         if (cgiBin.empty()) {
@@ -295,7 +294,8 @@ class ResponseHandler {
         else
           return makeStandardResponse(status::Forbidden);
       } else if (file.getError() & (EACCES | ELOOP | ENAMETOOLONG)) {
-        return makeStandardResponse(status::Conflict, strerror(file.getError()));
+        return makeStandardResponse(status::Conflict,
+                                    strerror(file.getError()));
       }
     }
 
@@ -316,7 +316,8 @@ class ResponseHandler {
           }
           return makeStandardResponse(status::Accepted);
         } else {
-          return makeStandardResponse(status::Conflict, strerror(uploadFile.getError()));
+          return makeStandardResponse(status::Conflict,
+                                      strerror(uploadFile.getError()));
         }
       } else {
         return makeStandardResponse(status::Forbidden);

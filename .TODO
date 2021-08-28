@@ -14,10 +14,7 @@ Brian :
         ✅ remove autoindex inheritence in location ?...
         ✅ POST
 
-         GET with query -> to be tested !
-
-        - Version: rfc (client ><= server) + status 505.
-                - send 426 Upgrade Required if 1.0 ? https://httpwg.org/specs/rfc7231.html#status.426
+         GET with query -> to be tested ! -> segv in cgi
 
 
 Calixte :
