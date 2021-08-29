@@ -210,7 +210,7 @@ void EventManager::resize(void) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end();) {
-    itr->print_status();
+    // itr->print_status();
     if (HAS_SKT_CLOSABLE(itr->get_status())) {
       FD_CLR(itr->get_skt_fd(), &EventManager::_read_set);
       FD_CLR(itr->get_skt_fd(), &EventManager::_write_set);

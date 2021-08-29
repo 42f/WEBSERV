@@ -9,7 +9,7 @@
 			"type": "lldb",
 			"request": "launch",
 			"program": "${workspaceFolder}/webserv",
-			"args": ["${workspaceFolder}/assets/conf_MAC/test_autoindex.conf"],
+			"args": ["${workspaceFolder}/assets/conf_evaluation/OK_test_autoindex.conf"],
 		},
 		{
 			"name": "Launch_bv_muti_locations_servers",

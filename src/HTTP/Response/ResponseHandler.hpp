@@ -89,11 +89,11 @@ class ResponseHandler {
 
       if (files::File::isFileFromPath(target)) {
         file = removeLocPath(target);
-      } else if (_inst._loc.get_auto_index() == true) {
-        file = removeLocPath(target);
       } else if (_inst._req.method == methods::GET &&
                  _inst._loc.get_index().empty() == false) {
         file = _inst._loc.get_index();
+      } else if (_inst._loc.get_auto_index() == true) {
+        file = removeLocPath(target);
       } else {
         return std::string();
       }
@@ -239,10 +239,12 @@ class ResponseHandler {
       if (targetPath.empty()) {
         return makeStandardResponse(status::Forbidden);
       }
+
       struct stat st;
-      if (files::File::isFileFromPath(targetPath)) {
-        _inst._resp.setFile(targetPath);
-        files::File const& file = _inst._resp.getFileInst();
+      _inst._resp.setFile(targetPath);
+      files::File const& file = _inst._resp.getFileInst();
+
+      if (file.isFileFromPath(targetPath)) {
         if (file.isGood()) {
           std::string cgiBin = getCgiBinPath();
           if (cgiBin.empty() == false) {
@@ -253,8 +255,8 @@ class ResponseHandler {
           }
         } else if (file.getError() & EACCES) {
           return makeStandardResponse(status::Forbidden, strerror(EACCES));
-        // } else if (_inst._loc.get_auto_index() == true) {                    // TODO fix if index file KO -> autoindex on -> autoindex
-        //   return handleAutoIndex(targetPath);
+        } else if (_inst._loc.get_auto_index() == true) {
+          return handleAutoIndex(file.getDirPart());
         } else {
           return makeStandardResponse(status::NotFound);
         }
