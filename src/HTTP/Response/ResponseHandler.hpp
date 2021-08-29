@@ -61,7 +61,7 @@ class ResponseHandler {
   void sendFromBuffer(int fdDest, int flags);
   void sendFromCgi(int fdDest, int flags);
   void sendFromFile(int fdDest, int flags);
-  void doSendFromFD(int fdSrc, int fdDest, int flags);
+  int doSendFromFD(int fdSrc, int fdDest, int flags);
   void manageRedirect(redirect const& red);
 
   ResponseHandler(ResponseHandler const& src);
@@ -158,6 +158,24 @@ class ResponseHandler {
       _inst._resp.setStatus(code);
     }
 
+    void handleAutoIndex(std::string const &targetPath)  {
+      if (endsWithSlash(_inst._req.target.decoded_path) == false) {
+        return manageRedirect(
+            redirect(status::MovedPermanently, _inst._req.target.path + '/'));
+      } else {
+        _inst._resp.setStatus(status::Ok);
+        return setRespForAutoIndexBuff(targetPath);
+      }
+    }
+
+  private:
+
+    bool endsWithSlash(std::string const& path) {
+      return path.empty() == false && *(--path.end()) == '/';
+    }
+
+  public:
+
     void setRespForAutoIndexBuff(std::string const& path) {
       Autoindex::make(_inst._req.target.path, path, _inst._resp);
       _inst._resp.setHeader(headerTitle::Content_Length,
@@ -235,25 +253,17 @@ class ResponseHandler {
           }
         } else if (file.getError() & EACCES) {
           return makeStandardResponse(status::Forbidden, strerror(EACCES));
+        // } else if (_inst._loc.get_auto_index() == true) {                    // TODO fix if index file KO -> autoindex on -> autoindex
+        //   return handleAutoIndex(targetPath);
         } else {
           return makeStandardResponse(status::NotFound);
         }
       } else if (_inst._loc.get_auto_index() == true &&
                  stat(targetPath.c_str(), &st) == 0) {
-        if (endsWithSlash(_inst._req.target.decoded_path) == false) {
-          return manageRedirect(
-              redirect(status::MovedPermanently, _inst._req.target.path + '/'));
-        } else {
-          _inst._resp.setStatus(status::Ok);
-          return setRespForAutoIndexBuff(targetPath);
-        }
+        return handleAutoIndex(targetPath);
       }
       // Default response to avoid empty response
       return makeStandardResponse(status::InternalServerError);
-    }
-
-    bool endsWithSlash(std::string const& path) {
-      return path.length() > 1 && *(--path.end()) == '/';
     }
 
   };  // --- end GET METHOD

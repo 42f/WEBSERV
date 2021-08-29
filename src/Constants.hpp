@@ -36,7 +36,6 @@
 
 #ifndef DEFAULT_SEND_SIZE
 # define DEFAULT_SEND_SIZE 1024
-// # define DEFAULT_SEND_SIZE 2048 			// TODO cleanup
 #endif
 
 #define WEBSERV_NAME			"Webserv Team ABC"
