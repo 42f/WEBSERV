@@ -30,7 +30,6 @@ void ServerPool::locationsInit(config::Server &serv) {
     std::vector<LocationConfig>::iterator it = locations.begin();
     std::vector<LocationConfig>::iterator ite = locations.end();
     for (; it != ite; it++) {
-      it->_auto_index = serv.get_auto_index() == true ?: it->_auto_index;
       it->_root.assign((it->_root.empty()) ? serv.get_root() : it->_root);
       it->_index.assign((it->_index.empty()) ? serv.get_index() : it->_index);
       it->_body_size = (it->_body_size == LocationConfig::SIZE_UNSET)

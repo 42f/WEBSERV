@@ -69,10 +69,11 @@ std::string Socket::get_client_ip(void) const { return _client_ip; }
 ***************************************************/
 
 void Socket::manage_raw_request(char *buffer, int size) {
-  _res = _request_handler.update(buffer, size);
-  if (_res.is_ok()) {
+  _res = _request_handler.update(buffer, size, _port);
+  if (_res.is_ok() || _res.unwrap_err() != status::Incomplete) {
     set_status(fd_status::read);
-    _res.unwrap().set_client_ip(_client_ip);
+    if (_res.is_ok())
+      _res.unwrap().set_client_ip(_client_ip);
     _response_handler.init(_request_handler, _port);
   }
 }

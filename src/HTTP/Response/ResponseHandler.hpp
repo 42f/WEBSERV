@@ -82,21 +82,25 @@ class ResponseHandler {
     virtual void handler() = 0;
 
     virtual std::string resolveTargetPath() {
+
       std::string output;
+      std::string file;
       std::string target(_inst._req.target.decoded_path);
 
-      output = _inst._loc.get_root();
-      if (target[0] != '/' && output[output.length() - 1] != '/')
-        output += '/';
       if (files::File::isFileFromPath(target)) {
-        output += removeLocPath(target);
+        file = removeLocPath(target);
       } else if (_inst._loc.get_auto_index() == true) {
-        output += removeLocPath(target);
-      } else if (_inst._loc.get_index().empty() == false) {
-        output += _inst._loc.get_index();
+        file = removeLocPath(target);
+      } else if (_inst._req.method == methods::GET &&
+                 _inst._loc.get_index().empty() == false) {
+        file = _inst._loc.get_index();
       } else {
         return std::string();
       }
+
+      output = _inst._loc.get_root();
+      if (file[0] != '/' && output[output.length() - 1] != '/') output += '/';
+      output += file;
       return output;
     }
 
@@ -116,8 +120,8 @@ class ResponseHandler {
       if (cgiInst.status() == cgi_status::SYSTEM_ERROR) {
         return makeStandardResponse(status::InternalServerError);
       } else {
-        setRespForCgi();                    // TODO REMOVE debug
-        _inst._resp.setStatus(status::Ok);  // TODO REMOVE debug
+        setRespForCgi();
+        _inst._resp.setStatus(status::Ok);
       }
     }
 
@@ -217,7 +221,6 @@ class ResponseHandler {
       if (targetPath.empty()) {
         return makeStandardResponse(status::Forbidden);
       }
-
       struct stat st;
       if (files::File::isFileFromPath(targetPath)) {
         _inst._resp.setFile(targetPath);
@@ -237,7 +240,7 @@ class ResponseHandler {
         }
       } else if (_inst._loc.get_auto_index() == true &&
                  stat(targetPath.c_str(), &st) == 0) {
-        if (targetPath[targetPath.length() - 1] != '/') {
+        if (endsWithSlash(_inst._req.target.decoded_path) == false) {
           return manageRedirect(
               redirect(status::MovedPermanently, _inst._req.target.path + '/'));
         } else {
@@ -248,6 +251,11 @@ class ResponseHandler {
       // Default response to avoid empty response
       return makeStandardResponse(status::InternalServerError);
     }
+
+    bool endsWithSlash(std::string const& path) {
+      return path.length() > 1 && *(--path.end()) == '/';
+    }
+
   };  // --- end GET METHOD
 
   // *--------------------------------------------------------------------------
@@ -271,8 +279,7 @@ class ResponseHandler {
       _inst._resp.setFile(targetPath);
       files::File const& file = _inst._resp.getFileInst();
 
-      if (file.isDir())
-        return makeStandardResponse(status::Forbidden);
+      if (file.isDir()) return makeStandardResponse(status::BadRequest);
       if (file.isGood()) {
         std::string cgiBin = getCgiBinPath();
         if (cgiBin.empty()) {
@@ -286,9 +293,9 @@ class ResponseHandler {
           return handleUpload();
         else
           return makeStandardResponse(status::Forbidden);
-
       } else if (file.getError() & (EACCES | ELOOP | ENAMETOOLONG)) {
-        return makeStandardResponse(status::Conflict, strerror(file.getError()));
+        return makeStandardResponse(status::Conflict,
+                                    strerror(file.getError()));
       }
     }
 
@@ -300,13 +307,17 @@ class ResponseHandler {
         if (uploadFile.isGood()) {
           size_t len = _inst._req.get_body().size();
           if (len > 0) {
-            // char const* data = _inst._req.get_body().data();                     // *  .data() is c11 ! string ?
-            char const* data = &(*(_inst._req.get_body().begin()));                 // * durty but C98 compliant :/
-            write(uploadFile.getFD(), data, len);
+            char const* data = _inst._req.get_body().data();
+            size_t ret = write(uploadFile.getFD(), data, len);
+            if (ret > 0)
+              return makeStandardResponse(status::Accepted);
+            else
+              return makeStandardResponse(status::InternalServerError);
           }
           return makeStandardResponse(status::Accepted);
         } else {
-          return makeStandardResponse(status::Conflict, strerror(uploadFile.getError()));
+          return makeStandardResponse(status::Conflict,
+                                      strerror(uploadFile.getError()));
         }
       } else {
         return makeStandardResponse(status::Forbidden);
@@ -328,29 +339,20 @@ class ResponseHandler {
       std::string target = resolveTargetPath();
       LogStream s;
       s << "Target in DELETE: " << target;
-      struct stat st;
 
-      if (target == _inst._loc.get_root() ||
-          target == _inst._loc.get_root() + '/') {
+      if (files::File::isDirFromPath(target)) {
         return makeStandardResponse(status::Forbidden);
       }
-      if (stat(target.c_str(), &st) == 0) {
-        errno = 0;
-        if (files::File::isDirFromPath(target) && rmdir(target.c_str()) == 0) {
-          return setRespNoBody(status::NoContent);
-        } else if (errno & ENOTEMPTY) {
-          return makeStandardResponse(status::Conflict, strerror(errno));
-        } else if (files::File::isFileFromPath(target) &&
-                   unlink(target.c_str()) == 0) {
-          return setRespNoBody(status::NoContent);
-        } else {
-          return makeStandardResponse(status::Forbidden);
-        }
-
-      } else
+      struct stat st;
+      errno = 0;
+      if (stat(target.c_str(), &st) == 0 && unlink(target.c_str()) == 0) {
+        return setRespNoBody(status::NoContent);
+      } else if (errno & ENOENT) {
         return makeStandardResponse(status::NotFound);
+      } else {
+        return makeStandardResponse(status::Forbidden);
+      }
     }
-
   };  // --- end DELETE METHOD
 
   class UnsupportedMethod : public A_Method {
@@ -358,7 +360,7 @@ class ResponseHandler {
     UnsupportedMethod(ResponseHandler& inst) : A_Method(inst){};
     ~UnsupportedMethod(){};
 
-    void handler() { std::cout << __func__ << " of UNSUPPORTED." << std::endl; }
+    void handler() { return makeStandardResponse(status::MethodNotAllowed); }
   };
 
 };  // end reponseHandler

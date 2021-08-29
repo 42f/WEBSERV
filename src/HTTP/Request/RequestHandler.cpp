@@ -4,6 +4,7 @@
 
 #include "RequestHandler.hpp"
 #include "HTTP/Request/RequestParser.hpp"
+#include "Network/ServerPool.hpp"
 #include <cstdlib>
 
 /*
@@ -28,8 +29,9 @@ RequestHandler::result_type RequestHandler::receive()
 	return result_type::err(status::Incomplete);
 }
 
-RequestHandler::result_type RequestHandler::update(const char *buff, size_t read)
+RequestHandler::result_type RequestHandler::update(const char *buff, size_t read, int port)
 {
+	_port = port;
 	if (_status == request_status::Complete || _status == request_status::Error)
 		return _req;
 	size_t offset = _buffer.size();
@@ -67,9 +69,9 @@ void	RequestHandler::parse()
 	{
 		{
 			LogStream stream; stream << req.unwrap_err();
-#if LOG_LEVEL == LOG_LEVEL_TRACE
-			req.unwrap_err().trace(input, stream);
-#endif
+// #if LOG_LEVEL == LOG_LEVEL_TRACE
+// 			req.unwrap_err().trace(input, stream); // TODO remove ? segv with chunk req
+// #endif
 		}
 	}
 	if (req.is_ok())
@@ -80,10 +82,17 @@ void	RequestHandler::parse()
 		std::vector<char>::iterator		end = _buffer.begin() + (req.left().p - _buffer.data());
 		_buffer.erase(_buffer.begin(), end);
 		if (r.get_header("Content-Length").is_ok() || r.get_header("Transfer-Encoding").is_ok()) {
-			if (r.get_header("Content-Length").is_ok())
+			if (r.get_header("Content-Length").is_ok()) {
+				if (isPayloadAcceptable(r) == false) {
+					_status = request_status::Error;
+					_req = result_type::err(status::PayloadTooLarge);
+					return;
+				}
 				_buffer.reserve(std::atoi(r.get_header("Content-Length").unwrap().c_str()));
-			else
+			}
+			else {
 				_buffer.reserve(65550);
+			}
 			_status = request_status::Waiting;
 		}
 		else
@@ -95,6 +104,19 @@ void	RequestHandler::parse()
 		_status = code == status::Incomplete ? request_status::Incomplete : request_status::Error;
 		_req = result_type::err(code == status::None ? status::BadRequest : code);
 	}
+}
+
+bool RequestHandler::isPayloadAcceptable(Request const &r) {
+
+  if (r.get_header("Host").is_ok() && r.get_header("Content-Length").is_ok()) {
+    config::Server serv = network::ServerPool::getServerMatch(
+        r.get_header("Host").unwrap(), _port);
+    LocationConfig loc =
+        network::ServerPool::getLocationMatch(serv, r.target);
+	int reqLen = std::atoi(r.get_header("Content-Length").unwrap().c_str());
+	return reqLen < loc.get_body_size();
+  }
+  return true;
 }
 
 /* ************************************************************************** */

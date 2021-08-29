@@ -40,7 +40,6 @@ void ResponseHandler::init(RequestHandler & reqHandler, int receivedPort) {
         break;
 
       default:
-        _method = new (std::nothrow) UnsupportedMethod(*this);
         break;
     }
     if (_method == NULL)
@@ -55,7 +54,10 @@ void ResponseHandler::processRequest() {
   if (_requestHandler._req.is_err()) {
     return GetMethod(*this).makeStandardResponse(_requestHandler._req.unwrap_err());
   }
-  _serv = network::ServerPool::getServerMatch(getReqHeader("Host"), _port);
+  std::string host = getReqHeader("Host");
+  if (host.empty())
+    return GetMethod(*this).makeStandardResponse(status::BadRequest);
+  _serv = network::ServerPool::getServerMatch(host, _port);
   _loc = network::ServerPool::getLocationMatch(_serv, _req.target);
 
   // Check if the location resolved allows the requested method
@@ -65,6 +67,11 @@ void ResponseHandler::processRequest() {
     allowed << _loc.get_methods();
     _resp.setHeader(headerTitle::Allow, allowed.str());
     return;
+  }
+
+  // If any payload, check if acceptable size
+  if (_loc.get_body_size() < _req.get_body().size()) {
+    return _method->makeStandardResponse(status::PayloadTooLarge);
   }
 
   // Check if the location resolved has a redirection in place

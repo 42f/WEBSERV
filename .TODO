@@ -4,22 +4,19 @@ Brian :
         🔴 operator= for every socket componenet
         ✅ check redirect variables
         ✅ autoindex: test
-        ✅ if enought time: redirect 301 for location missing final `/`
-        ✅ serverPool update autoindex from parent server to location
+        ✅ redirect 301 for location missing final `/`
         ✅ redirect:
                 - double quotes in string argument of config file, should they stay ?
                 - we should allow empty argument : `return 404;`
                         Syntax:	return code [text];
                                 return code URL;
                                 return URL; <- pas webserv
-        ✅ POST :
+        ✅ remove autoindex inheritence in location ?...
+        ✅ size max for body
+        ✅ POST
 
-         GET with query -> to be tested !
+         GET with query -> to be tested ! -> segv in cgi
 
-        - Version: rfc (client ><= server) + status 505.
-                - send 426 Upgrade Required if 1.0 ? https://httpwg.org/specs/rfc7231.html#status.426
-
-        - remove autoindex inheritence in location ?...
 
 Calixte :
         - Your program should call the cgi with the file requested as first argument = ask Prawda
