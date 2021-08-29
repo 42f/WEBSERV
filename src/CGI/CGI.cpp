@@ -28,13 +28,9 @@ cgi_status::status CGI::status(void) {
 int CGI::get_readable_pipe(void) const { return (_pipe); }
 
 std::vector<char *> CGI::set_meta_variables(
-    std::string const
-        &cgi_path,  // TODO <= FLAGS - Werror  unused parameter 'cgi_path'
     files::File const &file, Request const &req, config::Server const &serv) {
   RequestLine req_lines;
   std::vector<char *> variables;
-
-  struct stat sb;  // TODO <= FLAGS - Werror :unused variable 'sb'
 
   add_variable("AUTH_TYPE", "");
   add_variable("REMOTE_USER", "");
@@ -92,7 +88,7 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   int pipes[2];
 
   size_t i = 0;
-  set_meta_variables(cgi_path, file, req, serv);
+  set_meta_variables(file, req, serv);
 
   char *env[_variables.size() + 1];
   for (; i < _variables.size();) {

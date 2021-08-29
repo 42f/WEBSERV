@@ -48,19 +48,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/Cellar/cmake/3.21.1/bin/cmake
+CMAKE_COMMAND = /Users/calide-n/.brew/Cellar/cmake/3.21.1/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/Cellar/cmake/3.21.1/bin/cmake -E rm -f
+RM = /Users/calide-n/.brew/Cellar/cmake/3.21.1/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/calixtedenasdetourris/Documents/42/webserv
+CMAKE_SOURCE_DIR = /Users/calide-n/Documents/webserv
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/calixtedenasdetourris/Documents/42/webserv
+CMAKE_BINARY_DIR = /Users/calide-n/Documents/webserv
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -68,7 +68,7 @@ CMAKE_BINARY_DIR = /Users/calixtedenasdetourris/Documents/42/webserv
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/local/Cellar/cmake/3.21.1/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/Users/calide-n/.brew/Cellar/cmake/3.21.1/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -78,7 +78,7 @@ rebuild_cache/fast: rebuild_cache
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/local/Cellar/cmake/3.21.1/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/Users/calide-n/.brew/Cellar/cmake/3.21.1/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -87,9 +87,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/calixtedenasdetourris/Documents/42/webserv/CMakeFiles /Users/calixtedenasdetourris/Documents/42/webserv//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/calide-n/Documents/webserv/CMakeFiles /Users/calide-n/Documents/webserv//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/calixtedenasdetourris/Documents/42/webserv/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/calide-n/Documents/webserv/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
