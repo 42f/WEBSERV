@@ -44,8 +44,7 @@ class CGI {
     _variables.push_back(strdup(ss.str().c_str()));
   }
 
-  std::vector<char *> set_meta_variables(std::string const &cgi_path,
-                                         files::File const &file,
+  std::vector<char *> set_meta_variables(files::File const &file,
                                          Request const &req,
                                          config::Server const &serv);
 };

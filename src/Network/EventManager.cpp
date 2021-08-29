@@ -160,6 +160,11 @@ void EventManager::recv_request(int index) {
       int ret;
 
       ret = recv(itr->get_fd(), buffer, 4096, MSG_DONTWAIT);
+      // TODO -> idk I'm lost
+      // if (ret == 0 || ret == -1) {
+      //   perror("recv");
+      //   // itr->set_status(fd_status::closed);
+      // }
       if (ret > 0) {
         itr->manage_raw_request(buffer, ret);
       }
