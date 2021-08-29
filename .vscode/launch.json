@@ -10,20 +10,27 @@
 			"request": "launch",
 			"program": "${workspaceFolder}/webserv",
 			"args": ["${workspaceFolder}/assets/conf_MAC/test_autoindex.conf"],
-		}
+		},
 		{
 			"name": "Launch_bv_muti_locations_servers",
 			"type": "lldb",
 			"request": "launch",
 			"program": "${workspaceFolder}/webserv",
 			"args": ["${workspaceFolder}/assets/conf_MAC/muti_locations_servers.conf"],
-		}
+		},
 		{
 			"name": "Launch_bv_test_body_limit",
 			"type": "lldb",
 			"request": "launch",
 			"program": "${workspaceFolder}/webserv",
 			"args": ["${workspaceFolder}/assets/conf_MAC/test_body_limit.conf"],
+		},
+		{
+			"name": "OK_simple_no_locations",
+			"type": "lldb",
+			"request": "launch",
+			"program": "${workspaceFolder}/webserv",
+			"args": ["${workspaceFolder}/assets/conf_evaluation/OK_simple_no_locations.conf"],
 		}
 	]
 }
