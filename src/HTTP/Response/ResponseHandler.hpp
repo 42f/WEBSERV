@@ -61,7 +61,7 @@ class ResponseHandler {
   void sendFromBuffer(int fdDest, int flags);
   void sendFromCgi(int fdDest, int flags);
   void sendFromFile(int fdDest, int flags);
-  void doSendFromFD(int fdSrc, int fdDest, int flags);
+  int doSendFromFD(int fdSrc, int fdDest, int flags);
   void manageRedirect(redirect const& red);
 
   ResponseHandler(ResponseHandler const& src);
@@ -171,7 +171,7 @@ class ResponseHandler {
   private:
 
     bool endsWithSlash(std::string const& path) {
-      return path.length() > 1 && *(--path.end()) == '/';
+      return path.empty() == false && *(--path.end()) == '/';
     }
 
   public:

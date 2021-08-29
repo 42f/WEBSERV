@@ -153,9 +153,12 @@ void ResponseHandler::sendFromCgi(int fdDest, int flags) {
     std::cout << "cgi error" << std::endl;
     return;
   }
+  // TODO select
+  // TODO select
   if ((_resp.getState() & respState::cgiHeadersSent) == false)
     sendCgiHeaders(cgiPipe, fdDest, flags);
-  doSendFromFD(cgiPipe, fdDest, flags);
+  if (doSendFromFD(cgiPipe, fdDest, flags) < 1)
+    close(cgiPipe);
 }
 
 void ResponseHandler::sendCgiHeaders(int fdSrc, int fdDest, int flags) {
@@ -189,32 +192,33 @@ void ResponseHandler::sendFromFile(int fdDest, int flags) {
   }
 }
 
-void ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
-  if (isReady() == false) return;
+int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
+  if (isReady() == false) return 1 ; // todo remove
   char buff[DEFAULT_SEND_SIZE + 2];
   bzero(buff, DEFAULT_SEND_SIZE + 2);
-  ssize_t retRead = 0;
+  ssize_t ret = 0;
   int& state = _resp.getState();
 
-  if ((retRead = read(fdSrc, buff, DEFAULT_SEND_SIZE)) < 0) {
+  if ((ret = read(fdSrc, buff, DEFAULT_SEND_SIZE)) < 0) {
     state = respState::ioError;
-    return;
+    return -1;
   }
   if (state & respState::chunkedResp) {
     std::stringstream chunkSize;
-    chunkSize << std::hex << retRead << "\r\n";
+    chunkSize << std::hex << ret << "\r\n";
     std::string chunkData(chunkSize.str());
     chunkData.reserve(chunkData.length() + DEFAULT_SEND_SIZE + 2);
-    buff[retRead + 0] = '\r';
-    buff[retRead + 1] = '\n';
-    chunkData.insert(chunkData.end(), buff, buff + retRead + 2);
-    send(fdDest, chunkData.data(), chunkData.length(), flags);
+    buff[ret + 0] = '\r';
+    buff[ret + 1] = '\n';
+    chunkData.insert(chunkData.end(), buff, buff + ret + 2);
+    ret = send(fdDest, chunkData.data(), chunkData.length(), flags);
   } else {
-    send(fdDest, buff, retRead, flags);
+    ret = send(fdDest, buff, ret, flags);
   }
-  if (retRead == 0) {
+  if (ret == 0) {
     state |= respState::entirelySent;
   }
+  return ret;
 }
 
 void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
