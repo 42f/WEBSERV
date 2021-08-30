@@ -1,7 +1,15 @@
 #include "EventManager.hpp"
 
+#define FULL_SKT_RD(fd, status) \
+  (FD_ISSET(fd, &_read_set) && HAS_SKT_READABLE(status))
+#define FULL_SKT_WR(fd, status) \
+  (FD_ISSET(fd, &_write_set) && HAS_SKT_WRITABLE(status))
+#define FULL_OFD_RD(fd, status) \
+  (FD_ISSET(fd, &_read_set) && HAS_OFD_READABLE(status))
+#define FULL_OFD_WR(fd, status) \
+  (FD_ISSET(fd, &_write_set) && HAS_OFD_WRITABLE(status))
+
 namespace network {
-int EventManager::_kq = 0;
 int EventManager::_timeout = 0;
 int EventManager::_nb_events = 0;
 int EventManager::_total_requests = 0;
@@ -15,9 +23,9 @@ std::list<Socket> EventManager::_sockets;
 ***************************************************/
 
 /*
- *	init() initializes the vector of active sockets and the first select
- *  read & write sets with the listening sockets. Also, init() sets the maximum
- *  listening socket number
+ *	init() initializes the vector of active sockets and the first
+ *select read & write sets with the listening sockets. Also, init()
+ *sets the maximum listening socket number
  */
 
 void EventManager::init(std::vector<network::ServerSocket> s) {
@@ -26,7 +34,7 @@ void EventManager::init(std::vector<network::ServerSocket> s) {
        it != s.end(); it++) {
     FD_SET(it->get_id(), &EventManager::_read_set);
     EventManager::_sockets.push_back(
-        Socket(it->get_id(), it->get_port(), NULL, fd_status::listener));
+        Socket(it->get_id(), it->get_port(), NULL, fd_status::listenable));
     if (it->get_id() > _max_fd) _max_fd = it->get_id();
     i++;
   }
@@ -51,23 +59,31 @@ int EventManager::get_total_requests(void) { return _total_requests; }
 ***************************************************/
 
 /*
- *  do_select() clears select write & read sets, populate them with the file
- *  descriptors from the active sockets vector and calls the select() function
- * on all active sockets (listeners or not)
+ *  do_select() clears select write & read sets, populate them with
+ * the file descriptors from the active sockets vector and calls the
+ * select() function on all active sockets (listeners or not)
  */
 
 void EventManager::do_select(void) {
   FD_ZERO(&EventManager::_read_set);
   FD_ZERO(&EventManager::_write_set);
+  _max_fd = 0;
 
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
-    if (itr->get_status() != fd_status::listener) {
-      FD_SET(itr->get_fd(), &EventManager::_read_set);
-      FD_SET(itr->get_fd(), &EventManager::_write_set);
-    } else
-      FD_SET(itr->get_fd(), &EventManager::_read_set);
+    if (IS_LISTENABLE(itr->get_status())) {
+      FD_SET(itr->get_skt_fd(), &EventManager::_read_set);
+    } else if (!HAS_ERROR(itr->get_status())) {
+      if (itr->get_fd() > _max_fd) _max_fd = itr->get_fd();
+      FD_SET(itr->get_skt_fd(), &EventManager::_read_set);
+      FD_SET(itr->get_skt_fd(), &EventManager::_write_set);
+      if (HAS_OFD_USABLE(itr->get_status())) {
+        if (itr->get_o_fd() > _max_fd) _max_fd = itr->get_o_fd();
+        FD_SET(itr->get_o_fd(), &EventManager::_read_set);
+        FD_SET(itr->get_o_fd(), &EventManager::_write_set);
+      }
+    }
   }
   EventManager::_nb_events =
       select(EventManager::_max_fd + 1, &EventManager::_read_set,
@@ -79,8 +95,8 @@ void EventManager::do_select(void) {
 }
 
 /*
- *  add creates a socket giving it an fd and a port, pushes it in the Active
- *  Socket vector and adds the fd into select read & write sets
+ *  add creates a socket giving it an fd and a port, pushes it in the
+ * Active Socket vector and adds the fd into select read & write sets
  *
  *  add() only adds non-listening soccket
  */
@@ -91,25 +107,23 @@ void EventManager::add(int fd, int port, struct sockaddr_in client_addr) {
     char client_ip[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
     EventManager::_sockets.push_back(
-        Socket(fd, port, client_ip, fd_status::accepted));
-
-    FD_SET(fd, &EventManager::_read_set);
-    FD_SET(fd, &EventManager::_write_set);
+        Socket(fd, port, client_ip, fd_status::skt_readable));
   } else {
     std::cerr << "Error: cannot add fd < 0" << std::endl;
   }
 }
 
 /*
- *  accept_request loops on all the active requests and tries to accept an
- *  incoming request if and only if :
+ *  accept_request loops on all the active requests and tries to
+ * accept an incoming request if and only if :
  *      - there is something to accept (select event)
  *      - the socket is readable
  *      - the socket is a listening socket
  *
- *  upon successful and complete acceptance of the request, the corresponding
- *  socket will be set as 'accepted' and added to the Socket vector to be later
- *  used by accept_request() and send_response()
+ *  upon successful and complete acceptance of the request, the
+ * corresponding socket will be set as 'accepted' and added to the
+ * Socket vector to be later used by accept_request() and
+ * send_response()
  */
 
 void EventManager::accept_request(int fd) {
@@ -118,18 +132,19 @@ void EventManager::accept_request(int fd) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
-    if (FD_ISSET(itr->get_fd(), &EventManager::_read_set) &&
-        itr->get_status() == fd_status::listener) {
+    if (FD_ISSET(itr->get_skt_fd(), &EventManager::_read_set) &&
+        IS_LISTENABLE(itr->get_status())) {
       int tmp_fd;
       struct sockaddr_in client_addr;
       socklen_t addr_len = sizeof(client_addr);
 
       tmp_fd =
-          accept(itr->get_fd(), (struct sockaddr *)&client_addr, &addr_len);
+          accept(itr->get_skt_fd(), (struct sockaddr *)&client_addr, &addr_len);
       if (tmp_fd < 0)
         perror("Accept");
       else {
-        // std::cout << EventManager::get_total_requests() << std::endl;
+        // std::cout << EventManager::get_total_requests() <<
+        // std::endl;
         add(tmp_fd, itr->get_port(), client_addr);
         EventManager::_total_requests++;
       }
@@ -138,15 +153,17 @@ void EventManager::accept_request(int fd) {
 }
 
 /*
- *  recv_request loops on all the active requests and tries to read and store
- *  the data if and only if :
+ *  recv_request loops on all the active requests and tries to read
+ * and store the data if and only if :
  *      - there is something to read (select event)
  *      - the socket is readable
- *      - the socket has been previously accepted by a listening socket
+ *      - the socket has been previously accepted by a listening
+ * socket
  *      - the socket is not a listening socket
  *
- *  upon successful and complete receiving of the response, the corresponding
- *  socket will be set as 'read' to be later used by send_response()
+ *  upon successful and complete receiving of the response, the
+ * corresponding socket will be set as 'read' to be later used by
+ * send_response()
  */
 
 void EventManager::recv_request(int index) {
@@ -154,12 +171,11 @@ void EventManager::recv_request(int index) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
-    if (FD_ISSET(itr->get_fd(), &_read_set) &&
-        itr->get_status() == fd_status::accepted) {
+    if (FULL_SKT_RD(itr->get_fd(), itr->get_status())) {
       char buffer[4096];
       int ret;
 
-      ret = recv(itr->get_fd(), buffer, 4096, MSG_DONTWAIT);
+      ret = recv(itr->get_skt_fd(), buffer, 4096, MSG_DONTWAIT);
       // TODO -> idk I'm lost
       // if (ret == 0 || ret == -1) {
       //   perror("recv");
@@ -173,15 +189,16 @@ void EventManager::recv_request(int index) {
 }
 
 /*
- *  send_reponse loops on all the active requests, gets the reponses if it is
- *  ready and sends it (fully or partially) if and only if :
+ *  send_reponse loops on all the active requests, gets the reponses
+ * if it is ready and sends it (fully or partially) if and only if :
  *      - the response is ready
  *      - the socket is writable (select event)
  *      - the socket has been fully read
  *      - the socket is not a listening socket
  *
- *  upon successful and complete sending of the response, the corresponding
- *  socket will be closed and set as 'closed' to be later delete by resize()
+ *  upon successful and complete sending of the response, the
+ * corresponding socket will be closed and set as 'closed' to be later
+ * delete by resize()
  */
 
 void EventManager::send_response(int index) {
@@ -189,29 +206,39 @@ void EventManager::send_response(int index) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
-    if (FD_ISSET(itr->get_fd(), &_write_set) &&
-        itr->get_status() == fd_status::read) {
-      if (itr->manage_response() == RESPONSE_SENT_ENTIRELY) {
-        itr->set_status(fd_status::closed);
+    if (FULL_SKT_WR(itr->get_fd(), itr->get_status())) {
+      itr->process_request();
+      if (FULL_OFD_RD(itr->get_fd(), itr->get_status()) &&
+          FULL_OFD_WR(itr->get_fd(), itr->get_status())) {
+        if (itr->do_send() == RESPONSE_SENT_ENTIRELY) {
+          itr->set_status(fd_status::skt_closable);
+        }
+        // TO DO : check with Brian the other cases a fd needs to be
+        // closed
       }
-      // TO DO : check with Brian the other cases a fd needs to be closed
     }
   }
 }
 
 /*
- *  Resize is used to delete closed sockets from the Socket vector and file
- *  descriptors from select read/write sets
+ *  Resize is used to delete closed sockets from the Socket vector and
+ * file descriptors from select read/write sets
  */
 
 void EventManager::resize(void) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end();) {
-    if (itr->get_status() == fd_status::closed) {
-      FD_CLR(itr->get_fd(), &EventManager::_read_set);
-      FD_CLR(itr->get_fd(), &EventManager::_write_set);
-      close(itr->get_fd());
+    itr->print_status();
+    if (HAS_SKT_CLOSABLE(itr->get_status())) {
+      FD_CLR(itr->get_skt_fd(), &EventManager::_read_set);
+      FD_CLR(itr->get_skt_fd(), &EventManager::_write_set);
+      close(itr->get_skt_fd());
+      if (HAS_OFD_CLOSABLE(itr->get_status())) {
+        FD_CLR(itr->get_o_fd(), &EventManager::_read_set);
+        FD_CLR(itr->get_o_fd(), &EventManager::_write_set);
+        close(itr->get_o_fd());
+      }
       std::list<Socket>::iterator itr_tmp = itr;
       itr++;
       EventManager::_sockets.erase(itr_tmp);
