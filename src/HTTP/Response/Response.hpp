@@ -58,6 +58,7 @@ class Response	{
 		void	setFile( std::string const & filePath );
 
 		CGI  &			 		getCgiInst( void ) ;
+		int						getCgiFD( void ) const;
 
 		files::File const & 	getFileInst( void ) const;
 		int						getFileFD( void ) const;

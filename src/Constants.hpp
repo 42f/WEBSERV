@@ -42,6 +42,7 @@
 
 #define RESPONSE_AVAILABLE		0
 #define RESPONSE_SENT_ENTIRELY	-1
+#define RESPONSE_NO_FD			-1
 
 #define PARAM_REDIR_REQ_SCHEME	"$scheme"
 #define PARAM_REDIR_REQ_URI		"$request_uri"

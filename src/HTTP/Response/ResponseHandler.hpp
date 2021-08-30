@@ -30,7 +30,7 @@ class ResponseHandler {
 
  public:
   void init(RequestHandler &reqHandler, int receivedPort);
-  void processRequest(void);
+  int processRequest(void);
 
 #if __APPLE__
   int doSend(int fdDest, int flags = 0);
@@ -63,6 +63,7 @@ class ResponseHandler {
   void sendFromFile(int fdDest, int flags);
   int doSendFromFD(int fdSrc, int fdDest, int flags);
   void manageRedirect(redirect const& red);
+  int getOutputFd( void );
 
   ResponseHandler(ResponseHandler const& src);
   ResponseHandler& operator=(ResponseHandler const& rhs);

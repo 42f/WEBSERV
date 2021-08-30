@@ -47,16 +47,16 @@ void ResponseHandler::init(RequestHandler & reqHandler, int receivedPort) {
   }
 }
 
-void ResponseHandler::processRequest() {
-  if (_resp.getState() != respState::emptyResp) {
-    return;
-  }
+int ResponseHandler::processRequest() {
   if (_requestHandler._req.is_err()) {
-    return GetMethod(*this).makeStandardResponse(_requestHandler._req.unwrap_err());
+    GetMethod(*this).makeStandardResponse(_requestHandler._req.unwrap_err());
+    return getOutputFd();
   }
   std::string host = getReqHeader("Host");
-  if (host.empty())
-    return GetMethod(*this).makeStandardResponse(status::BadRequest);
+  if (host.empty()) {
+    GetMethod(*this).makeStandardResponse(status::BadRequest);
+    return getOutputFd();
+  }
   _serv = network::ServerPool::getServerMatch(host, _port);
   _loc = network::ServerPool::getLocationMatch(_serv, _req.target);
 
@@ -66,24 +66,37 @@ void ResponseHandler::processRequest() {
     std::stringstream allowed;
     allowed << _loc.get_methods();
     _resp.setHeader(headerTitle::Allow, allowed.str());
-    return;
+    return getOutputFd();
   }
 
   // If any payload, check if acceptable size
   if (_loc.get_body_size() < _req.get_body().size()) {
-    return _method->makeStandardResponse(status::PayloadTooLarge);
+    _method->makeStandardResponse(status::PayloadTooLarge);
+    return getOutputFd();
   }
 
   // Check if the location resolved has a redirection in place
   redirect red = _loc.get_redirect();
   if (red.status != 0) {
-    return _method->manageRedirect(red);
+    _method->manageRedirect(red);
+    return getOutputFd();
   }
 
   if (_loc.get_root().empty()) {
-    return _method->makeStandardResponse(status::Forbidden);
+    _method->makeStandardResponse(status::Forbidden);
+    return getOutputFd();
   }
   _method->handler();
+  return getOutputFd();
+}
+
+int ResponseHandler::getOutputFd() {
+  if (_resp.getState() & respState::cgiResp) {
+    return _resp.getCgiFD();
+  } else if (_resp.getState() & respState::fileResp) {
+    return _resp.getFileFD();
+  }
+  return RESPONSE_NO_FD;
 }
 
 // safely returns the value of a header if it exists, an empty string otherwise
