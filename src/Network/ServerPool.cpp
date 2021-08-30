@@ -20,10 +20,38 @@ ServerPool::~ServerPool(void) {}
  */
 void ServerPool::init(const std::string &configFilePath) {
   _serverPool = config::parse(configFilePath);
+  if (isServerPoolValid() == false) exit(1);
   std::for_each(_serverPool.begin(), _serverPool.end(),
                 ServerPool::locationsInit);
 }
 
+/*
+ *  Checks if any server have the same port and name
+ */
+bool ServerPool::isServerPoolValid() {
+  std::vector<config::Server>::const_iterator it = _serverPool.begin();
+  std::vector<config::Server>::const_iterator ite = _serverPool.end();
+  std::map<std::string, std::vector<int> > processed;
+
+  for (; it != ite; ++it) {
+    std::vector<int> &serverPorts = processed[it->get_name()];
+    if (std::find(serverPorts.begin(), serverPorts.end(), it->get_port()) ==
+        serverPorts.end()) {
+      serverPorts.push_back(it->get_port());
+    } else {
+      std::cerr << RED
+                << "Configuration error, some server definitions are "
+                   "overlaping on port "
+                << it->get_port() << NC << std::endl;
+      return false;
+    }
+  }
+  return true;
+}
+
+/*
+ * Inherite data from server in each locations where it was not explicitly set
+ */
 void ServerPool::locationsInit(config::Server &serv) {
   std::vector<LocationConfig> &locations = serv.get_locations();
   if (locations.empty() == false) {

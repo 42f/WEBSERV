@@ -196,29 +196,29 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
   if (isReady() == false) return 1 ; // todo remove
   char buff[DEFAULT_SEND_SIZE + 2];
   bzero(buff, DEFAULT_SEND_SIZE + 2);
-  ssize_t ret = 0;
+  ssize_t retRead = 0;
   int& state = _resp.getState();
 
-  if ((ret = read(fdSrc, buff, DEFAULT_SEND_SIZE)) < 0) {
+  if ((retRead = read(fdSrc, buff, DEFAULT_SEND_SIZE)) < 0) {
     state = respState::ioError;
     return -1;
   }
   if (state & respState::chunkedResp) {
     std::stringstream chunkSize;
-    chunkSize << std::hex << ret << "\r\n";
+    chunkSize << std::hex << retRead << "\r\n";
     std::string chunkData(chunkSize.str());
     chunkData.reserve(chunkData.length() + DEFAULT_SEND_SIZE + 2);
-    buff[ret + 0] = '\r';
-    buff[ret + 1] = '\n';
-    chunkData.insert(chunkData.end(), buff, buff + ret + 2);
-    ret = send(fdDest, chunkData.data(), chunkData.length(), flags);
+    buff[retRead + 0] = '\r';
+    buff[retRead + 1] = '\n';
+    chunkData.insert(chunkData.end(), buff, buff + retRead + 2);
+    retRead = send(fdDest, chunkData.data(), chunkData.length(), flags);
   } else {
-    ret = send(fdDest, buff, ret, flags);
+    retRead = send(fdDest, buff, retRead, flags);
   }
-  if (ret == 0) {
+  if (retRead == 0) {
     state |= respState::entirelySent;
   }
-  return ret;
+  return retRead;
 }
 
 void ResponseHandler::sendFromBuffer(int fdDest, int flags) {

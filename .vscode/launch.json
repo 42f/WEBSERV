@@ -4,6 +4,7 @@
 	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 	"version": "0.2.0",
 	"configurations": [
+
 		{
 			"name": "Launch_bv_autoindex",
 			"type": "lldb",
@@ -16,7 +17,7 @@
 			"type": "lldb",
 			"request": "launch",
 			"program": "${workspaceFolder}/webserv",
-			"args": ["${workspaceFolder}/assets/conf_MAC/muti_locations_servers.conf"],
+			"args": ["${workspaceFolder}/assets/conf_evaluation/OK_test_muti_locations_servers.conf"],
 		},
 		{
 			"name": "Launch_bv_test_body_limit",
@@ -31,6 +32,15 @@
 			"request": "launch",
 			"program": "${workspaceFolder}/webserv",
 			"args": ["${workspaceFolder}/assets/conf_evaluation/OK_simple_no_locations.conf"],
+		},
+
+		{
+			"name": "attach",
+			"type": "lldb",
+			"request": "attach",
+			"program": "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb"
+			// "pid": "${command:pickProcess}"
 		}
+
 	]
 }
