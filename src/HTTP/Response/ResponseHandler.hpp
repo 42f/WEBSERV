@@ -259,7 +259,7 @@ class ResponseHandler {
         } else if (_inst._loc.get_auto_index() == true) {
           return handleAutoIndex(file.getDirPart());
         } else {
-          return makeStandardResponse(status::NotFound);
+          return makeStandardResponse(status::Forbidden);
         }
       } else if (_inst._loc.get_auto_index() == true &&
                  stat(targetPath.c_str(), &st) == 0) {
