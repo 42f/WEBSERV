@@ -1,13 +1,13 @@
 #include "EventManager.hpp"
 
 #define FULL_SKT_RD(fd, status) \
-  (FD_ISSET(fd, &_read_set) && HAS_SKT_READABLE(status))
+  (FD_ISSET(fd, &EventManager::_read_set) && HAS_SKT_READABLE(status))
 #define FULL_SKT_WR(fd, status) \
-  (FD_ISSET(fd, &_write_set) && HAS_SKT_WRITABLE(status))
+  (FD_ISSET(fd, &EventManager::_write_set) && HAS_SKT_WRITABLE(status))
 #define FULL_OFD_RD(fd, status) \
-  (FD_ISSET(fd, &_read_set) && HAS_OFD_READABLE(status))
+  (FD_ISSET(fd, &EventManager::_read_set) && HAS_OFD_USABLE(status))
 #define FULL_OFD_WR(fd, status) \
-  (FD_ISSET(fd, &_write_set) && HAS_OFD_WRITABLE(status))
+  (FD_ISSET(fd, &EventManager::_write_set) && HAS_OFD_USABLE(status))
 
 namespace network {
 int EventManager::_timeout = 0;
@@ -73,12 +73,16 @@ void EventManager::do_select(void) {
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
     if (IS_LISTENABLE(itr->get_status())) {
+      if (itr->get_skt_fd() > _max_fd) _max_fd = itr->get_skt_fd();
       FD_SET(itr->get_skt_fd(), &EventManager::_read_set);
+      std::cout << "socket set " << itr->get_skt_fd() << std::endl;
     } else if (!HAS_ERROR(itr->get_status())) {
-      if (itr->get_fd() > _max_fd) _max_fd = itr->get_fd();
+      std::cout << "skt" << std::endl;
+      if (itr->get_skt_fd() > _max_fd) _max_fd = itr->get_skt_fd();
       FD_SET(itr->get_skt_fd(), &EventManager::_read_set);
       FD_SET(itr->get_skt_fd(), &EventManager::_write_set);
       if (HAS_OFD_USABLE(itr->get_status())) {
+        std::cout << "ofd" << std::endl;
         if (itr->get_o_fd() > _max_fd) _max_fd = itr->get_o_fd();
         FD_SET(itr->get_o_fd(), &EventManager::_read_set);
         FD_SET(itr->get_o_fd(), &EventManager::_write_set);
@@ -171,7 +175,7 @@ void EventManager::recv_request(int index) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
-    if (FULL_SKT_RD(itr->get_fd(), itr->get_status())) {
+    if (FULL_SKT_RD(itr->get_skt_fd(), itr->get_status())) {
       char buffer[4096];
       int ret;
 
@@ -206,10 +210,17 @@ void EventManager::send_response(int index) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
-    if (FULL_SKT_WR(itr->get_fd(), itr->get_status())) {
+    if (FULL_SKT_WR(itr->get_skt_fd(), itr->get_status())) {
       itr->process_request();
-      if (FULL_OFD_RD(itr->get_fd(), itr->get_status()) &&
-          FULL_OFD_WR(itr->get_fd(), itr->get_status())) {
+      std::cout << &EventManager::_read_set << std::endl;
+      std::cout << &EventManager::_write_set << std::endl;
+      std::cout << itr->get_skt_fd() << std::endl;
+      std::cout << itr->get_o_fd() << std::endl;
+      if (HAS_OFD_NO_NEED(itr->get_status()) ||
+          (FD_ISSET(itr->get_o_fd(), &EventManager::_read_set) &&
+           HAS_OFD_USABLE(itr->get_status()) &&
+           (FD_ISSET(itr->get_o_fd(), &EventManager::_write_set) &&
+            HAS_OFD_USABLE(itr->get_status())))) {
         if (itr->do_send() == RESPONSE_SENT_ENTIRELY) {
           itr->set_status(fd_status::skt_closable);
         }
@@ -229,7 +240,7 @@ void EventManager::resize(void) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end();) {
-    itr->print_status();
+    // itr->print_status();
     if (HAS_SKT_CLOSABLE(itr->get_status())) {
       FD_CLR(itr->get_skt_fd(), &EventManager::_read_set);
       FD_CLR(itr->get_skt_fd(), &EventManager::_write_set);

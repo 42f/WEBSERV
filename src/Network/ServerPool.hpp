@@ -28,6 +28,7 @@ class ServerPool {
   static std::vector<config::Server> _serverPool;
 
   static void locationsInit(config::Server &serv);
+  static bool isServerPoolValid(void);
   static bool isPathMatch(LocationConfig const &loc, Target const &target);
   static void cleanPath(std::string &locPath);
   static void cleanRoot(std::string &locRoot);

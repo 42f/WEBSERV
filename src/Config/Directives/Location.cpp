@@ -25,7 +25,7 @@ LocationConfig::LocationConfig():
 LocationConfig::LocationConfig(config::Server const & parentServer):
 	_path(""),
 	_methods(methods::Methods::all()),
-	_auto_index(false),
+	_auto_index(parentServer.get_auto_index()),
 	_upload(false),
 	_body_size(parentServer.get_body_size()),
 	_root(parentServer.get_root()),

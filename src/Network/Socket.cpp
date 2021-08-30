@@ -78,7 +78,11 @@ void Socket::manage_raw_request(char *buffer, int size) {
 
 void Socket::process_request() {
   if (_is_processed == false) {
-    _response_handler.processRequest();
+    _ofd = _response_handler.processRequest();
+    if (_ofd == RESPONSE_NO_FD)
+      _status |= fd_status::ofd_no_need;
+    else
+      _status |= fd_status::ofd_usable;
     _is_processed = true;
   }
 }

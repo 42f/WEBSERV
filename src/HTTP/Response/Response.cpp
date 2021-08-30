@@ -68,8 +68,11 @@ void Response::setFile(std::string const& filePath) {
 }
 
 CGI & Response::getCgiInst(void)  { return _cgi; }
+int Response::getCgiFD(void) const { return _cgi.get_readable_pipe(); }
+
 files::File const& Response::getFileInst(void) const { return _file; }
 int Response::getFileFD(void) const { return _file.getFD(); }
+
 status::StatusCode Response::getStatusCode(void) const { return _statusCode; }
 std::string& Response::getBuffer(void) { return _htmlBuffer; }
 int& Response::getState(void) { return _respState; }

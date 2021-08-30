@@ -18,7 +18,7 @@ request() {
 	echo "Host: $3"
 	echo "User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.4) Gecko/20070515 Firefox/2.0.0.4"
 	echo "Content-type: txt/plain"
-	echo "Content-encoding: chunked"
+	echo "Transfer-Encoding: chunked"
 	echo
 	echo "7\r\nMozilla\r\n9\r\nDeveloper\r\n7\r\nNetwork\r\n0\r\n\r\n"
 	sleep 2

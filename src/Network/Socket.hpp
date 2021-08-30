@@ -23,25 +23,27 @@ enum status {
   error = 1 << 12,
   ofd_closed = 1 << 13,
   skt_closed = 1 << 14,
-  closed = 1 << 15
+  closed = 1 << 15,
+  ofd_no_need = 1 << 16
 };
 }
 
 #define HAS_SKT_ERROR(x) (x & fd_status::skt_error)
 #define HAS_OFD_ERROR(x) (x & fd_status::ofd_error)
 #define HAS_ERROR(x) \
-  (HAS_OFD_ERROR(x) | HAS_SKT_ERROR(x) | (x & fd_status::error))
+  (HAS_OFD_ERROR(x) || HAS_SKT_ERROR(x) || (x & fd_status::error))
+
 #define HAS_OFD_USABLE(x) (x & fd_status::ofd_usable && !HAS_OFD_ERROR(x))
+
 #define IS_LISTENABLE(x) (x & fd_status::listenable && !HAS_OFD_ERROR(x))
 
 #define HAS_SKT_READABLE(x) (x & fd_status::skt_readable && !HAS_OFD_ERROR(x))
-#define HAS_OFD_READABLE(x) (x & fd_status::ofd_readable && !HAS_OFD_ERROR(x))
-
 #define HAS_SKT_WRITABLE(x) (x & fd_status::skt_writable && !HAS_OFD_ERROR(x))
-#define HAS_OFD_WRITABLE(x) (x & fd_status::ofd_writable && !HAS_OFD_ERROR(x))
 
-#define HAS_SKT_CLOSABLE(x) (x & fd_status::skt_closable && !HAS_OFD_ERROR(x))
-#define HAS_OFD_CLOSABLE(x) (x & fd_status::ofd_closable && !HAS_OFD_ERROR(x))
+#define HAS_OFD_NO_NEED(x) (x & fd_status::ofd_no_need && !HAS_OFD_ERROR(x))
+
+#define HAS_SKT_CLOSABLE(x) (x & fd_status::skt_closable || HAS_OFD_ERROR(x))
+#define HAS_OFD_CLOSABLE(x) (x & fd_status::ofd_closable || HAS_OFD_ERROR(x))
 
 namespace network {
 
@@ -127,7 +129,6 @@ class Socket {
   void manage_raw_request(char *buffer, int size);
 
   Socket &operator=(Socket const &rhs);
-
 
  private:
   int _fd;

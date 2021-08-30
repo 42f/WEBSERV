@@ -39,6 +39,7 @@ class File {
   std::string getPath(void) const;
   std::string getExt(void) const;
   std::string getFileName(void) const;
+  std::string getDirPart(void) const;
   std::string getTypeFromExt(std::string const& ext) const;
 
   static bool isFileFromPath(std::string const& path);
