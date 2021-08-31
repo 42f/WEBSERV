@@ -2,6 +2,7 @@
 
 #include <signal.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <fstream>
@@ -45,6 +46,8 @@ class ResponseHandler {
   ResponseHandler(void);
   ResponseHandler(RequestHandler &reqHandler, int receivedPort);
   ~ResponseHandler(void);
+
+  static void doSendCachedTooManyRequests(int fdDst);
 
  private:
   RequestHandler &_requestHandler;
@@ -144,7 +147,8 @@ class ResponseHandler {
           _inst._serv.get_error_pages();
 
       std::map<int, std::string>::const_iterator errIt = err_pages.find(code);
-      if (errIt != err_pages.end()) {
+      struct stat st;
+      if (errIt != err_pages.end() && stat(errIt->second.c_str(), &st) == 0 && !S_ISDIR(st.st_mode)) {
         std::string errorPagePath = err_pages.find(code)->second;
         _inst._resp.setFile(errorPagePath);
         if (_inst._resp.getFileInst().isGood()) {
@@ -159,7 +163,7 @@ class ResponseHandler {
       _inst._resp.setStatus(code);
     }
 
-    void handleAutoIndex(std::string const &targetPath)  {
+    void handleAutoIndex(std::string const& targetPath) {
       if (endsWithSlash(_inst._req.target.decoded_path) == false) {
         return manageRedirect(
             redirect(status::MovedPermanently, _inst._req.target.path + '/'));
@@ -169,14 +173,12 @@ class ResponseHandler {
       }
     }
 
-  private:
-
+   private:
     bool endsWithSlash(std::string const& path) {
       return path.empty() == false && *(--path.end()) == '/';
     }
 
-  public:
-
+   public:
     void setRespForAutoIndexBuff(std::string const& path) {
       Autoindex::make(_inst._req.target.path, path, _inst._resp);
       _inst._resp.setHeader(headerTitle::Content_Length,
@@ -255,7 +257,7 @@ class ResponseHandler {
             return setRespForFile();
           }
         } else if (file.getError() & EACCES) {
-          return makeStandardResponse(status::Forbidden, strerror(EACCES));
+          return makeStandardResponse(status::TooManyRequests);
         } else if (_inst._loc.get_auto_index() == true) {
           return handleAutoIndex(file.getDirPart());
         } else {

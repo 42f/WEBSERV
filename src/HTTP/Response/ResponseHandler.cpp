@@ -19,6 +19,18 @@ ResponseHandler::~ResponseHandler(void) {
 
 /* ................................. METHODS .................................*/
 
+void ResponseHandler::doSendCachedTooManyRequests(int fdDest) {
+  static std::string cache(
+      "HTTP/1.1 429 Too Many Requests\r\nRetry-After: 3600\r\n\r\n");
+
+#if __APPLE__
+  send(fdDest, cache.c_str(), cache.length(), 0);
+#else
+  send(fdDest, cache.c_str(), cache.length(), MSG_NOSIGNAL);
+#endif
+
+}
+
 void ResponseHandler::init(RequestHandler & reqHandler, int receivedPort) {
   if (_method != NULL)
     delete _method;

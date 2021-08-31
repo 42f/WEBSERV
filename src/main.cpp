@@ -32,6 +32,8 @@
 
 void exit_server(int sig) {
   (void)sig;
+  // TODO close all pending connections and cgi pipes ?
+  std::cout << "\rOpen Connections: " << network::EventManager::get_size() << std::endl;
   std::cout << "\rGot signal, Bye..." << std::endl;
   exit(0);
 }
