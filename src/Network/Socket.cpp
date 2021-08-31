@@ -50,6 +50,7 @@ Socket &Socket::operator=(Socket const &rhs) {
 ***************************************************/
 
 void Socket::set_status(int status) { _status |= status; }
+void Socket::unset_status(int status) { _status &= ~status; }
 void Socket::set_o_fd(int fd) { _ofd = fd; }
 
 /***************************************************
@@ -70,6 +71,7 @@ std::string Socket::get_client_ip(void) const { return _client_ip; }
 void Socket::manage_raw_request(char *buffer, int size) {
   _res = _request_handler.update(buffer, size, _port);
   if (_res.is_ok() || _res.unwrap_err() != status::Incomplete) {
+    unset_status(fd_status::skt_readable);
     set_status(fd_status::skt_writable);
     _res.unwrap().set_client_ip(_client_ip);
     _response_handler.init(_request_handler, _port);

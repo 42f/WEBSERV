@@ -214,6 +214,7 @@ void EventManager::send_response(int index) {
            (FD_ISSET(itr->get_o_fd(), &EventManager::_write_set) &&
             HAS_OFD_USABLE(itr->get_status())))) {
         if (itr->do_send() == RESPONSE_SENT_ENTIRELY) {
+          itr->unset_status(fd_status::skt_writable);
           itr->set_status(fd_status::skt_closable);
           if (HAS_OFD_USABLE(itr->get_status()))
             itr->set_status(fd_status::ofd_closable);

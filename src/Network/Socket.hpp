@@ -114,6 +114,7 @@ class Socket {
 
   void set_o_fd(int fd);
   void set_status(int status);
+  void unset_status(int status);
 
   int get_skt_fd(void) const;
   int get_o_fd(void) const;
