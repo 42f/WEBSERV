@@ -42,7 +42,7 @@ enum status {
 
 #define HAS_OFD_NO_NEED(x) (x & fd_status::ofd_no_need && !HAS_OFD_ERROR(x))
 
-#define HAS_SKT_CLOSABLE(x) (x & fd_status::skt_closable || HAS_OFD_ERROR(x))
+#define HAS_SKT_CLOSABLE(x) (x & fd_status::skt_closable)// || HAS_OFD_ERROR(x))
 #define HAS_OFD_CLOSABLE(x) (x & fd_status::ofd_closable || HAS_OFD_ERROR(x))
 
 namespace network {

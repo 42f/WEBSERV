@@ -2,14 +2,15 @@
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-ResponseHandler::ResponseHandler(RequestHandler & reqHandler, int receivedPort)
+ResponseHandler::ResponseHandler(RequestHandler& reqHandler, int receivedPort)
     : _requestHandler(reqHandler), _port(0), _method(NULL) {
   this->init(reqHandler, receivedPort);
 }
 
 /* ..............................COPY CONSTRUCTOR.............................*/
 
-// ResponseHandler::ResponseHandler(void) : _reqHandler(RequestHandler()), _port(0), _method(NULL) {}
+// ResponseHandler::ResponseHandler(void) : _reqHandler(RequestHandler()),
+// _port(0), _method(NULL) {}
 
 /* ................................ DESTRUCTOR ...............................*/
 
@@ -28,12 +29,10 @@ void ResponseHandler::doSendCachedTooManyRequests(int fdDest) {
 #else
   send(fdDest, cache.c_str(), cache.length(), MSG_NOSIGNAL);
 #endif
-
 }
 
-void ResponseHandler::init(RequestHandler & reqHandler, int receivedPort) {
-  if (_method != NULL)
-    delete _method;
+void ResponseHandler::init(RequestHandler& reqHandler, int receivedPort) {
+  if (_method != NULL) delete _method;
   _method = NULL;
 
   _port = receivedPort;
@@ -152,7 +151,8 @@ void ResponseHandler::sendHeaders(int fdDest, int flags) {
   if ((state & respState::headerSent) == false) {
     // if (_requestHandler._req.is_ok())
     //   std::cout << RED << "REQUEST:\n"
-    //             << _requestHandler._req.unwrap() << NC << std::endl; // TODO remove db
+    //             << _requestHandler._req.unwrap() << NC << std::endl; // TODO
+    //             remove db
     // std::cout << BLUE << "RESPONSE:\n"
     //           << _resp << NC << std::endl; // TODO remove db
 
@@ -178,12 +178,9 @@ void ResponseHandler::sendFromCgi(int fdDest, int flags) {
     std::cout << "cgi error" << std::endl;
     return;
   }
-  // TODO select
-  // TODO select
   if ((_resp.getState() & respState::cgiHeadersSent) == false)
     sendCgiHeaders(cgiPipe, fdDest, flags);
-  if (doSendFromFD(cgiPipe, fdDest, flags) < 1)
-    close(cgiPipe);
+  doSendFromFD(cgiPipe, fdDest, flags);
 }
 
 void ResponseHandler::sendCgiHeaders(int fdSrc, int fdDest, int flags) {
@@ -218,10 +215,10 @@ void ResponseHandler::sendFromFile(int fdDest, int flags) {
 }
 
 int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
-  if (isReady() == false) return 1 ; // todo remove
+  if (isReady() == false) return 1;  // todo remove
   char buff[DEFAULT_SEND_SIZE + 2];
   bzero(buff, DEFAULT_SEND_SIZE + 2);
-  ssize_t retRead = 0;
+  ssize_t retRead, retSend = 0;
   int& state = _resp.getState();
 
   if ((retRead = read(fdSrc, buff, DEFAULT_SEND_SIZE)) < 0) {
@@ -236,9 +233,9 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
     buff[retRead + 0] = '\r';
     buff[retRead + 1] = '\n';
     chunkData.insert(chunkData.end(), buff, buff + retRead + 2);
-    retRead = send(fdDest, chunkData.data(), chunkData.length(), flags);
+    retSend = send(fdDest, chunkData.data(), chunkData.length(), flags);
   } else {
-    retRead = send(fdDest, buff, retRead, flags);
+    retSend = send(fdDest, buff, retRead, flags);
   }
   if (retRead == 0) {
     state |= respState::entirelySent;
@@ -251,11 +248,12 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
 
   // if (_requestHandler._req.is_ok())
   //     std::cout << RED << "REQUEST:\n"
-  //               << _requestHandler._req.unwrap() << NC << std::endl; // TODO remove db
+  //               << _requestHandler._req.unwrap() << NC << std::endl; // TODO
+  //               remove db
   //   std::cout << BLUE << "RESPONSE:\n"
   //             << _resp << NC << std::endl; // TODO remove db
 
-    output << _resp << "\r\n" << _resp.getBuffer();
+  output << _resp << "\r\n" << _resp.getBuffer();
   send(fdDest, output.str().c_str(), output.str().length(), flags);
   _resp.getState() = respState::entirelySent;
 }
@@ -266,7 +264,7 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
  * Returns the result processed. If no call to processRequest was made prior
  * to a call to getResult, result sould not be unwrapped.
  */
-Response const& ResponseHandler::getResponse()const  { return _resp; }
+Response const& ResponseHandler::getResponse() const { return _resp; }
 Request const& ResponseHandler::getRequest() const { return _req; }
 
 /* ................................. OVERLOAD ................................*/

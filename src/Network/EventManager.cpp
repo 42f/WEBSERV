@@ -75,14 +75,11 @@ void EventManager::do_select(void) {
     if (IS_LISTENABLE(itr->get_status())) {
       if (itr->get_skt_fd() > _max_fd) _max_fd = itr->get_skt_fd();
       FD_SET(itr->get_skt_fd(), &EventManager::_read_set);
-      std::cout << "socket set " << itr->get_skt_fd() << std::endl;
     } else if (!HAS_ERROR(itr->get_status())) {
-      std::cout << "skt" << std::endl;
       if (itr->get_skt_fd() > _max_fd) _max_fd = itr->get_skt_fd();
       FD_SET(itr->get_skt_fd(), &EventManager::_read_set);
       FD_SET(itr->get_skt_fd(), &EventManager::_write_set);
       if (HAS_OFD_USABLE(itr->get_status())) {
-        std::cout << "ofd" << std::endl;
         if (itr->get_o_fd() > _max_fd) _max_fd = itr->get_o_fd();
         FD_SET(itr->get_o_fd(), &EventManager::_read_set);
         FD_SET(itr->get_o_fd(), &EventManager::_write_set);
@@ -95,6 +92,7 @@ void EventManager::do_select(void) {
   if (EventManager::_nb_events < 0) {
     perror("select");
     std::cerr << EventManager::_max_fd + 1 << std::endl;
+    exit(1);
   }
 }
 
@@ -147,8 +145,6 @@ void EventManager::accept_request(int fd) {
       if (tmp_fd < 0)
         perror("Accept");
       else {
-        // std::cout << EventManager::get_total_requests() <<
-        // std::endl;
         add(tmp_fd, itr->get_port(), client_addr);
         EventManager::_total_requests++;
       }
@@ -212,10 +208,6 @@ void EventManager::send_response(int index) {
        itr != EventManager::_sockets.end(); ++itr) {
     if (FULL_SKT_WR(itr->get_skt_fd(), itr->get_status())) {
       itr->process_request();
-      std::cout << &EventManager::_read_set << std::endl;
-      std::cout << &EventManager::_write_set << std::endl;
-      std::cout << itr->get_skt_fd() << std::endl;
-      std::cout << itr->get_o_fd() << std::endl;
       if (HAS_OFD_NO_NEED(itr->get_status()) ||
           (FD_ISSET(itr->get_o_fd(), &EventManager::_read_set) &&
            HAS_OFD_USABLE(itr->get_status()) &&
@@ -223,6 +215,8 @@ void EventManager::send_response(int index) {
             HAS_OFD_USABLE(itr->get_status())))) {
         if (itr->do_send() == RESPONSE_SENT_ENTIRELY) {
           itr->set_status(fd_status::skt_closable);
+          if (HAS_OFD_USABLE(itr->get_status()))
+            itr->set_status(fd_status::ofd_closable);
         }
         // TO DO : check with Brian the other cases a fd needs to be
         // closed
@@ -257,5 +251,9 @@ void EventManager::resize(void) {
       itr++;
     }
   }
+  static int max = 0;
+  if (_sockets.size() > max) max = _sockets.size();
+  std::cout << "\rmax : " << max
+            << " | current size : " << _sockets.size() << std::endl;
 }
 }  // namespace network

@@ -19,10 +19,10 @@
 #include "Config/Server.hpp"
 #include "HTTP/Request/RequestHandler.hpp"
 #include "HTTP/Response/Response.hpp"
+#include "HTTP/Response/ResponseHandler.hpp"
 #include "Network/Core.hpp"
 #include "Network/ServerPool.hpp"
 #include "utils/Logger.hpp"
-#include "HTTP/Response/ResponseHandler.hpp"
 
 #define BACKLOG 100  // nb of connection queued when listen is called
 #define MAXLINE 1024
@@ -33,7 +33,13 @@
 void exit_server(int sig) {
   (void)sig;
   // TODO close all pending connections and cgi pipes ?
-  std::cout << "\rOpen Connections: " << network::EventManager::get_size() << std::endl;
+  // std::list<network::Socket>::iterator itr;
+  // for (itr = network::EventManager::_sockets.begin();
+  //      itr != network::EventManager::_sockets.end(); itr++) {
+  //   close(itr->get_skt_fd());
+  // }
+  std::cout << "\rOpen Connections: " << network::EventManager::get_size()
+            << std::endl;
   std::cout << "\rGot signal, Bye..." << std::endl;
   exit(0);
 }
@@ -45,15 +51,15 @@ int main(int ac, char **av) {
   signal(SIGINT, &exit_server);
   std::string path;
   switch (ac) {
-      case 1:
-          path = "webserv.config";
-          break;
-      case 2:
-          path = av[1];
-          break;
-      default:
-          std::cerr << "./webserv [ConfigServerv]" << std::endl;
-          return -1;
+    case 1:
+      path = "webserv.config";
+      break;
+    case 2:
+      path = av[1];
+      break;
+    default:
+      std::cerr << "./webserv [ConfigServerv]" << std::endl;
+      return -1;
   }
 
   network::ServerPool::init(path);

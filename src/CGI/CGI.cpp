@@ -110,6 +110,7 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     return;
   }
 
+  // req._body.data(); >> body post
   _child_pid = fork();
   if (_child_pid < 0) {
     perror("System Error : fork()");
