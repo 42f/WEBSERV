@@ -46,6 +46,8 @@ class ResponseHandler {
   ResponseHandler(RequestHandler &reqHandler, int receivedPort);
   ~ResponseHandler(void);
 
+  static void doSendCachedTooManyRequests(int fdDst);
+
  private:
   RequestHandler &_requestHandler;
   Request _req;
