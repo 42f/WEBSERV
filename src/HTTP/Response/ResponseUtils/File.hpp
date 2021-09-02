@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <map>
 #include <fstream>
+#include <sys/errno.h>
 
 # include "utils/Logger.hpp"
 # include "utils/Timer.hpp"

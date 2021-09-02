@@ -218,7 +218,7 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
   if (isReady() == false) return 1;  // todo remove
   char buff[DEFAULT_SEND_SIZE + 2];
   bzero(buff, DEFAULT_SEND_SIZE + 2);
-  ssize_t retRead, retSend = 0;
+  ssize_t retRead = 0;
   int& state = _resp.getState();
 
   if ((retRead = read(fdSrc, buff, DEFAULT_SEND_SIZE)) < 0) {
@@ -233,9 +233,9 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
     buff[retRead + 0] = '\r';
     buff[retRead + 1] = '\n';
     chunkData.insert(chunkData.end(), buff, buff + retRead + 2);
-    retSend = send(fdDest, chunkData.data(), chunkData.length(), flags);
+    send(fdDest, chunkData.data(), chunkData.length(), flags);
   } else {
-    retSend = send(fdDest, buff, retRead, flags);
+    send(fdDest, buff, retRead, flags);
   }
   if (retRead == 0) {
     state |= respState::entirelySent;

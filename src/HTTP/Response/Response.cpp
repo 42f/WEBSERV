@@ -90,8 +90,9 @@ void Response::loadErrorHtmlBuffer(const status::StatusCode& code,
             << "<body>" << '\n'
             << "	<center>" << '\n';
 
-  if (code >= 400)
+  if (code >= 400) {
     tmpBuff << "		<h1> Oopsy ! That's an error. </h1>" << '\n';
+  }
 
     tmpBuff << "		<h1> " << code << ' '
             << status::StatusMessage::get(code) << " </h1>" << '\n'

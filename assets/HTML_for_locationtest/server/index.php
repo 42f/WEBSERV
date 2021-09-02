@@ -35,5 +35,9 @@ div {text-align: center;}
 		<a href="./site3">go to site3...</a><br/>
 		<a href="/imgs/fat_wallpaper.jpeg">big wallpaper 8Mo</a><br/>
 	</h1>
+
+
+
+
 </body>
 </html>
