@@ -36,6 +36,7 @@ std::vector<char *> CGI::set_meta_variables(
   add_variable("REMOTE_USER", "");
   add_variable("REMOTE_HOST", "");
   add_variable("REMOTE_IDENT", "");
+  std::cout << "target query ->" <<req.target.query << std::endl;
   if (req.target.query.empty()) {
     add_variable("QUERY_STRING", "");
   } else {
@@ -131,6 +132,7 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
       exit(1);
     }
   } else {
+    std::cout << "CGI PID -> " << _child_pid << std::endl;
     waitpid(_child_pid, &_child_return, WNOHANG);
     close(pipes[1]);
     _pipe = pipes[0];

@@ -57,6 +57,7 @@ class ResponseHandler {
   LocationConfig _loc;
   A_Method* _method;
   Response _resp;
+  Timer    _cgiTimer;
 
   std::string getReqHeader(const std::string& target);
   void sendHeaders(int fdDest, int flags);
@@ -118,6 +119,7 @@ class ResponseHandler {
    public:
     void handleCgiFile(std::string const& cgiBin) {
       CGI& cgiInst = _inst._resp.getCgiInst();
+      _inst._cgiTimer.start();
       cgiInst.execute_cgi(cgiBin, _inst._resp.getFileInst(), _inst._req,
                           _inst._serv);
 
