@@ -254,7 +254,5 @@ void EventManager::resize(void) {
   }
   static size_t max = 0;
   if (_sockets.size() > max) max = _sockets.size();
-  // std::cout << "\rmax : " << max
-            // << " | current size : " << _sockets.size() << std::endl;
 }
 }  // namespace network

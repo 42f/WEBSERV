@@ -27,8 +27,9 @@ cgi_status::status CGI::status(void) {
 
 int CGI::get_readable_pipe(void) const { return (_pipe); }
 
-std::vector<char *> CGI::set_meta_variables(
-    files::File const &file, Request const &req, config::Server const &serv) {
+std::vector<char *> CGI::set_meta_variables(files::File const &file,
+                                            Request const &req,
+                                            config::Server const &serv) {
   RequestLine req_lines;
   std::vector<char *> variables;
 
@@ -64,7 +65,7 @@ std::vector<char *> CGI::set_meta_variables(
     return variables;
   }
   //----------------------------------------
-  Result<std::string> content_length = req.get_header("content-length");
+  Result<std::string> content_length = req.get_header("Content-Length");
   if (content_length.is_ok()) {
     std::cout << "content length: " << content_length.unwrap() << std::endl;
     add_variable("CONTENT_LENGTH", content_length.unwrap());
@@ -72,7 +73,7 @@ std::vector<char *> CGI::set_meta_variables(
     add_variable("CONTENT_LENGTH", "");
   }
   //----------------------------------------
-  Result<std::string> content_type = req.get_header("content-type");
+  Result<std::string> content_type = req.get_header("Content-Type");
   if (content_type.is_ok()) {
     add_variable("CONTENT_TYPE", content_type.unwrap());
   } else {
@@ -110,7 +111,6 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     return;
   }
 
-  // req._body.data(); >> body post
   _child_pid = fork();
   if (_child_pid < 0) {
     perror("System Error : fork()");
@@ -119,19 +119,16 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   }
   if (_child_pid == 0) {
     std::string exec_path = files::File::getDirFromPath(file.getPath());
+    if (dup2(pipes[1], 1) < 0 || dup2(pipes[0], 0) < 0) exit(-1);
     close(pipes[0]);
-    if (dup2(pipes[1], 1) < 0) {
-      perror("System Error : dup2()");
-      _status = cgi_status::SYSTEM_ERROR;
-      return;
-    }
     close(pipes[1]);
     chdir(exec_path.c_str());
     if (execve(args[0], args, env) < 0) {
-      exit(1);
+      exit(-1);
     }
   } else {
     waitpid(_child_pid, &_child_return, WNOHANG);
+    write(pipes[1], req.get_body().data(), req.get_body().size());
     close(pipes[1]);
     _pipe = pipes[0];
     free(cgi);
