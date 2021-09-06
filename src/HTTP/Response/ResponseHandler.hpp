@@ -261,15 +261,20 @@ class ResponseHandler {
           return makeStandardResponse(status::TooManyRequests);
         } else if (_inst._loc.get_auto_index() == true) {
           return handleAutoIndex(file.getDirPart());
+        } else if (file.getError() & ENOENT) {
+          return makeStandardResponse(status::NotFound);
         } else {
           return makeStandardResponse(status::Forbidden);
         }
-      } else if (_inst._loc.get_auto_index() == true &&
-                 stat(targetPath.c_str(), &st) == 0) {
-        return handleAutoIndex(targetPath);
+      } else if (_inst._loc.get_auto_index() == true) {
+        if (stat(targetPath.c_str(), &st) == 0) {
+          return handleAutoIndex(targetPath);
+        } else {
+          return makeStandardResponse(status::NotFound);
+        }
       }
       // Default response to avoid empty response
-      return makeStandardResponse(status::InternalServerError);
+      return makeStandardResponse(status::Forbidden);
     }
 
   };  // --- end GET METHOD
