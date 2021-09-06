@@ -122,9 +122,8 @@ class ResponseHandler {
       _inst._cgiTimer.start();
       cgiInst.execute_cgi(cgiBin, _inst._resp.getFileInst(), _inst._req,
                           _inst._serv);
-
       if (cgiInst.status() == cgi_status::SYSTEM_ERROR) {
-        return makeStandardResponse(status::InternalServerError);
+        makeStandardResponse(status::InternalServerError);
       } else {
         setRespForCgi();
         _inst._resp.setStatus(status::Ok);
