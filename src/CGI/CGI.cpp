@@ -122,8 +122,9 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     close(pipes[0]);
     if (dup2(pipes[1], 1) < 0) {
       perror("System Error : dup2()");
-      _status = cgi_status::SYSTEM_ERROR;
-      return;
+      exit(1);
+      // _status = cgi_status::SYSTEM_ERROR;
+      // return;
     }
     close(pipes[1]);
     chdir(exec_path.c_str());
