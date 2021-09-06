@@ -1,9 +1,8 @@
 <html>
 <body>
 
-Welcome <?php echo $_POST["name"]; ?><br>
-Your email address is: <?php echo $_POST["email"]; ?>
-<?php echo $_FILES["fileToUpload"]["name"] ?>
+Welcome <?php echo $_POST["say"]; ?><br>
+Your email address is: <?php echo $_POST["to"]; ?>
 
 </body>
 </html>

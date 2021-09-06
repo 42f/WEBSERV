@@ -1,6 +1,7 @@
 #include "CGI.hpp"
 
-CGI::CGI(void) { _status = cgi_status::NON_INIT; }
+CGI::CGI(void) { _status = cgi_status::NON_INIT; 
+_child_return = 0;}
 CGI::~CGI() {}
 
 int CGI::get_fd(void) const { return (_pipe); }
@@ -33,26 +34,25 @@ std::vector<char *> CGI::set_meta_variables(files::File const &file,
   RequestLine req_lines;
   std::vector<char *> variables;
 
-  add_variable("AUTH_TYPE", "");
-  add_variable("REMOTE_USER", "");
-  add_variable("REMOTE_HOST", "");
-  add_variable("REMOTE_IDENT", "");
-  if (req.target.query.empty()) {
-    add_variable("QUERY_STRING", "");
-  } else {
-    add_variable("QUERY_STRING", req.target.query);
-  }
-  add_variable("SERVER_SOFTWARE", "");
-  add_variable("REDIRECT_STATUS", "200");
-  add_variable("PATH_INFO", file.getPath());
-  add_variable("SCRIPT_NAME", file.getFileFromPath(file.getPath()));
+  // add_variable("AUTH_TYPE", "");
+  // add_variable("REMOTE_USER", "");
+  // add_variable("REMOTE_HOST", "");
+  // add_variable("REMOTE_IDENT", "");
+  // if (req.target.query.empty()) {
+  //   add_variable("QUERY_STRING", "");
+  // } else {
+  //   add_variable("QUERY_STRING", req.target.query);
+  // }
+  // add_variable("SERVER_SOFTWARE", "");
+  add_variable("REDIRECT_STATUS", "");
+  add_variable("PATH_INFO", file.getFileName());
+  // add_variable("SCRIPT_NAME", "");//file.getFileFromPath(file.getPath()));
   add_variable("SERVER_PROTOCOL", "HTTP/1.1");
   add_variable("GATEWAY_INTERFACE", "CGI/1.1");
-  add_variable("SERVER_PORT", serv.get_port());
-  add_variable("SERVER_NAME", serv.get_name());
-  add_variable("REMOTE_ADDR", req.get_client_ip());
-  // variables.push_back("SCRIPT_NAME=cgi_info.php");
-  add_variable("PATH_TRANSLATED", file.getPath());
+  // add_variable("SERVER_PORT", serv.get_port());
+  // add_variable("SERVER_NAME", serv.get_name());
+  // add_variable("REMOTE_ADDR", req.get_client_ip());
+  // add_variable("PATH_TRANSLATED", file.getPath());
   add_variable("SCRIPT_FILENAME", file.getPath());
   if (req.method == methods::GET)
     add_variable("REQUEST_METHOD", "GET");
@@ -105,11 +105,16 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   }
   char *args[] = {cgi, NULL};
 
-  if (pipe(pipes) < 0) {
-    perror("System Error : pipe()");
-    _status = cgi_status::SYSTEM_ERROR;
-    return;
+  // int fd = open("input", O_RDONLY);
+  int fd = open("input", O_RDWR | O_CREAT | O_TRUNC, 0644);
+  if (fd < 0) {
+    std::cout << "input failed to create" << std::endl;
   }
+
+  char *str = "say=say&to=to\n";
+  write(fd, str, 15);
+
+  pipe(pipes);
 
   _child_pid = fork();
   if (_child_pid < 0) {
@@ -118,19 +123,18 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     return;
   }
   if (_child_pid == 0) {
-    std::string exec_path = files::File::getDirFromPath(file.getPath());
-    if (dup2(pipes[1], 1) < 0 || dup2(pipes[0], 0) < 0) exit(-1);
-    close(pipes[0]);
+
+    dup2(pipes[1], 1);
+    dup2(fd, 0);
+    close(fd);
     close(pipes[1]);
-    chdir(exec_path.c_str());
-    if (execve(args[0], args, env) < 0) {
-      exit(-1);
-    }
+    close(pipes[0]);
+
+    execve(args[0], args, env);
+
   } else {
     waitpid(_child_pid, &_child_return, WNOHANG);
-    write(pipes[1], req.get_body().data(), req.get_body().size());
-    close(pipes[1]);
-    _pipe = pipes[0];
+   _pipe = pipes[0];
     free(cgi);
     for (i = 0; i < _variables.size(); i++) {
       free(env[i]);

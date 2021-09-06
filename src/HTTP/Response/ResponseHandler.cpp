@@ -149,11 +149,11 @@ bool ResponseHandler::isReady() {
 void ResponseHandler::sendHeaders(int fdDest, int flags) {
   int& state = _resp.getState();
   if ((state & respState::headerSent) == false) {
-    // if (_requestHandler._req.is_ok())
-    //   std::cout << RED << "REQUEST:\n"
-    //             << _requestHandler._req.unwrap() << NC << std::endl; // TODO remove db
-    // std::cout << BLUE << "RESPONSE:\n"
-    //           << _resp << NC << std::endl; // TODO remove db
+    if (_requestHandler._req.is_ok())
+      std::cout << RED << "REQUEST:\n"
+                << _requestHandler._req.unwrap() << NC << std::endl; // TODO remove db
+    std::cout << BLUE << "RESPONSE:\n"
+              << _resp << NC << std::endl; // TODO remove db
 
     std::stringstream output;
     output << _resp;
@@ -234,6 +234,7 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
     buff[retRead + 0] = '\r';
     buff[retRead + 1] = '\n';
     chunkData.insert(chunkData.end(), buff, buff + retRead + 2);
+    std::cout << chunkData << std::endl;
     send(fdDest, chunkData.data(), chunkData.length(), flags);
   } else {
     send(fdDest, buff, retRead, flags);
@@ -247,12 +248,11 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
 void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
   std::stringstream output;
 
-  // if (_requestHandler._req.is_ok())
-  //     std::cout << RED << "REQUEST:\n"
-  //               << _requestHandler._req.unwrap() << NC << std::endl; // TODO
-  //               remove db
-  //   std::cout << BLUE << "RESPONSE:\n"
-  //             << _resp << NC << std::endl; // TODO remove db
+  if (_requestHandler._req.is_ok())
+      std::cout << RED << "REQUEST:\n"
+                << _requestHandler._req.unwrap() << NC << std::endl; // TODO remove db
+    std::cout << BLUE << "RESPONSE:\n"
+              << _resp << NC << std::endl; // TODO remove db
 
   output << _resp << "\r\n" << _resp.getBuffer();
   send(fdDest, output.str().c_str(), output.str().length(), flags);

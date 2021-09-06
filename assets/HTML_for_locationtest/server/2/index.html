@@ -41,11 +41,19 @@
 
 		<a href="/site2/welcome.php?name=norminet&email=coucou@gmail.com">GET request with query</a><br />
 
-		<form action="./site2/welcome.php" method="post">
-			Name: <input type="text" name="name"><br>
-			E-mail: <input type="text" name="email"><br>
-			<input type="submit">
-		</form>
+		<form action="/site2/welcome.php" method="POST">
+			<div>
+			  <label for="say">What greeting do you want to say?</label>
+			  <input name="say" id="say" value="Hi">
+			</div>
+			<div>
+			  <label for="to">Who do you want to say it to?</label>
+			  <input name="to" id="to" value="Mom">
+			</div>
+			<div>
+			  <button>Send my greetings</button>
+			</div>
+		  </form>
 
 		<input type="button" value="Go back!" onclick="history.back()">
 	</h1>
