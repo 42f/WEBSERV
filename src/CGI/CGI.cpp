@@ -134,5 +134,6 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
       free(env[i]);
     }
     _status = cgi_status::READABLE;
+    std::cout << "CGI: status=" << _status << ", pid=" << _child_pid << std::endl;
   }
 }
