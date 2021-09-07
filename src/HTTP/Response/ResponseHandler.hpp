@@ -57,6 +57,7 @@ class ResponseHandler {
   LocationConfig _loc;
   A_Method* _method;
   Response _resp;
+  Timer    _cgiTimer;
 
   std::string getReqHeader(const std::string& target);
   void sendHeaders(int fdDest, int flags);
@@ -118,6 +119,7 @@ class ResponseHandler {
    public:
     void handleCgiFile(std::string const& cgiBin) {
       CGI& cgiInst = _inst._resp.getCgiInst();
+      _inst._cgiTimer.start();
       cgiInst.execute_cgi(cgiBin, _inst._resp.getFileInst(), _inst._req,
                           _inst._serv);
       if (cgiInst.status() == cgi_status::SYSTEM_ERROR) {
@@ -259,15 +261,20 @@ class ResponseHandler {
           return makeStandardResponse(status::TooManyRequests);
         } else if (_inst._loc.get_auto_index() == true) {
           return handleAutoIndex(file.getDirPart());
+        } else if (file.getError() & ENOENT) {
+          return makeStandardResponse(status::NotFound);
         } else {
           return makeStandardResponse(status::Forbidden);
         }
-      } else if (_inst._loc.get_auto_index() == true &&
-                 stat(targetPath.c_str(), &st) == 0) {
-        return handleAutoIndex(targetPath);
+      } else if (_inst._loc.get_auto_index() == true) {
+        if (stat(targetPath.c_str(), &st) == 0) {
+          return handleAutoIndex(targetPath);
+        } else {
+          return makeStandardResponse(status::NotFound);
+        }
       }
       // Default response to avoid empty response
-      return makeStandardResponse(status::InternalServerError);
+      return makeStandardResponse(status::Forbidden);
     }
 
   };  // --- end GET METHOD
