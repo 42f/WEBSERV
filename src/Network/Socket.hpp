@@ -116,6 +116,7 @@ class Socket {
   void set_status(int status);
   void unset_status(int status);
 
+  int get_cgi_pid(void) const;
   int get_skt_fd(void) const;
   int get_o_fd(void) const;
   int get_port(void) const;

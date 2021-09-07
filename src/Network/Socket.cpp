@@ -57,6 +57,7 @@ void Socket::set_o_fd(int fd) { _ofd = fd; }
     Getters
 ***************************************************/
 
+int Socket::get_cgi_pid() const { return _response.getCgiInst().get_pid(); }
 int Socket::get_skt_fd() const { return _fd; }
 int Socket::get_o_fd() const { return _ofd; }
 int Socket::get_port(void) const { return _port; }

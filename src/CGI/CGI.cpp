@@ -6,6 +6,7 @@ CGI::CGI(void) {
 }
 CGI::~CGI() {}
 
+int CGI::get_pid(void) const { return (_child_pid); }
 int CGI::get_fd(void) const { return (_pipe); }
 
 cgi_status::status CGI::status(void) {

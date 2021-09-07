@@ -27,6 +27,7 @@ class CGI {
                    Request const &req, config::Server const &serv);
   cgi_status::status status(void);
   int get_readable_pipe(void) const;
+  int get_pid(void) const;
   int get_fd(void) const;
 
  private:

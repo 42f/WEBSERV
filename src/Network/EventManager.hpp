@@ -36,6 +36,8 @@ class EventManager {
   static int get_total_requests(void);
   static unsigned long get_size(void);
 
+  static std::list<Socket> const & get_sockets(void);
+
  private:
   static int _kq;
   static int _max_fd;

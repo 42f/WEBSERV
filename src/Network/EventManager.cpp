@@ -46,6 +46,8 @@ EventManager::~EventManager() {}
     Getters
 ***************************************************/
 
+std::list<Socket> const & EventManager::get_sockets(void)  { return _sockets; }
+
 unsigned long EventManager::get_size(void) {
   return EventManager::_sockets.size();
 }
