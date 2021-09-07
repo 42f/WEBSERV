@@ -170,8 +170,8 @@ void ResponseHandler::sendFromCgi(int fdDest, int flags) {
  // TODO : if CGI has not exited yet, but there is something in the pipe, ok to send
  // otherwise if it has not exited, and the pipe is empty, then we don't know yet if
  // it succeeded in processing the file
-  if (_cgiTimer.getTimeElapsed() < 100000000)  { // TODO remove experimental
-    std::cout << "Give more time to cgi" << std::endl;
+  if (_cgiTimer.getTimeElapsed() < 100000)  { // TODO remove experimental
+    std::cout << "Give more time to cgi (" << _cgiTimer.getTimeElapsed() << ")" << std::endl;
     return;
   }
   if (_resp.getCgiInst().status() == cgi_status::CGI_ERROR ||
