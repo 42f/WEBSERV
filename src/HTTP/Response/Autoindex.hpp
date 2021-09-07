@@ -64,13 +64,22 @@ inline void make(std::string const &target, std::string const &path,
        << "	<hr>" << '\n'
        << "	<center>Webserv Team ABC</center>" << '\n'
        << "	<ul class=\"link_container\">";
+
   if ((dir = opendir(path.c_str())) != NULL) {
+    std::map<std::string, std::string> filesTree;
     while ((ent = readdir(dir)) != NULL) {
-      std::string file = ent->d_name;
-      page << "<li><a href=\"" << target << (target.empty() ? "/" : "") << file
-           << "\">" << file << "</a></li></br>" << std::endl;
+     std::string file(ent->d_name);
+     std::stringstream line;
+     line << "<li><a href=\"" << target << (target.empty() ? "/" : "") << file
+          << "\">" << file << "</a></li></br>" << std::endl;
+     filesTree[file] = line.str();
     }
     closedir(dir);
+
+    std::map<std::string, std::string>::iterator it = filesTree.begin();
+    for (; it != filesTree.end(); it++) {
+         page << it->second;
+    }
   }
   page << "</ul>"
        << "</body>" << '\n'
