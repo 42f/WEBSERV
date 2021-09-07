@@ -74,7 +74,9 @@ inline void make(std::string const &target, std::string const &path,
      stat(std::string(path + file).c_str(), &st);
 
      line << "<li><a href=\"" << target << (target.empty() ? "/" : "") << file
-          << "\">" << file << "           " << st.st_size << " " << Timer::getTimeStr(gmtime(&(st.st_mtime))) << "</a></li></br>" << std::endl;
+          << "\">" << file << "           " << st.st_size << " "
+          << Timer::getTimeStr(gmtime(&(st.st_mtime)))
+          << "</a></li></br>" << std::endl;
      filesTree[file] = line.str();
     }
     closedir(dir);
