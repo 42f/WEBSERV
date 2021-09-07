@@ -9,3 +9,5 @@ case "$OSTYPE" in
         darwin*)        echo "MACOS cgi setting"; cp -rf ./assets/cgi_bin/* /tmp/cgi_bin/ ;;
         *)                      echo "other os cgi setting"; ln -s /usr/bin/php-cgi /tmp/cgi_bin/php-cgi ;;
 esac
+
+ln -s /usr/bin/python /tmp/cgi_bin/python
