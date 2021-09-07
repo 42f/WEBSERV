@@ -122,7 +122,7 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     close(input[1]);
     close(output[0]);
     execve(args[0], args, env);
-    exit(-1);
+    exit(1);
   } else {
     waitpid(_child_pid, &_child_return, WNOHANG);
     close(output[1]);
