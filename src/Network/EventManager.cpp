@@ -208,17 +208,20 @@ void EventManager::send_response(int index) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
-    if (FULL_SKT_WR(itr->get_skt_fd(), itr->get_status())) {
+
+    int st = itr->get_status();
+    int ofd = itr->get_o_fd();
+
+    if (FULL_SKT_WR(itr->get_skt_fd(), st)) {
       itr->process_request();
-      if (HAS_OFD_NO_NEED(itr->get_status()) ||
-          (FD_ISSET(itr->get_o_fd(), &EventManager::_read_set) &&
-           HAS_OFD_USABLE(itr->get_status()) &&
-           (FD_ISSET(itr->get_o_fd(), &EventManager::_write_set) &&
-            HAS_OFD_USABLE(itr->get_status())))) {
+
+      if (HAS_OFD_NO_NEED(st) ||
+        (FD_ISSET(ofd, &EventManager::_read_set) && HAS_OFD_USABLE(st)) ) {
+
         if (itr->do_send() == RESPONSE_SENT_ENTIRELY) {
           itr->unset_status(fd_status::skt_writable);
           itr->set_status(fd_status::skt_closable);
-          if (HAS_OFD_USABLE(itr->get_status()))
+          if (HAS_OFD_USABLE(st))
             itr->set_status(fd_status::ofd_closable);
         }
         // TO DO : check with Brian the other cases a fd needs to be
