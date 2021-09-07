@@ -68,8 +68,11 @@ void Response::setFile(std::string const& filePath) {
 }
 
 CGI & Response::getCgiInst(void)  { return _cgi; }
+int Response::getCgiFD(void) const { return _cgi.get_readable_pipe(); }
+
 files::File const& Response::getFileInst(void) const { return _file; }
 int Response::getFileFD(void) const { return _file.getFD(); }
+
 status::StatusCode Response::getStatusCode(void) const { return _statusCode; }
 std::string& Response::getBuffer(void) { return _htmlBuffer; }
 int& Response::getState(void) { return _respState; }
@@ -87,8 +90,9 @@ void Response::loadErrorHtmlBuffer(const status::StatusCode& code,
             << "<body>" << '\n'
             << "	<center>" << '\n';
 
-  if (code >= 400)
+  if (code >= 400) {
     tmpBuff << "		<h1> Oopsy ! That's an error. </h1>" << '\n';
+  }
 
     tmpBuff << "		<h1> " << code << ' '
             << status::StatusMessage::get(code) << " </h1>" << '\n'

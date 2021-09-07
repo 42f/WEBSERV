@@ -62,8 +62,8 @@ Result<std::string> Request::get_header(const std::string &name) const {
 }
 
 const std::vector<char> &Request::get_body() const { return _body; }
-char *Request::get_client_ip(void) const { return _client_ip; }
-void Request::set_client_ip(char *client_ip) { _client_ip = client_ip; }
+std::string Request::get_client_ip(void) const { return _client_ip; }
+void Request::set_client_ip(std::string client_ip) { _client_ip = client_ip; }
 
 /*
  * Check the type of body and call the corresponding receive handler

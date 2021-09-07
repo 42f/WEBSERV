@@ -12,6 +12,7 @@ Brian :
                                 return code URL;
                                 return URL; <- pas webserv
         ✅ remove autoindex inheritence in location ?...
+        ✅ size max for body
         ✅ POST
 
          GET with query -> to be tested ! -> segv in cgi

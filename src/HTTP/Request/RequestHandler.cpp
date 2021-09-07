@@ -113,7 +113,7 @@ bool RequestHandler::isPayloadAcceptable(Request const &r) {
         r.get_header("Host").unwrap(), _port);
     LocationConfig loc =
         network::ServerPool::getLocationMatch(serv, r.target);
-	int reqLen = std::atoi(r.get_header("Content-Length").unwrap().c_str());
+	size_t reqLen = std::atoi(r.get_header("Content-Length").unwrap().c_str());
 	return reqLen < loc.get_body_size();
   }
   return true;

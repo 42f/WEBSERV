@@ -2,6 +2,7 @@
 
 #include <signal.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <fstream>
@@ -30,7 +31,7 @@ class ResponseHandler {
 
  public:
   void init(RequestHandler &reqHandler, int receivedPort);
-  void processRequest(void);
+  int processRequest(void);
 
 #if __APPLE__
   int doSend(int fdDest, int flags = 0);
@@ -45,6 +46,8 @@ class ResponseHandler {
   ResponseHandler(void);
   ResponseHandler(RequestHandler &reqHandler, int receivedPort);
   ~ResponseHandler(void);
+
+  static void doSendCachedTooManyRequests(int fdDst);
 
  private:
   RequestHandler &_requestHandler;
@@ -61,8 +64,9 @@ class ResponseHandler {
   void sendFromBuffer(int fdDest, int flags);
   void sendFromCgi(int fdDest, int flags);
   void sendFromFile(int fdDest, int flags);
-  void doSendFromFD(int fdSrc, int fdDest, int flags);
+  int doSendFromFD(int fdSrc, int fdDest, int flags);
   void manageRedirect(redirect const& red);
+  int getOutputFd( void );
 
   ResponseHandler(ResponseHandler const& src);
   ResponseHandler& operator=(ResponseHandler const& rhs);
@@ -89,11 +93,11 @@ class ResponseHandler {
 
       if (files::File::isFileFromPath(target)) {
         file = removeLocPath(target);
-      } else if (_inst._loc.get_auto_index() == true) {
-        file = removeLocPath(target);
       } else if (_inst._req.method == methods::GET &&
                  _inst._loc.get_index().empty() == false) {
         file = _inst._loc.get_index();
+      } else if (_inst._loc.get_auto_index() == true) {
+        file = removeLocPath(target);
       } else {
         return std::string();
       }
@@ -116,9 +120,8 @@ class ResponseHandler {
       CGI& cgiInst = _inst._resp.getCgiInst();
       cgiInst.execute_cgi(cgiBin, _inst._resp.getFileInst(), _inst._req,
                           _inst._serv);
-
       if (cgiInst.status() == cgi_status::SYSTEM_ERROR) {
-        return makeStandardResponse(status::InternalServerError);
+        makeStandardResponse(status::InternalServerError);
       } else {
         setRespForCgi();
         _inst._resp.setStatus(status::Ok);
@@ -143,7 +146,8 @@ class ResponseHandler {
           _inst._serv.get_error_pages();
 
       std::map<int, std::string>::const_iterator errIt = err_pages.find(code);
-      if (errIt != err_pages.end()) {
+      struct stat st;
+      if (errIt != err_pages.end() && stat(errIt->second.c_str(), &st) == 0 && !S_ISDIR(st.st_mode)) {
         std::string errorPagePath = err_pages.find(code)->second;
         _inst._resp.setFile(errorPagePath);
         if (_inst._resp.getFileInst().isGood()) {
@@ -158,6 +162,22 @@ class ResponseHandler {
       _inst._resp.setStatus(code);
     }
 
+    void handleAutoIndex(std::string const& targetPath) {
+      if (endsWithSlash(_inst._req.target.decoded_path) == false) {
+        return manageRedirect(
+            redirect(status::MovedPermanently, _inst._req.target.path + '/'));
+      } else {
+        _inst._resp.setStatus(status::Ok);
+        return setRespForAutoIndexBuff(targetPath);
+      }
+    }
+
+   private:
+    bool endsWithSlash(std::string const& path) {
+      return path.empty() == false && *(--path.end()) == '/';
+    }
+
+   public:
     void setRespForAutoIndexBuff(std::string const& path) {
       Autoindex::make(_inst._req.target.path, path, _inst._resp);
       _inst._resp.setHeader(headerTitle::Content_Length,
@@ -221,10 +241,12 @@ class ResponseHandler {
       if (targetPath.empty()) {
         return makeStandardResponse(status::Forbidden);
       }
+
       struct stat st;
-      if (files::File::isFileFromPath(targetPath)) {
-        _inst._resp.setFile(targetPath);
-        files::File const& file = _inst._resp.getFileInst();
+      _inst._resp.setFile(targetPath);
+      files::File const& file = _inst._resp.getFileInst();
+
+      if (file.isFileFromPath(targetPath)) {
         if (file.isGood()) {
           std::string cgiBin = getCgiBinPath();
           if (cgiBin.empty() == false) {
@@ -234,26 +256,18 @@ class ResponseHandler {
             return setRespForFile();
           }
         } else if (file.getError() & EACCES) {
-          return makeStandardResponse(status::Forbidden, strerror(EACCES));
+          return makeStandardResponse(status::TooManyRequests);
+        } else if (_inst._loc.get_auto_index() == true) {
+          return handleAutoIndex(file.getDirPart());
         } else {
-          return makeStandardResponse(status::NotFound);
+          return makeStandardResponse(status::Forbidden);
         }
       } else if (_inst._loc.get_auto_index() == true &&
                  stat(targetPath.c_str(), &st) == 0) {
-        if (endsWithSlash(_inst._req.target.decoded_path) == false) {
-          return manageRedirect(
-              redirect(status::MovedPermanently, _inst._req.target.path + '/'));
-        } else {
-          _inst._resp.setStatus(status::Ok);
-          return setRespForAutoIndexBuff(targetPath);
-        }
+        return handleAutoIndex(targetPath);
       }
       // Default response to avoid empty response
       return makeStandardResponse(status::InternalServerError);
-    }
-
-    bool endsWithSlash(std::string const& path) {
-      return path.length() > 1 && *(--path.end()) == '/';
     }
 
   };  // --- end GET METHOD

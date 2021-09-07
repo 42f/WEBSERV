@@ -99,6 +99,7 @@ std::string File::getType(void) const {
 }
 
 std::string File::getFileName(void) const { return  getFileFromPath(_path); }
+std::string File::getDirPart(void) const {  return getDirFromPath(_path); }
 
 // returns the extension for the file isntance
 std::string File::getExt(void) const { return getExtFromPath(_path); }

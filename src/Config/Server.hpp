@@ -23,8 +23,8 @@ namespace config
 		std::string							_name;
 		std::string							_root;
 		std::string							_index;
-		bool								_auto_index;
 		size_t								_body_size;		// in bytes
+		bool								_auto_index;
 		std::vector<LocationConfig>			_locations;
 		std::map<int, std::string>			_error_pages;
 		std::map<std::string, std::string>	_cgis;

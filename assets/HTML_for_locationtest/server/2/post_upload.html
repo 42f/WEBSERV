@@ -32,17 +32,13 @@
 
 </head>
 
-
 <body>
 	<h1>
-		<img src="/imgs/hello.gif" width="400"><br /><br />
-		HELLO WORLD from /tmp/server/2/index.html !<br />
-		<a href="/site2/about.html">about</a><br />
-
-		<a href="/site2/welcome_get.php?name=norminet&email=coucou@gmail.com">GET request with query</a><br />
-		<a href="/site2/post_form.html">Let's try a POST request for a form</a><br />
-		<a href="/site2/post_upload.html">Let's try a POST request to upload a file</a><br />
-
+		<form action="/site2/upload.php" method="post" enctype="multipart/form-data">
+			Select image to upload:
+			<input type="file" name="fileToUpload" id="fileToUpload">
+			<input type="submit" value="Upload Image" name="submit">
+		</form>
 		<input type="button" value="Go back!" onclick="history.back()">
 	</h1>
 

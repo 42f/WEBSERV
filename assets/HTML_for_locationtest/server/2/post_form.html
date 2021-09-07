@@ -35,17 +35,29 @@
 
 <body>
 	<h1>
-		<img src="/imgs/hello.gif" width="400"><br /><br />
-		HELLO WORLD from /tmp/server/2/index.html !<br />
-		<a href="/site2/about.html">about</a><br />
-
-		<a href="/site2/welcome_get.php?name=norminet&email=coucou@gmail.com">GET request with query</a><br />
-		<a href="/site2/post_form.html">Let's try a POST request for a form</a><br />
-		<a href="/site2/post_upload.html">Let's try a POST request to upload a file</a><br />
+		<form action="/site2/welcome.php" method="POST">
+			<div>
+			  <label for="name">What's your name</label>
+			  <input name="name" id="name">
+			</div>
+			<div>
+			  <label for="email">What's your email address</label>
+			  <input name="email" id="email">
+			</div>
+			<div>
+			  <label for="one">number 1 : </label>
+			  <input name="one" id="one">
+			</div>
+			<div>
+			  <label for="two">number 2 : </label>
+			  <input name="two" id="two">
+			</div>
+			  <button>Submit</button>
+			</div>
+		  </form>
 
 		<input type="button" value="Go back!" onclick="history.back()">
 	</h1>
-
 </body>
 
 </html>
