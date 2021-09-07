@@ -1,7 +1,9 @@
 #include "CGI.hpp"
 
-CGI::CGI(void) { _status = cgi_status::NON_INIT; 
-_child_return = 0;}
+CGI::CGI(void) {
+  _status = cgi_status::NON_INIT;
+  _child_return = 0;
+}
 CGI::~CGI() {}
 
 int CGI::get_fd(void) const { return (_pipe); }
@@ -86,7 +88,8 @@ std::vector<char *> CGI::set_meta_variables(files::File const &file,
 void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
                       Request const &req, config::Server const &serv) {
   _status = cgi_status::NON_INIT;
-  int pipes[2];
+  int output[2];
+  int input[2];
 
   size_t i = 0;
   set_meta_variables(file, req, serv);
@@ -104,17 +107,8 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     return;
   }
   char *args[] = {cgi, NULL};
-
-  // int fd = open("input", O_RDONLY);
-  int fd = open("input", O_RDWR | O_CREAT | O_TRUNC, 0644);
-  if (fd < 0) {
-    std::cout << "input failed to create" << std::endl;
-  }
-
-  char *str = "say=say&to=to\n";
-  write(fd, str, 15);
-
-  pipe(pipes);
+  pipe(output);
+  pipe(input);
 
   _child_pid = fork();
   if (_child_pid < 0) {
@@ -123,18 +117,18 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     return;
   }
   if (_child_pid == 0) {
-
-    dup2(pipes[1], 1);
-    dup2(fd, 0);
-    close(fd);
-    close(pipes[1]);
-    close(pipes[0]);
-
+    dup2(output[1], 1);
+    dup2(input[0], 0);
+    close(input[1]);
+    close(output[0]);
     execve(args[0], args, env);
-
   } else {
     waitpid(_child_pid, &_child_return, WNOHANG);
-   _pipe = pipes[0];
+    close(output[1]);
+    close(input[0]);
+    write(input[1], req.get_body().data(), req.get_body().size());
+    close(input[1]);
+    _pipe = output[0];
     free(cgi);
     for (i = 0; i < _variables.size(); i++) {
       free(env[i]);
