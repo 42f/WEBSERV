@@ -167,16 +167,26 @@ void ResponseHandler::sendHeaders(int fdDest, int flags) {
 }
 
 void ResponseHandler::sendFromCgi(int fdDest, int flags) {
+ // TODO : if CGI has not exited yet, but there is something in the pipe, ok to send
+ // otherwise if it has not exited, and the pipe is empty, then we don't know yet if
+ // it succeeded in processing the file
+  if (_cgiTimer.getTimeElapsed() < 100000)  { // TODO remove experimental
+    std::cout << "Give more time to cgi" << std::endl;
+    return;
+  }
+  if (_resp.getCgiInst().status() == cgi_status::CGI_ERROR ||
+      _resp.getCgiInst().status() == cgi_status::SYSTEM_ERROR) {
+    std::cout << "cgi error" << std::endl; // TODO remove debug
+    if ((_resp.getState() & respState::headerSent) == false)
+      _method->makeStandardResponse(status::BadGateway);
+    else
+      _resp.getState() = respState::ioError;
+    return;
+  }
+
   if ((_resp.getState() & respState::headerSent) == false)
     sendHeaders(fdDest, flags);
   int cgiPipe = _resp.getCgiInst().get_readable_pipe();
-
-  if (_resp.getCgiInst().status() == cgi_status::CGI_ERROR ||
-      _resp.getCgiInst().status() == cgi_status::SYSTEM_ERROR) {
-    _resp.getState() = respState::ioError;
-    std::cout << "cgi error" << std::endl;
-    return;
-  }
   if ((_resp.getState() & respState::cgiHeadersSent) == false)
     sendCgiHeaders(cgiPipe, fdDest, flags);
   doSendFromFD(cgiPipe, fdDest, flags);
@@ -200,8 +210,6 @@ void ResponseHandler::sendCgiHeaders(int fdSrc, int fdDest, int flags) {
     send(fdDest, output.c_str(), output.length(), flags);
     state |= respState::cgiHeadersSent;
   }
-  std::cout << "RESPONSE buffer:\n"
-            << output.c_str() << NC << std::endl;  // TODO remove db
 }
 
 void ResponseHandler::sendFromFile(int fdDest, int flags) {
@@ -234,7 +242,6 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
     buff[retRead + 0] = '\r';
     buff[retRead + 1] = '\n';
     chunkData.insert(chunkData.end(), buff, buff + retRead + 2);
-    std::cout << chunkData << std::endl;
     send(fdDest, chunkData.data(), chunkData.length(), flags);
   } else {
     send(fdDest, buff, retRead, flags);

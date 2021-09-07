@@ -97,7 +97,6 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   char *env[_variables.size() + 1];
   for (; i < _variables.size();) {
     env[i] = _variables[i];
-    std::cout << env[i] << std::endl;
     i++;
   }
   env[i] = NULL;
