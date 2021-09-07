@@ -67,11 +67,14 @@ inline void make(std::string const &target, std::string const &path,
 
   if ((dir = opendir(path.c_str())) != NULL) {
     std::map<std::string, std::string> filesTree;
+    struct stat st;
     while ((ent = readdir(dir)) != NULL) {
      std::string file(ent->d_name);
      std::stringstream line;
+     stat(std::string(path + file).c_str(), &st);
+
      line << "<li><a href=\"" << target << (target.empty() ? "/" : "") << file
-          << "\">" << file << "</a></li></br>" << std::endl;
+          << "\">" << file << "           " << st.st_size << " " << Timer::getTimeStr(gmtime(&(st.st_mtime))) << "</a></li></br>" << std::endl;
      filesTree[file] = line.str();
     }
     closedir(dir);
