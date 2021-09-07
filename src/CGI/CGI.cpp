@@ -36,25 +36,25 @@ std::vector<char *> CGI::set_meta_variables(files::File const &file,
   RequestLine req_lines;
   std::vector<char *> variables;
 
-  // add_variable("AUTH_TYPE", "");
-  // add_variable("REMOTE_USER", "");
-  // add_variable("REMOTE_HOST", "");
-  // add_variable("REMOTE_IDENT", "");
-  // if (req.target.query.empty()) {
-  //   add_variable("QUERY_STRING", "");
-  // } else {
-  //   add_variable("QUERY_STRING", req.target.query);
-  // }
-  // add_variable("SERVER_SOFTWARE", "");
+  add_variable("AUTH_TYPE", "");
+  add_variable("REMOTE_USER", "");
+  add_variable("REMOTE_HOST", "");
+  add_variable("REMOTE_IDENT", "");
+  if (req.target.query.empty()) {
+    add_variable("QUERY_STRING", "");
+  } else {
+    add_variable("QUERY_STRING", req.target.query);
+  }
+  add_variable("SERVER_SOFTWARE", "");
   add_variable("REDIRECT_STATUS", "");
   add_variable("PATH_INFO", file.getFileName());
   // add_variable("SCRIPT_NAME", "");//file.getFileFromPath(file.getPath()));
   add_variable("SERVER_PROTOCOL", "HTTP/1.1");
   add_variable("GATEWAY_INTERFACE", "CGI/1.1");
-  // add_variable("SERVER_PORT", serv.get_port());
-  // add_variable("SERVER_NAME", serv.get_name());
-  // add_variable("REMOTE_ADDR", req.get_client_ip());
-  // add_variable("PATH_TRANSLATED", file.getPath());
+  add_variable("SERVER_PORT", serv.get_port());
+  add_variable("SERVER_NAME", serv.get_name());
+  add_variable("REMOTE_ADDR", req.get_client_ip());
+  add_variable("PATH_TRANSLATED", file.getPath());
   add_variable("SCRIPT_FILENAME", file.getPath());
   if (req.method == methods::GET)
     add_variable("REQUEST_METHOD", "GET");
@@ -81,7 +81,6 @@ std::vector<char *> CGI::set_meta_variables(files::File const &file,
   } else {
     add_variable("CONTENT_TYPE", "");
   }
-
   return variables;
 }
 
@@ -97,6 +96,7 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   char *env[_variables.size() + 1];
   for (; i < _variables.size();) {
     env[i] = _variables[i];
+    std::cout << env[i] << std::endl;
     i++;
   }
   env[i] = NULL;
