@@ -28,7 +28,14 @@ div {text-align: center;}
 <body>
 	<h1>
 		Hello from /tmp/server/index.html !<br/>
-		<?php echo "hello from php"; ?>
+	//ATTENTION SLEEP
+
+
+
+		<?php
+			sleep(2);
+			echo "hello from php";
+		?>
 		<a href="./site0">go to site0...</a><br/>
 		<a href="./site1">go to site1...</a><br/>
 		<a href="./site2">go to site2...</a><br/>

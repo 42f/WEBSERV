@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 
 #include <vector>
@@ -14,7 +15,7 @@
 #include "HTTP/Request/Request.hpp"
 
 namespace cgi_status {
-enum status { NON_INIT, DONE, CGI_ERROR, SYSTEM_ERROR, READABLE, UNSUPPORTED };
+enum status { NON_INIT, WAITING, DONE, CGI_ERROR, SYSTEM_ERROR, READABLE, UNSUPPORTED };
 }
 
 class CGI {

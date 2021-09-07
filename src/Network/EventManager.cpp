@@ -248,7 +248,7 @@ void EventManager::resize(void) {
       if (HAS_OFD_CLOSABLE(itr->get_status())) {
         FD_CLR(itr->get_o_fd(), &EventManager::_read_set);
         FD_CLR(itr->get_o_fd(), &EventManager::_write_set);
-        close(itr->get_o_fd());
+        // close(itr->get_o_fd()); // TODO remove ? close in cgi and File dtor
       }
       std::list<Socket>::iterator itr_tmp = itr;
       itr++;

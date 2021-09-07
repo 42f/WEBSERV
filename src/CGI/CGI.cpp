@@ -2,9 +2,13 @@
 
 CGI::CGI(void) {
   _status = cgi_status::NON_INIT;
+  _pipe = UNSET;
   _child_return = 0;
 }
-CGI::~CGI() {}
+CGI::~CGI() {
+  if (_pipe != UNSET)
+    close(_pipe);
+}
 
 int CGI::get_pid(void) const { return (_child_pid); }
 int CGI::get_fd(void) const { return (_pipe); }
@@ -14,18 +18,23 @@ cgi_status::status CGI::status(void) {
       _status == cgi_status::CGI_ERROR) {
     return _status;
   }
+
+  unsigned long bytesAvailable;
+  if (ioctl(_pipe, FIONREAD, &bytesAvailable) == -1)
+    bytesAvailable = 1;
+
   int ret = waitpid(_child_pid, &_child_return, WNOHANG);
   if (ret == _child_pid) {
-    if (_child_return < 0) {
+    if ((WIFEXITED(_child_return) &&  WEXITSTATUS(_child_return) != 0) || WIFSIGNALED(_child_return))
       _status = cgi_status::CGI_ERROR;
-    } else {
+    else
       _status = cgi_status::DONE;
-    }
-  } else if (ret == 0) {
+  } else if (ret == 0 && bytesAvailable > 0) {
     _status = cgi_status::READABLE;
   } else if (ret < 0) {
-    _status = cgi_status::SYSTEM_ERROR;
+    _status = cgi_status::SYSTEM_ERROR; // TODO implemente actions
   }
+  std::cout << "call status = " << _status << std::endl;
   return (_status);
 }
 
@@ -117,23 +126,27 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     return;
   }
   if (_child_pid == 0) {
+
     dup2(output[1], 1);
-    dup2(input[0], 0);
     close(input[1]);
+    close(input[0]);
+
+    dup2(input[0], 0);
+    close(output[1]);
     close(output[0]);
+
     execve(args[0], args, env);
-    exit(1);
+    exit(-1);
   } else {
-    waitpid(_child_pid, &_child_return, WNOHANG);
+    write(input[1], req.get_body().data(), req.get_body().size());
     close(output[1]);
     close(input[0]);
-    write(input[1], req.get_body().data(), req.get_body().size());
     close(input[1]);
     _pipe = output[0];
     free(cgi);
     for (i = 0; i < _variables.size(); i++) {
       free(env[i]);
     }
-    _status = cgi_status::READABLE;
+    _status = cgi_status::WAITING;
   }
 }
