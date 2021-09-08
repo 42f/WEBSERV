@@ -8,6 +8,7 @@ CGI::CGI(void) {
 CGI::~CGI() {
   if (_pipe != UNSET)
     close(_pipe);
+  status();
 }
 
 int CGI::get_pid(void) const { return (_child_pid); }
