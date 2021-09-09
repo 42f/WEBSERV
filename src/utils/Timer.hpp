@@ -32,13 +32,14 @@ class Timer	{
             return buff;
         }
         Timer &		operator=( Timer const & rhs ) {
-           if (this != &rhs)
-            _start = rhs._start;
+            if (this != &rhs) {
+                _start = rhs._start;
+            }
+            return *this;
         };
 
     private:
 
         time_t  _start;
-
 };
 

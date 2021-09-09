@@ -208,11 +208,11 @@ void ResponseHandler::sendFromCgi(int fdDest, int flags) {
     sendHeaders(fdDest, flags);
   int cgiPipe = _resp.getCgiInst().get_readable_pipe();
   if ((respStatus & respState::cgiHeadersSent) == false)
-    sendCgiHeaders(cgiPipe, fdDest, flags);
+    sendCgiHeaders(fdDest, flags);
   doSendFromFD(cgiPipe, fdDest, flags);
 }
 
-void ResponseHandler::sendCgiHeaders(int fdSrc, int fdDest, int flags) {
+void ResponseHandler::sendCgiHeaders(int fdDest, int flags) {
 
   if (_resp.getState() & respState::cgiHeadersSent)
     return ;
@@ -220,26 +220,6 @@ void ResponseHandler::sendCgiHeaders(int fdSrc, int fdDest, int flags) {
   std::cout << "sending headers size " << cgiHeaders.size() << std::endl;
   send(fdDest, cgiHeaders.c_str(), cgiHeaders.length(), flags);
   _resp.getState() |= respState::cgiHeadersSent;
-
-
-
-  // int& state = _resp.getState();
-  // char cBuff;
-  // std::string output;
-  // int retRead = 1;
-  // while ((retRead = read(fdSrc, &cBuff, 1)) > 0) {
-  //   output += cBuff;
-  //   if (output.size() >= 3 && output[output.length() - 3] == '\n' &&
-  //       output[output.length() - 2] == '\r' &&
-  //       output[output.length() - 1] == '\n')
-  //     break;
-  // }
-  // if (retRead < 0) {
-  //   state = respState::ioError;
-  // } else {
-  //   send(fdDest, output.c_str(), output.length(), flags);
-  //   state |= respState::cgiHeadersSent;
-  // }
 }
 
 void ResponseHandler::sendFromFile(int fdDest, int flags) {

@@ -128,21 +128,26 @@ std::vector<char *> CGI::set_meta_variables(files::File const &file,
     _status = cgi_status::UNSUPPORTED;
     return variables;
   }
-  //----------------------------------------
-  Result<std::string> content_length = req.get_header("Content-Length");
-  if (content_length.is_ok()) {
-    std::cout << "content length: " << content_length.unwrap() << std::endl;
-    add_variable("CONTENT_LENGTH", content_length.unwrap());
-  } else {
-    add_variable("CONTENT_LENGTH", "");
-  }
-  //----------------------------------------
-  Result<std::string> content_type = req.get_header("Content-Type");
-  if (content_type.is_ok()) {
-    add_variable("CONTENT_TYPE", content_type.unwrap());
-  } else {
-    add_variable("CONTENT_TYPE", "");
-  }
+
+  add_variable("CONTENT_LENGTH", req.get_header("Content-Length").unwrap_or(""));
+  add_variable("CONTENT_TYPE", req.get_header("Content-Type").unwrap_or(""));
+
+//   //----------------------------------------
+//   Result<std::string> content_length = req.get_header("Content-Length");
+//   if (content_length.is_ok()) {
+//     std::cout << "content length: " << content_length.unwrap() << std::endl;
+//     add_variable("CONTENT_LENGTH", content_length.unwrap());
+//   } else {
+//     add_variable("CONTENT_LENGTH", "");
+//   }
+//   //----------------------------------------
+//   Result<std::string> content_type = req.get_header("Content-Type");
+//   if (content_type.is_ok()) {
+//     add_variable("CONTENT_TYPE", content_type.unwrap());
+//   } else {
+//     add_variable("CONTENT_TYPE", "");
+//   }
+
   return variables;
 }
 

@@ -59,7 +59,7 @@ class ResponseHandler {
 
   std::string getReqHeader(const std::string& target);
   void sendHeaders(int fdDest, int flags);
-  void sendCgiHeaders(int fdSrc, int fdDest, int flags);
+  void sendCgiHeaders(int fdDest, int flags);
   void sendFromBuffer(int fdDest, int flags);
   void sendFromCgi(int fdDest, int flags);
   void sendFromFile(int fdDest, int flags);

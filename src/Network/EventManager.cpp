@@ -210,11 +210,10 @@ void EventManager::send_response(int index) {
        itr != EventManager::_sockets.end(); ++itr) {
 
     int st = itr->get_status();
-    int ofd = itr->get_o_fd();
-
     if (FULL_SKT_WR(itr->get_skt_fd(), st)) {
       itr->process_request();
-
+      st = itr->get_status();
+      int ofd = itr->get_o_fd();
       if (HAS_OFD_NO_NEED(st) ||
         (FD_ISSET(ofd, &EventManager::_read_set) && HAS_OFD_USABLE(st)) ) {
 
