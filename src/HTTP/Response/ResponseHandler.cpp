@@ -166,50 +166,60 @@ void ResponseHandler::sendHeaders(int fdDest, int flags) {
   }
 }
 
-void ResponseHandler::sendFromCgi(int fdDest, int flags) {
- // TODO : if CGI has not exited yet, but there is something in the pipe, ok to send
- // otherwise if it has not exited, and the pipe is empty, then we don't know yet if
- // it succeeded in processing the file
-  if (_cgiTimer.getTimeElapsed() < 100000)  { // TODO remove experimental
-    std::cout << "Give more time to cgi" << std::endl;
-    return;
+status::StatusCode ResponseHandler::pickCgiError(cgi_status::status cgiStatus) const {
+  switch(cgiStatus) {
+    case cgi_status::TIMEOUT:
+      return status::GatewayTimeout;
+    case cgi_status::SYSTEM_ERROR:
+      return status::InternalServerError;
+    case cgi_status::UNSUPPORTED:
+      return status::MethodNotAllowed;
+    case cgi_status::CGI_ERROR:
+      return status::BadGateway;
+
+    default:
+      return status::InternalServerError;
   }
-  if (_resp.getCgiInst().status() == cgi_status::CGI_ERROR ||
-      _resp.getCgiInst().status() == cgi_status::SYSTEM_ERROR) {
-    std::cout << "cgi error" << std::endl; // TODO remove debug
-    if ((_resp.getState() & respState::headerSent) == false)
-      _method->makeStandardResponse(status::BadGateway);
-    else
-      _resp.getState() = respState::ioError;
-    return;
+}
+
+void ResponseHandler::sendFromCgi(int fdDest, int flags) {
+
+  std::cout << "sendfromcgi" << std::endl;
+
+  int & respStatus = _resp.getState();
+  if ((respStatus & respState::headerSent) == false)
+    _resp.getCgiInst().setCgiHeader();
+
+  cgi_status::status cgiStatus = _resp.getCgiInst().status();
+
+  std::cout << "status in " << __func__ << ": " << cgiStatus << std::endl;
+  if (cgiStatus == cgi_status::WAITING) {
+    return ;
+  } else if (STATUS_IS_ERROR(cgiStatus)) {
+    if ((respStatus & respState::headerSent) == false) {
+      return _method->makeStandardResponse(pickCgiError(cgiStatus));
+    } else {
+      respStatus = respState::ioError;
+      return;
+    }
   }
 
-  if ((_resp.getState() & respState::headerSent) == false)
+  if ((respStatus & respState::headerSent) == false)
     sendHeaders(fdDest, flags);
   int cgiPipe = _resp.getCgiInst().get_readable_pipe();
-  if ((_resp.getState() & respState::cgiHeadersSent) == false)
-    sendCgiHeaders(cgiPipe, fdDest, flags);
+  if ((respStatus & respState::cgiHeadersSent) == false)
+    sendCgiHeaders(fdDest, flags);
   doSendFromFD(cgiPipe, fdDest, flags);
 }
 
-void ResponseHandler::sendCgiHeaders(int fdSrc, int fdDest, int flags) {
-  int& state = _resp.getState();
-  char cBuff;
-  std::string output;
-  int retRead = 1;
-  while ((retRead = read(fdSrc, &cBuff, 1)) > 0) {
-    output += cBuff;
-    if (output.size() >= 3 && output[output.length() - 3] == '\n' &&
-        output[output.length() - 2] == '\r' &&
-        output[output.length() - 1] == '\n')
-      break;
-  }
-  if (retRead < 0) {
-    state = respState::ioError;
-  } else {
-    send(fdDest, output.c_str(), output.length(), flags);
-    state |= respState::cgiHeadersSent;
-  }
+void ResponseHandler::sendCgiHeaders(int fdDest, int flags) {
+
+  if (_resp.getState() & respState::cgiHeadersSent)
+    return ;
+  std::string const & cgiHeaders = _resp.getCgiInst().getCgiHeader();
+  std::cout << "sending headers size " << cgiHeaders.size() << std::endl;
+  send(fdDest, cgiHeaders.c_str(), cgiHeaders.length(), flags);
+  _resp.getState() |= respState::cgiHeadersSent;
 }
 
 void ResponseHandler::sendFromFile(int fdDest, int flags) {

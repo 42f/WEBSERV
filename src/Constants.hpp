@@ -48,4 +48,8 @@
 #define PARAM_REDIR_REQ_URI		"$request_uri"
 #define PARAM_REDIR_REQ_QUERY	"$request_query"
 
+#define CGI_TIMEOUT				2
+
+#define UNSET					-1
+
 #endif  // WEBSERV_CONSTANTS_HPP

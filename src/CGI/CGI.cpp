@@ -2,31 +2,74 @@
 
 CGI::CGI(void) {
   _status = cgi_status::NON_INIT;
+  _pipe = UNSET;
   _child_return = 0;
 }
-CGI::~CGI() {}
+CGI::~CGI() {
+  if (_pipe != UNSET) close(_pipe);
+  if (_status != cgi_status::NON_INIT)
+    waitpid(_child_pid, &_child_return, WNOHANG);
+}
 
 int CGI::get_pid(void) const { return (_child_pid); }
 int CGI::get_fd(void) const { return (_pipe); }
 
+bool CGI::isPipeEmpty(void) const {
+  unsigned long bytesAvailable;
+  if (ioctl(_pipe, FIONREAD, &bytesAvailable) == -1) {
+    perror("iotctl");
+    bytesAvailable = 0;
+  }
+  return bytesAvailable == 0;
+}
+
 cgi_status::status CGI::status(void) {
-  if (_status == cgi_status::DONE || _status == cgi_status::SYSTEM_ERROR ||
-      _status == cgi_status::CGI_ERROR) {
+  if (_cgiTimer.getTimeElapsed() >= CGI_TIMEOUT) {
+    _status = cgi_status::TIMEOUT;
     return _status;
   }
+
+  if (_status == cgi_status::DONE || STATUS_IS_ERROR(_status)) {
+    return _status;
+  }
+
   int ret = waitpid(_child_pid, &_child_return, WNOHANG);
+
   if (ret == _child_pid) {
-    if (_child_return < 0) {
-      _status = cgi_status::CGI_ERROR;
+    if (CGI_BAD_EXIT(_child_return)) {
+      if (WIFSIGNALED(_child_return) || WEXITSTATUS(_child_return) == 255) {
+        _status = cgi_status::SYSTEM_ERROR;
+      } else {
+        _status = cgi_status::CGI_ERROR;
+      }
     } else {
       _status = cgi_status::DONE;
     }
-  } else if (ret == 0) {
+  } else if (ret == 0 && isPipeEmpty() == false) {
     _status = cgi_status::READABLE;
+  } else if (ret == 0 && isPipeEmpty() == true) {
+    _status = cgi_status::WAITING;
   } else if (ret < 0) {
     _status = cgi_status::SYSTEM_ERROR;
   }
   return (_status);
+}
+
+std::string const &CGI::getCgiHeader(void) const { return _cgiHeaders; }
+
+void CGI::setCgiHeader(void) {
+  if (_cgiHeaders.empty() && isPipeEmpty() == false) {
+    char cBuff;
+    int retRead = 1;
+    while ((retRead = read(_pipe, &cBuff, 1)) > 0) {
+      _cgiHeaders += cBuff;
+      if (_cgiHeaders.size() >= 3 &&
+          _cgiHeaders[_cgiHeaders.length() - 3] == '\n' &&
+          _cgiHeaders[_cgiHeaders.length() - 2] == '\r' &&
+          _cgiHeaders[_cgiHeaders.length() - 1] == '\n')
+        break;
+    }
+  }
 }
 
 int CGI::get_readable_pipe(void) const { return (_pipe); }
@@ -67,21 +110,11 @@ std::vector<char *> CGI::set_meta_variables(files::File const &file,
     _status = cgi_status::UNSUPPORTED;
     return variables;
   }
-  //----------------------------------------
-  Result<std::string> content_length = req.get_header("Content-Length");
-  if (content_length.is_ok()) {
-    std::cout << "content length: " << content_length.unwrap() << std::endl;
-    add_variable("CONTENT_LENGTH", content_length.unwrap());
-  } else {
-    add_variable("CONTENT_LENGTH", "");
-  }
-  //----------------------------------------
-  Result<std::string> content_type = req.get_header("Content-Type");
-  if (content_type.is_ok()) {
-    add_variable("CONTENT_TYPE", content_type.unwrap());
-  } else {
-    add_variable("CONTENT_TYPE", "");
-  }
+
+  add_variable("CONTENT_LENGTH",
+               req.get_header("Content-Length").unwrap_or(""));
+  add_variable("CONTENT_TYPE", req.get_header("Content-Type").unwrap_or(""));
+
   return variables;
 }
 
@@ -118,23 +151,27 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   }
   if (_child_pid == 0) {
     dup2(output[1], 1);
-    dup2(input[0], 0);
     close(input[1]);
+    close(input[0]);
+
+    dup2(input[0], 0);
+    close(output[1]);
     close(output[0]);
+
     execve(args[0], args, env);
-    exit(1);
+    exit(-1);
   } else {
-    waitpid(_child_pid, &_child_return, WNOHANG);
+    _cgiTimer.start();
+    _status = cgi_status::WAITING;
+    write(input[1], req.get_body().data(), req.get_body().size());
     close(output[1]);
     close(input[0]);
-    write(input[1], req.get_body().data(), req.get_body().size());
     close(input[1]);
     _pipe = output[0];
+    // fcntl(_pipe, F_SETFL, O_NONBLOCK); // TODO necessary ??
     free(cgi);
     for (i = 0; i < _variables.size(); i++) {
       free(env[i]);
     }
-    _status = cgi_status::READABLE;
-    std::cout << "CGI: status=" << _status << ", pid=" << _child_pid << std::endl;
   }
 }

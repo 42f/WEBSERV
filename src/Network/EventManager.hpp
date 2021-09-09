@@ -28,9 +28,9 @@ class EventManager {
 
   static void resize(void);
   static void do_select(void);
-  static void accept_request(int index);
-  static void recv_request(int index);
-  static void send_response(int index);
+  static void accept_request(void);
+  static void recv_request(void);
+  static void send_response(void);
 
   static int get_nb_events(void);
   static int get_total_requests(void);

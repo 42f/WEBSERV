@@ -6,7 +6,7 @@ Response::Response()
     : _respState(respState::emptyResp),
       _version(Version('1', '1')),
       _statusCode(status::None) {
-  setHeader("Cache-Control:", "no-cache");  // TODO remove debug
+  setHeader("Cache-Control", "no-cache");  // TODO remove debug
   setHeader(headerTitle::Date, Timer::getTimeNow());
   setHeader(headerTitle::Server, WEBSERV_NAME);
 }

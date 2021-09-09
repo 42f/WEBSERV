@@ -23,7 +23,6 @@
 #include "RequestUtils/RequestLine.hpp"
 #include "Response.hpp"
 #include "Status.hpp"
-#include "Timer.hpp"
 #include "Autoindex.hpp"
 
 class ResponseHandler {
@@ -57,17 +56,17 @@ class ResponseHandler {
   LocationConfig _loc;
   A_Method* _method;
   Response _resp;
-  Timer    _cgiTimer;
 
   std::string getReqHeader(const std::string& target);
   void sendHeaders(int fdDest, int flags);
-  void sendCgiHeaders(int fdSrc, int fdDest, int flags);
+  void sendCgiHeaders(int fdDest, int flags);
   void sendFromBuffer(int fdDest, int flags);
   void sendFromCgi(int fdDest, int flags);
   void sendFromFile(int fdDest, int flags);
   int doSendFromFD(int fdSrc, int fdDest, int flags);
   void manageRedirect(redirect const& red);
   int getOutputFd( void );
+  status::StatusCode pickCgiError(cgi_status::status cgiStat) const;
 
   ResponseHandler(ResponseHandler const& src);
   ResponseHandler& operator=(ResponseHandler const& rhs);
@@ -119,18 +118,13 @@ class ResponseHandler {
    public:
     void handleCgiFile(std::string const& cgiBin) {
       CGI& cgiInst = _inst._resp.getCgiInst();
-      _inst._cgiTimer.start();
       cgiInst.execute_cgi(cgiBin, _inst._resp.getFileInst(), _inst._req,
                           _inst._serv);
-      if (cgiInst.status() == cgi_status::SYSTEM_ERROR) {
-        makeStandardResponse(status::InternalServerError);
-      } else {
-        setRespForCgi();
-        _inst._resp.setStatus(status::Ok);
-      }
+      setRespForCgi();
+      _inst._resp.setStatus(status::Ok);
     }
 
-    std::string getCgiBinPath() {
+    std::string getCgiBinPath( void ) {
       std::string fileExt = _inst._resp.getFileInst().getExt();
       std::map<std::string, std::string>::const_iterator it =
           _inst._serv.get_cgis().begin();

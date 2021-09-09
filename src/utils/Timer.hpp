@@ -9,12 +9,15 @@ class Timer	{
 
     public:
 
-        Timer( void ) {};
+        Timer( void ) : _start(time(NULL)) {};
         ~Timer( void ) {};
+        Timer( Timer const & src ) {
+           *this = src;
+        };
 
-        void            start(void) { _start = clock(); };
-        unsigned int    getTimeElapsed( void ) {
-            return (clock() - _start);
+        void            start(void) { _start = time(NULL); };
+        unsigned int    getTimeElapsed( void ) const {
+            return (time(NULL) - _start);
         };
 
         static std::string  getTimeNow( void ) {
@@ -28,12 +31,15 @@ class Timer	{
             strftime(buff, 29, "%a, %d %b %Y %H:%M:%S %Z", time);
             return buff;
         }
+        Timer &		operator=( Timer const & rhs ) {
+            if (this != &rhs) {
+                _start = rhs._start;
+            }
+            return *this;
+        };
 
     private:
 
         time_t  _start;
-
-        Timer( Timer const & src );
-        Timer &		operator=( Timer const & rhs );
 };
 
