@@ -1,6 +1,9 @@
+
 server {
+
 #Permet d'écouter sur le port 80 de l'IPv4 de votre serveur
        listen 80 default_server;
+
 #Permet d'écouter sur le port 80 de l'IPv6 de votre serveur
        listen [::]:80 default_server;
 	   listen 443 ssl http2 default_server;
@@ -8,24 +11,33 @@ server {
 
 #Vous devez renseigner le nom de domaine de votre site internet
        server_name 127.0.0.1 localhost/wordpress;
-	   include snippets/self-signed.conf;
+	include snippets/self-signed.conf;
+
 #Défini le répertoire qui va accueillir les fichiers de votre site internet
        root /var/www;
+
 #Permet de définir l'ordre d'exécution de votre index. Ici, s'il y a deux index.php/html à la racine du site, index.php sera exécuté en priorité
        index index.php index.html;
 
-		location / {
-			autoindex on;
-			autoindex_localtime on;
-			try_files $uri $uri/ =404;
-		}
+       location / {
+              autoindex on;
+              autoindex_localtime on;
+              try_files $uri $uri/ =404;
+       }
 
-location ~ \.php$ {
-        try_files $uri =404;
-         fastcgi_index index.php;
-         fastcgi_pass 127.0.0.1:9000;
-         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-         include /etc/nginx/fastcgi_params;
-	}
+       location = /test {
+              autoindex on;
+              root /tmp/volume/;
+              autoindex_localtime on;
+              try_files $uri $uri/ =404;
+       }
+
+       location ~ \.php$ {
+              try_files $uri =404;
+              fastcgi_index index.php;
+              fastcgi_pass 127.0.0.1:9000;
+              fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+              include /etc/nginx/fastcgi_params;
+       }
 }
 
