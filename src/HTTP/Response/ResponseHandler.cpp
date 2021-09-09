@@ -166,25 +166,48 @@ void ResponseHandler::sendHeaders(int fdDest, int flags) {
   }
 }
 
+status::StatusCode ResponseHandler::pickCgiError(cgi_status::status cgiStatus) const {
+  switch(cgiStatus) {
+    case cgi_status::TIMEOUT:
+      return status::GatewayTimeout;
+    case cgi_status::SYSTEM_ERROR:
+      return status::InternalServerError;
+    case cgi_status::UNSUPPORTED:
+      return status::MethodNotAllowed;
+    case cgi_status::CGI_ERROR:
+      return status::BadGateway;
+
+    default:
+      return status::InternalServerError;
+  }
+}
+
 void ResponseHandler::sendFromCgi(int fdDest, int flags) {
 
-  _resp.getCgiInst().setCgiHeader();
-  cgi_status::status cgiStat = _resp.getCgiInst().status();
-  if (cgiStat == cgi_status::WAITING) {
+  std::cout << "sendfromcgi" << std::endl;
+
+  int & respStatus = _resp.getState();
+  if ((respStatus & respState::headerSent) == false)
+    _resp.getCgiInst().setCgiHeader();
+
+  cgi_status::status cgiStatus = _resp.getCgiInst().status();
+
+  std::cout << "status in " << __func__ << ": " << cgiStatus << std::endl;
+  if (cgiStatus == cgi_status::WAITING) {
     return ;
-  } else if (STATUS_IS_ERROR(cgiStat)) {
-    if ((_resp.getState() & respState::headerSent) == false) {
-      return _method->makeStandardResponse(status::BadGateway);
+  } else if (STATUS_IS_ERROR(cgiStatus)) {
+    if ((respStatus & respState::headerSent) == false) {
+      return _method->makeStandardResponse(pickCgiError(cgiStatus));
     } else {
-      _resp.getState() = respState::ioError;
+      respStatus = respState::ioError;
       return;
     }
   }
 
-  if ((_resp.getState() & respState::headerSent) == false)
+  if ((respStatus & respState::headerSent) == false)
     sendHeaders(fdDest, flags);
   int cgiPipe = _resp.getCgiInst().get_readable_pipe();
-  if ((_resp.getState() & respState::cgiHeadersSent) == false)
+  if ((respStatus & respState::cgiHeadersSent) == false)
     sendCgiHeaders(cgiPipe, fdDest, flags);
   doSendFromFD(cgiPipe, fdDest, flags);
 }

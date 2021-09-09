@@ -66,6 +66,7 @@ class ResponseHandler {
   int doSendFromFD(int fdSrc, int fdDest, int flags);
   void manageRedirect(redirect const& red);
   int getOutputFd( void );
+  status::StatusCode pickCgiError(cgi_status::status cgiStat) const;
 
   ResponseHandler(ResponseHandler const& src);
   ResponseHandler& operator=(ResponseHandler const& rhs);
@@ -119,16 +120,11 @@ class ResponseHandler {
       CGI& cgiInst = _inst._resp.getCgiInst();
       cgiInst.execute_cgi(cgiBin, _inst._resp.getFileInst(), _inst._req,
                           _inst._serv);
-      // if (cgiInst.status() == cgi_status::SYSTEM_ERROR) {
-      if (STATUS_IS_ERROR(cgiInst.status())) {
-        makeStandardResponse(status::InternalServerError);
-      } else {
-        setRespForCgi();
-        _inst._resp.setStatus(status::Ok);
-      }
+      setRespForCgi();
+      _inst._resp.setStatus(status::Ok);
     }
 
-    std::string getCgiBinPath() {
+    std::string getCgiBinPath( void ) {
       std::string fileExt = _inst._resp.getFileInst().getExt();
       std::map<std::string, std::string>::const_iterator it =
           _inst._serv.get_cgis().begin();

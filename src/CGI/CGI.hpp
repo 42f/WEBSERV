@@ -13,11 +13,15 @@
 #include "Config/Server.hpp"
 #include "HTTP/Response/ResponseUtils/File.hpp"
 #include "HTTP/Request/Request.hpp"
-// #include "Timer.hpp"
+#include "Timer.hpp"
+#include "Constants.hpp"
 
 #define STATUS_IS_ERROR(x) \
     (x == cgi_status::CGI_ERROR || x == cgi_status::SYSTEM_ERROR \
-  || x == cgi_status::UNSUPPORTED)
+  || x == cgi_status::UNSUPPORTED || x == cgi_status::TIMEOUT)
+
+#define CGI_BAD_EXIT(x) \
+    (WIFEXITED(x) &&  WEXITSTATUS(x) != 0) || WIFSIGNALED(x)
 
 namespace cgi_status {
   enum status {
@@ -29,7 +33,7 @@ namespace cgi_status {
     READABLE,
     UNSUPPORTED,
     TIMEOUT
-    };
+  };
 }
 
 class CGI {
@@ -54,9 +58,10 @@ class CGI {
   int _pipe;
   cgi_status::status _status;
   std::vector<char *> _variables;
-  std::string _CgiHeaders;
-  // Timer    _cgiTimer;
+  std::string _cgiHeaders;
+  Timer    _cgiTimer;
 
+  bool isPipeEmpty(void) const;
   template <typename T>
   void add_variable(std::string name, T value) {
     std::ostringstream ss;

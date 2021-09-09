@@ -9,62 +9,84 @@ CGI::~CGI() {
   if (_pipe != UNSET)
     close(_pipe);
   if (_status != cgi_status::NON_INIT)
-    status();
+    waitpid(_child_pid, &_child_return, WNOHANG);
 }
 
 int CGI::get_pid(void) const { return (_child_pid); }
 int CGI::get_fd(void) const { return (_pipe); }
 
-cgi_status::status CGI::status(void) {
-  if (_status == cgi_status::DONE || _status == cgi_status::SYSTEM_ERROR ||
-      _status == cgi_status::CGI_ERROR) {
-    return _status;
-  }
+bool  CGI::isPipeEmpty(void) const {
 
   unsigned long bytesAvailable;
-  if (ioctl(_pipe, FIONREAD, &bytesAvailable) == -1)
+  if (ioctl(_pipe, FIONREAD, &bytesAvailable) == -1) {
+    perror("iotctl");
     bytesAvailable = 0;
-  std::cout << "Bytes in pipe: " << bytesAvailable << std::endl;
-  int ret = waitpid(_child_pid, &_child_return, WNOHANG);
-  if (ret == _child_pid) {
-    if ((WIFEXITED(_child_return) &&  WEXITSTATUS(_child_return) == 255) || WIFSIGNALED(_child_return)) {
-        _status = cgi_status::SYSTEM_ERROR;
-        LogStream s;
-        s << "Fatal: CGI exited with status: " << WEXITSTATUS(_child_return);
-    } else if (WIFEXITED(_child_return) &&  WEXITSTATUS(_child_return) != 0) {
-        _status = cgi_status::CGI_ERROR;
-        LogStream s;
-        s << "Error: CGI exited with status: " << WEXITSTATUS(_child_return);
-    } else {
-      _status = cgi_status::DONE;
-    }
-  } else if (ret == 0 && bytesAvailable > 0) {
-    _status = cgi_status::READABLE;
-  } else if (ret < 0) {
-    _status = cgi_status::SYSTEM_ERROR; // TODO implemente actions
   }
+
+  return bytesAvailable == 0;
+}
+
+cgi_status::status CGI::status(void) {
 
   const char* mess[] = { "NON_INIT", "WAITING", "DONE", "CGI_ERROR",
    "SYSTEM_ERROR", "READABLE", "UNSUPPORTED", "TIMEOUT" };
-  std::cout << "call status = " << mess[_status] << std::endl;
+  std::cout << "before call status = " << mess[_status] << std::endl; // TODO remove debug
+
+
+
+  std::cout << "TIME: " << _cgiTimer.getTimeElapsed()<< std::endl;  // TODO remove debug
+  if (_cgiTimer.getTimeElapsed() >= CGI_TIMEOUT) {
+    _status = cgi_status::TIMEOUT;
+    return _status;
+  }
+
+  if (_status == cgi_status::DONE || STATUS_IS_ERROR(_status)) {
+    return _status;
+  }
+
+  int ret = waitpid(_child_pid, &_child_return, WNOHANG);
+
+  if (ret == _child_pid) {
+    if (CGI_BAD_EXIT(_child_return)) {
+      if (WIFSIGNALED(_child_return) || WEXITSTATUS(_child_return) == 255) {
+        _status = cgi_status::SYSTEM_ERROR;
+      } else {
+        _status = cgi_status::CGI_ERROR;
+      }
+    } else {
+      _status = cgi_status::DONE;
+    }
+  } else if (ret == 0 && isPipeEmpty() == false) {
+    _status = cgi_status::READABLE;
+  } else if (ret == 0 && isPipeEmpty() == true) {
+    _status = cgi_status::WAITING;
+  } else if (ret < 0) {
+    _status = cgi_status::SYSTEM_ERROR;
+  }
+
+  std::cout << "after call status = " << mess[_status] << std::endl; // TODO remove debug
   return (_status);
 }
 
-std::string const & CGI::getCgiHeader(void) const { return _CgiHeaders; }
+std::string const & CGI::getCgiHeader(void) const { return _cgiHeaders; }
+
 void CGI::setCgiHeader(void) {
 
-  if (_CgiHeaders.empty() == false)
-    return;
-
-  char cBuff;
-  int retRead = 1;
-  while ((retRead = read(_pipe, &cBuff, 1)) > 0) {
-    _CgiHeaders += cBuff;
-    if (_CgiHeaders.size() >= 3 && _CgiHeaders[_CgiHeaders.length() - 3] == '\n' &&
-        _CgiHeaders[_CgiHeaders.length() - 2] == '\r' &&
-        _CgiHeaders[_CgiHeaders.length() - 1] == '\n')
-      break;
+    std::cout << "SET CGI HEADER --------------- ?" << std::endl;
+  if (_cgiHeaders.empty() && isPipeEmpty() == false) {
+    std::cout << "SET CGI HEADER --------------- yes !" << std::endl;
+    char cBuff;
+    int retRead = 1;
+    while ((retRead = read(_pipe, &cBuff, 1)) > 0) {
+      _cgiHeaders += cBuff;
+      if (_cgiHeaders.size() >= 3 && _cgiHeaders[_cgiHeaders.length() - 3] == '\n' &&
+          _cgiHeaders[_cgiHeaders.length() - 2] == '\r' &&
+          _cgiHeaders[_cgiHeaders.length() - 1] == '\n')
+        break;
+    }
+    std::cout << "SET CGI HEADER --------------- size= " << _cgiHeaders.size() << std::endl;
   }
+
 }
 
 
@@ -168,13 +190,14 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     execve(args[0], args, env);
     exit(-1);
   } else {
+    _cgiTimer.start();
     _status = cgi_status::WAITING;
-    _status = status();
     write(input[1], req.get_body().data(), req.get_body().size());
     close(output[1]);
     close(input[0]);
     close(input[1]);
     _pipe = output[0];
+    // fcntl(_pipe, F_SETFL, O_NONBLOCK); // TODO ??
     free(cgi);
     for (i = 0; i < _variables.size(); i++) {
       free(env[i]);
