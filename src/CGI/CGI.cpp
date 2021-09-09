@@ -6,8 +6,7 @@ CGI::CGI(void) {
   _child_return = 0;
 }
 CGI::~CGI() {
-  if (_pipe != UNSET)
-    close(_pipe);
+  if (_pipe != UNSET) close(_pipe);
   if (_status != cgi_status::NON_INIT)
     waitpid(_child_pid, &_child_return, WNOHANG);
 }
@@ -15,19 +14,16 @@ CGI::~CGI() {
 int CGI::get_pid(void) const { return (_child_pid); }
 int CGI::get_fd(void) const { return (_pipe); }
 
-bool  CGI::isPipeEmpty(void) const {
-
+bool CGI::isPipeEmpty(void) const {
   unsigned long bytesAvailable;
   if (ioctl(_pipe, FIONREAD, &bytesAvailable) == -1) {
     perror("iotctl");
     bytesAvailable = 0;
   }
-
   return bytesAvailable == 0;
 }
 
 cgi_status::status CGI::status(void) {
-
   if (_cgiTimer.getTimeElapsed() >= CGI_TIMEOUT) {
     _status = cgi_status::TIMEOUT;
     return _status;
@@ -59,24 +55,22 @@ cgi_status::status CGI::status(void) {
   return (_status);
 }
 
-std::string const & CGI::getCgiHeader(void) const { return _cgiHeaders; }
+std::string const &CGI::getCgiHeader(void) const { return _cgiHeaders; }
 
 void CGI::setCgiHeader(void) {
-
   if (_cgiHeaders.empty() && isPipeEmpty() == false) {
     char cBuff;
     int retRead = 1;
     while ((retRead = read(_pipe, &cBuff, 1)) > 0) {
       _cgiHeaders += cBuff;
-      if (_cgiHeaders.size() >= 3 && _cgiHeaders[_cgiHeaders.length() - 3] == '\n' &&
+      if (_cgiHeaders.size() >= 3 &&
+          _cgiHeaders[_cgiHeaders.length() - 3] == '\n' &&
           _cgiHeaders[_cgiHeaders.length() - 2] == '\r' &&
           _cgiHeaders[_cgiHeaders.length() - 1] == '\n')
         break;
     }
   }
-
 }
-
 
 int CGI::get_readable_pipe(void) const { return (_pipe); }
 
@@ -117,7 +111,8 @@ std::vector<char *> CGI::set_meta_variables(files::File const &file,
     return variables;
   }
 
-  add_variable("CONTENT_LENGTH", req.get_header("Content-Length").unwrap_or(""));
+  add_variable("CONTENT_LENGTH",
+               req.get_header("Content-Length").unwrap_or(""));
   add_variable("CONTENT_TYPE", req.get_header("Content-Type").unwrap_or(""));
 
   return variables;
@@ -155,7 +150,6 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     return;
   }
   if (_child_pid == 0) {
-
     dup2(output[1], 1);
     close(input[1]);
     close(input[0]);

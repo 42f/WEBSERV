@@ -118,5 +118,6 @@
   "C_Cpp_Runner.warningsAsError": false,
   "discord.enabled": true,
   "C_Cpp.errorSquiggles": "Disabled",
-  "C_Cpp.intelliSenseEngineFallback": "Disabled"
+  "C_Cpp.intelliSenseEngineFallback": "Disabled",
+  "C_Cpp.clang_format_fallbackStyle": "Google"
 }
