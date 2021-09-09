@@ -13,9 +13,23 @@
 #include "Config/Server.hpp"
 #include "HTTP/Response/ResponseUtils/File.hpp"
 #include "HTTP/Request/Request.hpp"
+// #include "Timer.hpp"
+
+#define STATUS_IS_ERROR(x) \
+    (x == cgi_status::CGI_ERROR || x == cgi_status::SYSTEM_ERROR \
+  || x == cgi_status::UNSUPPORTED)
 
 namespace cgi_status {
-enum status { NON_INIT, WAITING, DONE, CGI_ERROR, SYSTEM_ERROR, READABLE, UNSUPPORTED };
+  enum status {
+    NON_INIT,
+    WAITING,
+    DONE,
+    CGI_ERROR,
+    SYSTEM_ERROR,
+    READABLE,
+    UNSUPPORTED,
+    TIMEOUT
+    };
 }
 
 class CGI {
@@ -30,6 +44,8 @@ class CGI {
   int get_readable_pipe(void) const;
   int get_pid(void) const;
   int get_fd(void) const;
+  void setCgiHeader(void);
+  std::string const & getCgiHeader(void) const;
 
  private:
   files::File *_file;
@@ -38,6 +54,8 @@ class CGI {
   int _pipe;
   cgi_status::status _status;
   std::vector<char *> _variables;
+  std::string _CgiHeaders;
+  // Timer    _cgiTimer;
 
   template <typename T>
   void add_variable(std::string name, T value) {

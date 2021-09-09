@@ -23,7 +23,6 @@
 #include "RequestUtils/RequestLine.hpp"
 #include "Response.hpp"
 #include "Status.hpp"
-#include "Timer.hpp"
 #include "Autoindex.hpp"
 
 class ResponseHandler {
@@ -57,7 +56,6 @@ class ResponseHandler {
   LocationConfig _loc;
   A_Method* _method;
   Response _resp;
-  Timer    _cgiTimer;
 
   std::string getReqHeader(const std::string& target);
   void sendHeaders(int fdDest, int flags);
@@ -119,10 +117,10 @@ class ResponseHandler {
    public:
     void handleCgiFile(std::string const& cgiBin) {
       CGI& cgiInst = _inst._resp.getCgiInst();
-      _inst._cgiTimer.start();
       cgiInst.execute_cgi(cgiBin, _inst._resp.getFileInst(), _inst._req,
                           _inst._serv);
-      if (cgiInst.status() == cgi_status::SYSTEM_ERROR) {
+      // if (cgiInst.status() == cgi_status::SYSTEM_ERROR) {
+      if (STATUS_IS_ERROR(cgiInst.status())) {
         makeStandardResponse(status::InternalServerError);
       } else {
         setRespForCgi();

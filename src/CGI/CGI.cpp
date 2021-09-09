@@ -8,7 +8,8 @@ CGI::CGI(void) {
 CGI::~CGI() {
   if (_pipe != UNSET)
     close(_pipe);
-  status();
+  if (_status != cgi_status::NON_INIT)
+    status();
 }
 
 int CGI::get_pid(void) const { return (_child_pid); }
@@ -22,22 +23,50 @@ cgi_status::status CGI::status(void) {
 
   unsigned long bytesAvailable;
   if (ioctl(_pipe, FIONREAD, &bytesAvailable) == -1)
-    bytesAvailable = 1;
-
+    bytesAvailable = 0;
+  std::cout << "Bytes in pipe: " << bytesAvailable << std::endl;
   int ret = waitpid(_child_pid, &_child_return, WNOHANG);
   if (ret == _child_pid) {
-    if ((WIFEXITED(_child_return) &&  WEXITSTATUS(_child_return) != 0) || WIFSIGNALED(_child_return))
-      _status = cgi_status::CGI_ERROR;
-    else
+    if ((WIFEXITED(_child_return) &&  WEXITSTATUS(_child_return) == 255) || WIFSIGNALED(_child_return)) {
+        _status = cgi_status::SYSTEM_ERROR;
+        LogStream s;
+        s << "Fatal: CGI exited with status: " << WEXITSTATUS(_child_return);
+    } else if (WIFEXITED(_child_return) &&  WEXITSTATUS(_child_return) != 0) {
+        _status = cgi_status::CGI_ERROR;
+        LogStream s;
+        s << "Error: CGI exited with status: " << WEXITSTATUS(_child_return);
+    } else {
       _status = cgi_status::DONE;
+    }
   } else if (ret == 0 && bytesAvailable > 0) {
     _status = cgi_status::READABLE;
   } else if (ret < 0) {
     _status = cgi_status::SYSTEM_ERROR; // TODO implemente actions
   }
-  std::cout << "call status = " << _status << std::endl;
+
+  const char* mess[] = { "NON_INIT", "WAITING", "DONE", "CGI_ERROR",
+   "SYSTEM_ERROR", "READABLE", "UNSUPPORTED", "TIMEOUT" };
+  std::cout << "call status = " << mess[_status] << std::endl;
   return (_status);
 }
+
+std::string const & CGI::getCgiHeader(void) const { return _CgiHeaders; }
+void CGI::setCgiHeader(void) {
+
+  if (_CgiHeaders.empty() == false)
+    return;
+
+  char cBuff;
+  int retRead = 1;
+  while ((retRead = read(_pipe, &cBuff, 1)) > 0) {
+    _CgiHeaders += cBuff;
+    if (_CgiHeaders.size() >= 3 && _CgiHeaders[_CgiHeaders.length() - 3] == '\n' &&
+        _CgiHeaders[_CgiHeaders.length() - 2] == '\r' &&
+        _CgiHeaders[_CgiHeaders.length() - 1] == '\n')
+      break;
+  }
+}
+
 
 int CGI::get_readable_pipe(void) const { return (_pipe); }
 
@@ -139,6 +168,8 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     execve(args[0], args, env);
     exit(-1);
   } else {
+    _status = cgi_status::WAITING;
+    _status = status();
     write(input[1], req.get_body().data(), req.get_body().size());
     close(output[1]);
     close(input[0]);
@@ -148,6 +179,5 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     for (i = 0; i < _variables.size(); i++) {
       free(env[i]);
     }
-    _status = cgi_status::WAITING;
   }
 }
