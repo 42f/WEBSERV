@@ -28,13 +28,6 @@ bool  CGI::isPipeEmpty(void) const {
 
 cgi_status::status CGI::status(void) {
 
-  const char* mess[] = { "NON_INIT", "WAITING", "DONE", "CGI_ERROR",
-   "SYSTEM_ERROR", "READABLE", "UNSUPPORTED", "TIMEOUT" };
-  std::cout << "before call status = " << mess[_status] << std::endl; // TODO remove debug
-
-
-
-  std::cout << "TIME: " << _cgiTimer.getTimeElapsed()<< std::endl;  // TODO remove debug
   if (_cgiTimer.getTimeElapsed() >= CGI_TIMEOUT) {
     _status = cgi_status::TIMEOUT;
     return _status;
@@ -63,8 +56,6 @@ cgi_status::status CGI::status(void) {
   } else if (ret < 0) {
     _status = cgi_status::SYSTEM_ERROR;
   }
-
-  std::cout << "after call status = " << mess[_status] << std::endl; // TODO remove debug
   return (_status);
 }
 
@@ -72,9 +63,7 @@ std::string const & CGI::getCgiHeader(void) const { return _cgiHeaders; }
 
 void CGI::setCgiHeader(void) {
 
-    std::cout << "SET CGI HEADER --------------- ?" << std::endl;
   if (_cgiHeaders.empty() && isPipeEmpty() == false) {
-    std::cout << "SET CGI HEADER --------------- yes !" << std::endl;
     char cBuff;
     int retRead = 1;
     while ((retRead = read(_pipe, &cBuff, 1)) > 0) {
@@ -84,7 +73,6 @@ void CGI::setCgiHeader(void) {
           _cgiHeaders[_cgiHeaders.length() - 1] == '\n')
         break;
     }
-    std::cout << "SET CGI HEADER --------------- size= " << _cgiHeaders.size() << std::endl;
   }
 
 }
@@ -131,22 +119,6 @@ std::vector<char *> CGI::set_meta_variables(files::File const &file,
 
   add_variable("CONTENT_LENGTH", req.get_header("Content-Length").unwrap_or(""));
   add_variable("CONTENT_TYPE", req.get_header("Content-Type").unwrap_or(""));
-
-//   //----------------------------------------
-//   Result<std::string> content_length = req.get_header("Content-Length");
-//   if (content_length.is_ok()) {
-//     std::cout << "content length: " << content_length.unwrap() << std::endl;
-//     add_variable("CONTENT_LENGTH", content_length.unwrap());
-//   } else {
-//     add_variable("CONTENT_LENGTH", "");
-//   }
-//   //----------------------------------------
-//   Result<std::string> content_type = req.get_header("Content-Type");
-//   if (content_type.is_ok()) {
-//     add_variable("CONTENT_TYPE", content_type.unwrap());
-//   } else {
-//     add_variable("CONTENT_TYPE", "");
-//   }
 
   return variables;
 }
@@ -202,7 +174,7 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     close(input[0]);
     close(input[1]);
     _pipe = output[0];
-    // fcntl(_pipe, F_SETFL, O_NONBLOCK); // TODO ??
+    // fcntl(_pipe, F_SETFL, O_NONBLOCK); // TODO necessary ??
     free(cgi);
     for (i = 0; i < _variables.size(); i++) {
       free(env[i]);

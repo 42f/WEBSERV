@@ -18,14 +18,14 @@ void Core::update_events(void) {
 
 void Core::check_sockets(void) {
   if (EventManager::get_nb_events() > 0) {
-    EventManager::accept_request(0);
+    EventManager::accept_request();
   }
 }
 
-void Core::check_requests(void) { EventManager::recv_request(0); }
+void Core::check_requests(void) { EventManager::recv_request(); }
 
 void Core::check_responses(void) {
-  EventManager::send_response(0);
+  EventManager::send_response();
   EventManager::resize();
 }
 

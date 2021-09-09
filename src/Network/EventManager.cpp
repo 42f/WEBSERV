@@ -130,9 +130,7 @@ void EventManager::add(int fd, int port, struct sockaddr_in client_addr) {
  * send_response()
  */
 
-void EventManager::accept_request(int fd) {
-  (void)fd;
-
+void EventManager::accept_request(void) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
@@ -168,8 +166,7 @@ void EventManager::accept_request(int fd) {
  * send_response()
  */
 
-void EventManager::recv_request(int index) {
-  (void)index;
+void EventManager::recv_request(void) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
@@ -178,11 +175,6 @@ void EventManager::recv_request(int index) {
       int ret;
 
       ret = recv(itr->get_skt_fd(), buffer, 4096, MSG_DONTWAIT);
-      // TODO -> idk I'm lost
-      // if (ret == 0 || ret == -1) {
-      //   perror("recv");
-      //   // itr->set_status(fd_status::closed);
-      // }
       if (ret > 0) {
         itr->manage_raw_request(buffer, ret);
       }
@@ -203,8 +195,7 @@ void EventManager::recv_request(int index) {
  * delete by resize()
  */
 
-void EventManager::send_response(int index) {
-  (void)index;
+void EventManager::send_response(void) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
@@ -223,8 +214,6 @@ void EventManager::send_response(int index) {
           if (HAS_OFD_USABLE(st))
             itr->set_status(fd_status::ofd_closable);
         }
-        // TO DO : check with Brian the other cases a fd needs to be
-        // closed
       }
     }
   }
@@ -239,7 +228,6 @@ void EventManager::resize(void) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end();) {
-    // itr->print_status();
     if (HAS_SKT_CLOSABLE(itr->get_status())) {
       FD_CLR(itr->get_skt_fd(), &EventManager::_read_set);
       FD_CLR(itr->get_skt_fd(), &EventManager::_write_set);
@@ -247,7 +235,6 @@ void EventManager::resize(void) {
       if (HAS_OFD_CLOSABLE(itr->get_status())) {
         FD_CLR(itr->get_o_fd(), &EventManager::_read_set);
         FD_CLR(itr->get_o_fd(), &EventManager::_write_set);
-        // close(itr->get_o_fd()); // TODO remove ? close in cgi and File dtor
       }
       std::list<Socket>::iterator itr_tmp = itr;
       itr++;
