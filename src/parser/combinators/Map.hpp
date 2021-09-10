@@ -43,4 +43,37 @@ Map<P, T2> map(P parser, T2 (*fn)(typename P::data_type))
 	return Map<P, T2>(parser, fn);
 }
 
+
+/*
+ * Takes a parser, apply it then convert the result using the supplied function
+ * Typically, build a structure from its raw parts stored in a tuple
+ * Eg: Map(Separated(Digit(), Char(.), Digit()), version::from_tuple)("1.1 version")
+ *  => result: Ok(Version(1.1), left :" version")
+ */
+template<typename P>
+class MapErr: public Parser<typename P::data_type>
+{
+private:
+	typedef	typename P::result_type (*fn_type)(typename P::result_type);
+
+	P			_parser;
+	fn_type		_fn;
+
+public:
+	typedef typename P::result_type	result_type;
+
+	MapErr(P parser, fn_type map): _parser(parser), _fn(map) { }
+
+	result_type operator()(const slice &input)
+	{
+		return _fn(_parser(input));
+	}
+};
+
+template<typename P>
+MapErr<P> map_err(P parser, typename P::result_type (*fn)(typename P::result_type))
+{
+	return MapErr<P>(parser, fn);
+}
+
 #endif //WEBSERV_MAP_HPP

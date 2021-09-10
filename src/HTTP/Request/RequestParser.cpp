@@ -9,6 +9,13 @@
 */
 RequestParser::RequestParser() { }
 
+ParserResult<Header>	incomplete_failure(ParserResult<Header> res)
+{
+	if (res.is_err() && res.unwrap_err().content() == status::Incomplete)
+		return res.failure();
+	return res;
+}
+
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
@@ -29,7 +36,7 @@ RequestParser::result_type	RequestParser::operator()(const slice& input)
 	else
 		return line.convert<Request>().unwind(input, "Failed to parse request line");
 	ParserResult<std::vector<Header> >	res = terminated(many(
-			terminated(Headers(), newline)),
+			map_err(terminated(Headers(), newline), incomplete_failure)),
 			newline)(line.left());
 	if (res.is_ok())
 	{
