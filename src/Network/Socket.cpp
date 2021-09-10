@@ -74,7 +74,8 @@ void Socket::manage_raw_request(char *buffer, int size) {
   if (_res.is_ok() || _res.unwrap_err() != status::Incomplete) {
     unset_status(fd_status::skt_readable);
     set_status(fd_status::skt_writable);
-    _res.unwrap().set_client_ip(_client_ip);
+    if (_res.is_ok())
+      _res.unwrap().set_client_ip(_client_ip);
     _response_handler.init(_request_handler, _port);
   }
 }
