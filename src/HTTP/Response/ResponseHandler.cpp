@@ -268,6 +268,9 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
   if (_requestHandler._req.is_ok())
       std::cout << RED << "REQUEST:\n"
                 << _requestHandler._req.unwrap() << NC << std::endl; // TODO remove db
+  else
+      std::cout << RED << "REQUEST was not ok" << NC << std::endl;
+
     std::cout << BLUE << "RESPONSE:\n"
               << _resp << NC << std::endl; // TODO remove db
 

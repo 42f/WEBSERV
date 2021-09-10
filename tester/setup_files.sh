@@ -2,6 +2,7 @@
 
 rm -rf /tmp/server /tmp/cgi_bin
 cp -rf ./assets/HTML_for_locationtest/server /tmp
+cp -rf ./assets/HTML_for_locationtest/server_test42 /tmp
 
 mkdir -p /tmp/cgi_bin
 rm -rf /tmp/cgi_bin/*
