@@ -34,10 +34,7 @@ Newline::Newline(): _both(Tag("\r\n")), _n(Tag("\n")) { }
 
 Newline::result_type	Newline::operator()(const slice& input)
 {
-	result_type		res = _both(input);
-	if (res.is_err())
-		return _n(input);
-	return (res);
+	return alt(_both, _n)(input);
 }
 
 /*
