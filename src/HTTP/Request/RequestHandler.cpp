@@ -69,9 +69,9 @@ void	RequestHandler::parse()
 	{
 		{
 			LogStream stream; stream << req.unwrap_err();
-// #if LOG_LEVEL == LOG_LEVEL_TRACE
-// 			req.unwrap_err().trace(input, stream); // TODO remove ? segv with chunk req
-// #endif
+#if LOG_LEVEL == LOG_LEVEL_TRACE
+			req.unwrap_err().trace(input, stream); // TODO remove ? segv with chunk req
+#endif
 		}
 	}
 	if (req.is_ok())
