@@ -5,8 +5,7 @@
 #include "Methods.hpp"
 
 /*
- * Method = method GET POST ...
- * sequence(slice, many(preceded(Char(" "), slice))
+ * Method = methods GET POST ...
  */
 namespace config
 {
@@ -16,7 +15,7 @@ namespace config
 	{
 		ParserResult<tuple<methods::s_method, std::vector<methods::s_method> > > res = preceded(
 				sequence(Tag("methods"), rws), sequence(RequestMethod(), many(
-						preceded(Char(' '), RequestMethod()), true)))(input); //TODO I DONT UNDERTANCE
+						preceded(Char(' '), RequestMethod()), true)))(input);
 		if (res.is_ok())
 		{
 			methods::Methods ret = methods::Methods(res.unwrap().first);
