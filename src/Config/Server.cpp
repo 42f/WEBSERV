@@ -97,7 +97,7 @@ namespace config
 		std::string &						Server::get_root() { return _root; }
 		std::string const&					Server::get_root() const { return _root; }
 		std::string const&					Server::get_index() const { return _index; }
-		bool const&							Server::get_auto_index() const { return _auto_index; }
+		bool const&							Server::has_auto_index() const { return _auto_index; }
 		size_t								Server::get_body_size() const { return _body_size; }
 		std::vector<LocationConfig>&		Server::get_locations() { return _locations; }
 		std::vector<LocationConfig> const&	Server::get_locations() const { return _locations; }

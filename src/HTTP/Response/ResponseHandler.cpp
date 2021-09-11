@@ -184,15 +184,14 @@ status::StatusCode ResponseHandler::pickCgiError(cgi_status::status cgiStatus) c
 
 void ResponseHandler::sendFromCgi(int fdDest, int flags) {
 
-  std::cout << "sendfromcgi" << std::endl;
 
   int & respStatus = _resp.getState();
   if ((respStatus & respState::headerSent) == false)
     _resp.getCgiInst().setCgiHeader();
 
   cgi_status::status cgiStatus = _resp.getCgiInst().status();
-
   std::cout << "status in " << __func__ << ": " << cgiStatus << std::endl;
+
   if (cgiStatus == cgi_status::WAITING) {
     return ;
   } else if (STATUS_IS_ERROR(cgiStatus)) {
@@ -204,6 +203,7 @@ void ResponseHandler::sendFromCgi(int fdDest, int flags) {
     }
   }
 
+  std::cout << "sending cgi..." << std::endl;
   if ((respStatus & respState::headerSent) == false)
     sendHeaders(fdDest, flags);
   int cgiPipe = _resp.getCgiInst().get_readable_pipe();

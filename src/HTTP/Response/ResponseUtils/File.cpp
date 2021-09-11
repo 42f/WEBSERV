@@ -55,9 +55,21 @@ void File::openFile() {
   }
 }
 
+bool        File::isFile( void ) const {
+  struct stat st;
+  if (stat(_path.c_str(), &st) != 0) {
+    return false;
+  }
+  return !S_ISDIR(st.st_mode);
+}
 
-bool        File::isFile( void ) const { return isFileFromPath(_path); }
-bool        File::isDir( void ) const { return isDirFromPath(_path); }
+bool        File::isDir( void ) const {
+  struct stat st;
+  if (stat(_path.c_str(), &st) != 0) {
+    return false;
+  }
+  return S_ISDIR(st.st_mode);
+}
 
 std::string File::getLastModified() const {
   if (isGood()) {

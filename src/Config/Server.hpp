@@ -62,7 +62,7 @@ namespace config
 		std::string &						get_root();
 		std::string const&					get_root() const;
 		std::string const&					get_index() const;
-		bool const&							get_auto_index() const;
+		bool const&							has_auto_index() const;
 		size_t								get_body_size() const;
 		std::vector<LocationConfig>&		get_locations();
 		std::vector<LocationConfig> const&	get_locations() const;
