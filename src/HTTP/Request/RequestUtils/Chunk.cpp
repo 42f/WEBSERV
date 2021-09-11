@@ -40,7 +40,7 @@ Chunk::result_type	Chunk::operator()(const slice&input)
 		return size.convert<chunk_data>().unwind(input, "chunk: invalid");
 	size_t len = size.unwrap().to_int(16);
 	if (len == 0)
-		return result_type::err(input, error("chunk: end"));
+		return result_type::err(input, error("chunk : end"));
 	ParserResult<slice>	data = preceded(opt(EXT), delimited(Newline(),
 				TakeExact(len), Newline()))(size.left());
 	if (data.is_err())
@@ -71,10 +71,8 @@ ChunkBody::ChunkBody() { }
 
 ChunkBody::result_type	ChunkBody::operator()(const slice &input)
 {
-	ParserResult<std::vector<chunk_data> >	lst = many(Chunk())(input);
+	ParserResult<std::vector<chunk_data> >	lst = many(Chunk(), true)(input);
 
-	if (lst.is_err())
-		return lst;
 	ParserResult<chunk_data>		end = LastChunk()(lst.left());
 	if (end.is_ok())
 	{
