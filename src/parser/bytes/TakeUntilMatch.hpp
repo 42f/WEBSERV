@@ -32,8 +32,6 @@ public:
 			res = input.take(res.size + 1);
 			left = input.from(res.size);
 		}
-		if (!left.size && !_empty)
-			return result_type::err(input, error("TakeUntilMatch: match found first"));
 		return result_type::ok(left, res);
 	}
 };
