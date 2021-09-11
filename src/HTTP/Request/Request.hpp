@@ -21,7 +21,7 @@ struct Request {
   size_t _length;
   std::string _client_ip;
 
-  bool receive_chunked(std::vector<char> &buff);
+  Result<bool> receive_chunked(std::vector<char> &buff);
   bool receive_raw(std::vector<char> &buff);
 
  public:
@@ -39,7 +39,7 @@ struct Request {
   std::string get_client_ip(void) const;
   void set_client_ip(std::string client_ip);
 
-  bool receive(std::vector<char> &vector);
+  Result<bool> receive(std::vector<char> &vector);
 
   friend std::ostream &operator<<(std::ostream &stream, const Request &req);
 };

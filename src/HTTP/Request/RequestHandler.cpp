@@ -21,8 +21,12 @@ RequestHandler::RequestHandler() : _status(request_status::Incomplete), _req(res
 // if client timeout, there's no need to call this
 RequestHandler::result_type RequestHandler::receive()
 {
-	if (_req.unwrap().receive(_buffer))
-	{
+	Result<bool>	res = _req.unwrap().receive(_buffer);
+	if (res.is_err()) {
+		std::cout << "is this an error ?" << std::endl;
+		_status = request_status::Error;
+		return _req;
+	} else if (res.unwrap()) {
 		_status = request_status::Complete;
 		return _req;
 	}

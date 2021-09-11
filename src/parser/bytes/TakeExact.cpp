@@ -14,6 +14,6 @@ TakeExact::TakeExact(size_t len): _len(len) { }
 TakeExact::result_type	TakeExact::operator()(const slice &input)
 {
 	if (input.size < _len)
-		return result_type::err(input, error("TakeExact: incomplete"));
+		return result_type::err(input, error("TakeExact: incomplete", status::Incomplete));
 	return result_type::ok(input.from(_len), input.take(_len));
 }
