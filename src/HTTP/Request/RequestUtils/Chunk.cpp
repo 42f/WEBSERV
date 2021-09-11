@@ -4,6 +4,13 @@
 
 #include "Chunk.hpp"
 
+Chunk::result_type	chunk_errors(Chunk::result_type err)
+{
+	if (err.is_err() && err.unwrap_err().content() != status::Incomplete)
+		return err.failure();
+	return err;
+}
+
 /*
  * chunk-extension = *( ";" chunk-ext-name [ "=" chunk-ext-val ] )
  *
@@ -40,7 +47,7 @@ Chunk::result_type	Chunk::operator()(const slice&input)
 		return size.convert<chunk_data>().unwind(input, "chunk: invalid");
 	size_t len = size.unwrap().to_int(16);
 	if (len == 0)
-		return result_type::err(input, error("chunk: end"));
+		return result_type::err(input, error("chunk : end", status::Incomplete));
 	ParserResult<slice>	data = preceded(opt(EXT), delimited(Newline(),
 				TakeExact(len), Newline()))(size.left());
 	if (data.is_err())
@@ -71,10 +78,11 @@ ChunkBody::ChunkBody() { }
 
 ChunkBody::result_type	ChunkBody::operator()(const slice &input)
 {
-	ParserResult<std::vector<chunk_data> >	lst = many(Chunk())(input);
+	ParserResult<std::vector<chunk_data> >	lst = many(
+		map_err(Chunk(), chunk_errors), true)(input);
 
-	if (lst.is_err())
-		return lst;
+	if (lst.is_failure())
+		return lst.convert<std::vector<chunk_data> >().unwind(input, "ChunkBody: parsing failed");
 	ParserResult<chunk_data>		end = LastChunk()(lst.left());
 	if (end.is_ok())
 	{
@@ -82,6 +90,8 @@ ChunkBody::result_type	ChunkBody::operator()(const slice &input)
 		v.push_back(end.unwrap());
 		return result_type::ok(end.left(), v);
 	}
+	else if (end.is_err() && end.left() != lst.left())
+		return end.convert<std::vector<chunk_data> >().unwind(input, "ChunkBody: end chunk parsing failed");
 	return lst;
 }
 

@@ -33,6 +33,20 @@
 			"program": "${workspaceFolder}/webserv",
 			"args": ["${workspaceFolder}/assets/conf_evaluation/OK_simple_no_locations.conf"],
 		},
+		{
+			"name": "upload",
+			"type": "lldb",
+			"request": "launch",
+			"program": "${workspaceFolder}/webserv",
+			"args": ["${workspaceFolder}/assets/conf_evaluation/OK_test_upload.conf"],
+		},
+		{
+			"name": "Tester42",
+			"type": "lldb",
+			"request": "launch",
+			"program": "${workspaceFolder}/webserv",
+			"args": ["${workspaceFolder}/assets/conf_evaluation/OK_server_test42.conf"],
+		},
 
 		{
 			"name": "attach",

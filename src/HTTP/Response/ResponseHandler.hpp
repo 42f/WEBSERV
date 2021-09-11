@@ -294,7 +294,7 @@ class ResponseHandler {
       _inst._resp.setFile(targetPath);
       files::File const& file = _inst._resp.getFileInst();
 
-      if (file.isDir()) return makeStandardResponse(status::BadRequest);
+      // if (file.isDir()) return makeStandardResponse(status::BadRequest); // TODO Remove ?
       if (file.isGood()) {
         std::string cgiBin = getCgiBinPath();
         if (cgiBin.empty()) {
@@ -316,7 +316,7 @@ class ResponseHandler {
 
     void handleUpload() {
       files::File const& requestedFile = _inst._resp.getFileInst();
-      if (requestedFile.isFile()) {
+      // if (requestedFile.isFile()) {  //TODO remove after test
         files::File uploadFile(requestedFile.getPath(),
                                O_CREAT | O_TRUNC | O_WRONLY, 0644);
         if (uploadFile.isGood()) {
@@ -334,9 +334,9 @@ class ResponseHandler {
           return makeStandardResponse(status::Conflict,
                                       strerror(uploadFile.getError()));
         }
-      } else {
-        return makeStandardResponse(status::Forbidden);
-      }
+      // } else { // TODO remove after tests
+      //   return makeStandardResponse(status::Forbidden);
+      // }
     }
   };  // --- end POST METHOD
 

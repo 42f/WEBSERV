@@ -11,12 +11,13 @@
 /*
 ** ---------------------------------- PRIVATE ----------------------------------
 */
-bool Request::receive_chunked(std::vector<char> &buff) {
+Result<bool> Request::receive_chunked(std::vector<char> &buff) {
   bool end = false;
 
-  ParserResult<std::vector<chunk_data> > chunks =
-      ChunkBody()(slice(buff.data(), buff.size()));
-  if (chunks.is_err()) return false;
+  ParserResult<std::vector<chunk_data> > chunks = ChunkBody()(slice(buff.data(), buff.size()));
+  if (chunks.is_failure())
+	  return Result<bool>::err(DefaultError("chunk parsing failed"));
+  if (chunks.is_err()) return Result<bool>::ok(false);
   std::vector<chunk_data> lst = chunks.unwrap();
   for (std::vector<chunk_data>::iterator it = lst.begin(); it != lst.end();
        it++) {
@@ -26,7 +27,7 @@ bool Request::receive_chunked(std::vector<char> &buff) {
   }
   buff.erase(buff.begin(), buff.begin() + (chunks.left().p - buff.data()));
   buff.reserve(65550);
-  return end;
+  return Result<bool>::ok(end);
 }
 
 bool Request::receive_raw(std::vector<char> &buff) {
@@ -68,11 +69,11 @@ void Request::set_client_ip(std::string client_ip) { _client_ip = client_ip; }
 /*
  * Check the type of body and call the corresponding receive handler
  */
-bool Request::receive(std::vector<char> &buff) {
-  if (_length) return receive_raw(buff);
-  if (get_header("Transfer-Encoding").is_ok()) return receive_chunked(buff);
+Result<bool> Request::receive(std::vector<char> &vector) {
+  if (_length) return Result<bool>::ok(receive_raw(vector));
+  if (get_header("Transfer-Encoding").is_ok()) return receive_chunked(vector);
   _length = atoi(get_header("Content-Length").unwrap().c_str());
-  return receive_raw(buff);
+  return Result<bool>::ok(receive_raw(vector));
 }
 
 /*
