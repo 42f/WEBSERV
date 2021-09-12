@@ -224,19 +224,20 @@ class ResponseHandler {
       **  Target exists and is a Directory
       */
       if (file.isGood() && file.isDir()) {
-        std::cout << "GET: DIR" << std::endl;
-        if (_inst._loc.has_auto_index()) {
-          return handleAutoIndex(targetPath);
+        std::cout << "GET: DIR: " << file.getPath() << std::endl; // TODO Remove debug
+        if (endsWithSlash(_inst._req.target.path) == false) {
+          return manageRedirect(
+              redirect(status::MovedPermanently, _inst._req.target.path + '/'));
         } else if (_inst._loc.has_index()) {
-          return handleIndexFile();
-        } else {
-          return makeStandardResponse(status::Forbidden);
+          return handleIndexFile(targetPath);
+        } else if (_inst._loc.has_auto_index()) {
+          return handleAutoIndex(targetPath);
         }
         /*
         **  Target exists and is a File
         */
       } else if (file.isGood() && file.isFile()) {
-        std::cout << "GET: FILE" << std::endl;
+        std::cout << "GET: FILE: " << file.getPath() << std::endl; // TODO Remove debug
         std::string cgiBin = getCgiBinPath();
         if (cgiBin.empty()) {
           return handleRegFile();
@@ -258,58 +259,32 @@ class ResponseHandler {
       return makeStandardResponse(status::Forbidden);
     }
 
-    // struct stat st;
-    // if (file.isFileFromPath(targetPath)) {
-    //   if (file.isGood()) {
-    //     std::string cgiBin = getCgiBinPath();
-    //     if (cgiBin.empty() == false) {
-    //       return handleCgiFile(cgiBin);
-    //     } else {
-    //       _inst._resp.setStatus(status::Ok);
-    //       return setRespForFile();
-    //     }
-    //   } else if (file.getError() & EACCES) {
-    //     return makeStandardResponse(status::TooManyRequests);
-    //   } else if (_inst._loc.has_auto_index() == true) {
-    //     return handleAutoIndex(file.getDirPart());
-    //   } else if (file.getError() & ENOENT) {
-    //     return makeStandardResponse(status::NotFound);
-    //   } else {
-    //     return makeStandardResponse(status::Forbidden);
-    //   }
-    // } else if (_inst._loc.has_auto_index() == true) {
-    //   if (stat(targetPath.c_str(), &st) == 0) {
-    //     return handleAutoIndex(targetPath);
-    //   } else {
-    //     return makeStandardResponse(status::NotFound);
-    //   }
-    // }
-    // Default response to avoid empty response
-    // return makeStandardResponse(status::Forbidden);
-    // }
-
    private:
     bool endsWithSlash(std::string const& path) {
       return path.empty() == false && *(--path.end()) == '/';
     }
 
     void handleAutoIndex(std::string const& targetPath) {
-      if (endsWithSlash(_inst._req.target.decoded_path) == false) {
-        return manageRedirect(
-            redirect(status::MovedPermanently, _inst._req.target.path + '/'));
-      } else {
-        _inst._resp.setStatus(status::Ok);
-        return setRespForAutoIndexBuff(targetPath);
-      }
+      _inst._resp.setStatus(status::Ok);
+      return setRespForAutoIndexBuff(targetPath);
     }
 
-    void handleIndexFile() {
-      std::string indexPath(_inst._loc.get_path());
-      if (indexPath[indexPath.length() - 1] != '/')
-        indexPath += '/';
-      indexPath += _inst._loc.get_index();
+    void handleIndexFile(std::string const& targetPath) {
 
-      return manageRedirect(redirect(status::TemporaryRedirect, indexPath));
+      std::string indexPath(_inst._resp.getFileInst().getPath());
+      indexPath += _inst._loc.get_index();
+      files::File & file = _inst._resp.setFile(indexPath);
+
+      if (file.isGood() && file.isFile()) {
+        _inst._resp.setStatus(status::Ok);
+        return setRespForFile();
+      } else if (file.isGood() && file.isDir()) {
+        return makeStandardResponse(status::Forbidden);
+      } else if (_inst._loc.has_auto_index()) {
+        return handleAutoIndex(targetPath);
+      } else {
+        return makeStandardResponse(status::NotFound);
+      }
     }
 
     void handleRegFile() {
@@ -351,8 +326,9 @@ class ResponseHandler {
       _inst._resp.setFile(targetPath);
       files::File const& file = _inst._resp.getFileInst();
 
-      // if (file.isDir()) return makeStandardResponse(status::BadRequest); //
-
+      /*
+      **  File targeted exists, and is a file
+      */
       if (file.isGood() && file.isFile()) {
         std::string cgiBin = getCgiBinPath();
         if (cgiBin.empty()) {
@@ -360,9 +336,12 @@ class ResponseHandler {
         } else {
           return handleCgiFile(cgiBin);
         }
+      /*
+      **  File targeted could not opened
+      */
       } else if (file.isGood() == false && file.getError() & ENOENT &&
                  _inst._loc.get_upload() == true) {
-        return handleUpload();
+        return doUploadFile();
       } else if (file.isGood() == false &&
                  file.getError() & (EACCES | ELOOP | ENAMETOOLONG)) {
         return makeStandardResponse(status::Conflict,
@@ -375,29 +354,30 @@ class ResponseHandler {
       return makeStandardResponse(status::Forbidden);
     }
 
-    void handleUpload() {
+    void doUploadFile() {
       files::File const& requestedFile = _inst._resp.getFileInst();
-      // if (requestedFile.isFile()) {  //TODO remove after test
+
       files::File uploadFile(requestedFile.getPath(),
                              O_CREAT | O_TRUNC | O_WRONLY, 0644);
       if (uploadFile.isGood()) {
         size_t len = _inst._req.get_body().size();
         if (len > 0) {
           char const* data = _inst._req.get_body().data();
+
+          // TODO -> do select here ??
+
           size_t ret = write(uploadFile.getFD(), data, len);
           if (ret > 0)
             return makeStandardResponse(status::Accepted);
           else
             return makeStandardResponse(status::InternalServerError);
+        } else {
+          return makeStandardResponse(status::Accepted);
         }
-        return makeStandardResponse(status::Accepted);
       } else {
         return makeStandardResponse(status::Conflict,
                                     strerror(uploadFile.getError()));
       }
-      // } else { // TODO remove after tests
-      //   return makeStandardResponse(status::Forbidden);
-      // }
     }
   };  // --- end POST METHOD
 
@@ -423,7 +403,7 @@ class ResponseHandler {
       files::File const& file = _inst._resp.getFileInst();
 
       if (file.isGood() && file.isFile()) {
-        return handleDelFile(target);
+        return doDeleteFile(target);
       } else if (file.isGood() && file.isDir()) {
         return makeStandardResponse(status::Conflict, "Target is a directory");
       } else {
@@ -432,21 +412,7 @@ class ResponseHandler {
       }
     }
 
-    //   if (files::File::isDirFromPath(target)) {
-    //     return makeStandardResponse(status::Forbidden);
-    //   }
-    //   struct stat st;
-    //   errno = 0;
-    //   if (stat(target.c_str(), &st) == 0 && unlink(target.c_str()) == 0) {
-    //     return setRespNoBody(status::NoContent);
-    //   } else if (errno & ENOENT) {
-    //     return makeStandardResponse(status::NotFound);
-    //   } else {
-    //     return makeStandardResponse(status::Forbidden);
-    //   }
-    // }
-
-    void handleDelFile(std::string const& target) {
+    void doDeleteFile(std::string const& target) {
       errno = 0;
       if (unlink(target.c_str()) == 0) {
         return setRespNoBody(status::NoContent);

@@ -14,7 +14,7 @@ inline std::string humanReadable(off_t inputSize) {
     double roundedSize = inputSize;
     output << std::fixed << roundedSize / 10000 << " Mb";
   } else if (inputSize > 1000) {
-    output.precision(3);
+    output.precision(2);
     double roundedSize = inputSize;
     output << std::fixed << roundedSize / 1000 << " Kb";
   } else {

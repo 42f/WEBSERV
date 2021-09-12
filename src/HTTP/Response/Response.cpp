@@ -63,8 +63,9 @@ void Response::setHeader(headerTitle::Title title, int value) {
   setHeader(titleStr, strValue.str());
 }
 
-void Response::setFile(std::string const& filePath) {
+files::File & Response::setFile(std::string const& filePath) {
   _file.init(filePath);
+  return _file;
 }
 
 CGI & Response::getCgiInst(void)  { return _cgi; }

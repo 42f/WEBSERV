@@ -1,0 +1,19 @@
+
+server {
+
+ listen 18000;
+
+ location / {
+  root /tmp/server_test_index;
+  index index.html;
+ }
+
+ location /01 {
+  root /tmp/server_test_index/A;
+  index index.html;
+ }
+
+ location /02 {
+  root /tmp/server_test_index/B;
+ }
+}
