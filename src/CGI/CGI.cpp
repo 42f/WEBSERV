@@ -163,7 +163,10 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   } else {
     _cgiTimer.start();
     _status = cgi_status::WAITING;
-    write(input[1], req.get_body().data(), req.get_body().size());
+    int ret;
+    if (req.get_body().size() > 0)
+      ret = write(input[1], req.get_body().data(), req.get_body().size());
+    std::cout << "write to child process " << ret << " bytes" << std::endl; // TODO remove
     close(output[1]);
     close(input[0]);
     close(input[1]);

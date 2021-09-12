@@ -91,17 +91,6 @@ class ResponseHandler {
       std::string target(_inst._req.target.decoded_path);
       std::string file = removeLocPath(target);
 
-      // if (files::File::isFileFromPath(target)) {
-      // file = removeLocPath(target);
-      // if (_inst._req.method == methods::GET &&
-      //     _inst._loc.get_index().empty() == false) {
-      //   file = _inst._loc.get_index();
-      // } else if (_inst._loc.has_auto_index() == true) {
-      //   file = removeLocPath(target);
-      // } else {
-      //   return std::string();
-      // }
-
       output = _inst._loc.get_root();
       if (file[0] != '/' && output[output.length() - 1] != '/') output += '/';
       output += file;
@@ -117,7 +106,6 @@ class ResponseHandler {
 
    public:
     void handleCgiFile(std::string const& cgiBin) {
-      std::cout << "CGI-- " << "TARGET: " << _inst._resp.getFileInst().getPath() << std::endl << _inst._req << _inst._req.get_body().data() << std::endl;
       CGI& cgiInst = _inst._resp.getCgiInst();
       cgiInst.execute_cgi(cgiBin, _inst._resp.getFileInst(), _inst._req,
                           _inst._serv);
