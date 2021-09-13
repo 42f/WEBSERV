@@ -151,6 +151,8 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     return;
   }
   if (_child_pid == 0) {
+    std::string exec_path = files::File::getDirFromPath(file.getPath());
+
     dup2(output[1], 1);
     dup2(input[0], 0);
 
@@ -158,7 +160,7 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     close(input[0]);
     close(output[1]);
     close(output[0]);
-
+    chdir(exec_path.c_str());
     execve(args[0], args, env);
     exit(-1);
   } else {
