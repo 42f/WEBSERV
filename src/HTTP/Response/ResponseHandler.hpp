@@ -69,6 +69,8 @@ class ResponseHandler {
   int getOutputFd(void);
   status::StatusCode pickCgiError(cgi_status::status cgiStat) const;
 
+  void logData( void );
+
   ResponseHandler(ResponseHandler const& src);
   ResponseHandler& operator=(ResponseHandler const& rhs);
 
@@ -201,10 +203,6 @@ class ResponseHandler {
       LogStream s;
       s << "File targeted in GET: " << targetPath;
 #endif
-      if (targetPath.empty()) {  //* NEVER ?
-        return makeStandardResponse(status::Forbidden);
-      }
-
       _inst._resp.setFile(targetPath);
       files::File const& file = _inst._resp.getFileInst();
 
@@ -212,7 +210,6 @@ class ResponseHandler {
       **  Target exists and is a Directory
       */
       if (file.isGood() && file.isDir()) {
-        std::cout << "GET: DIR: " << file.getPath() << std::endl; // TODO Remove debug
         if (endsWithSlash(_inst._req.target.path) == false) {
           return manageRedirect(
               redirect(status::MovedPermanently, _inst._req.target.path + '/'));
@@ -225,7 +222,6 @@ class ResponseHandler {
         **  Target exists and is a File
         */
       } else if (file.isGood() && file.isFile()) {
-        std::cout << "GET: FILE: " << file.getPath() << std::endl; // TODO Remove debug
         std::string cgiBin = getCgiBinPath();
         if (cgiBin.empty()) {
           return handleRegFile();
@@ -306,7 +302,7 @@ class ResponseHandler {
 
       std::string targetPath = resolveTargetPath();
 
-#if LOG_LEVEL == LOG_LEVEL_TRACE  // start line error
+#if LOG_LEVEL == LOG_LEVEL_TRACE
       LogStream s;
       s << "File targeted in POST: " << targetPath;
 #endif
@@ -324,16 +320,14 @@ class ResponseHandler {
         } else {
           return handleCgiFile(cgiBin);
         }
-      /*
-      **  File targeted could not opened
-      */
-      } else if (file.isGood() == false && file.getError() & ENOENT &&
-                 _inst._loc.get_upload() == true) {
+        /*
+        **  File targeted could not opened
+        */
+      } else if (file.isGood() == false && _inst._loc.get_upload() == true &&
+                 file.getError() & ENOENT) {
         return doUploadFile();
-      } else if (file.isGood() == false &&
-                 file.getError() & (EACCES | ELOOP | ENAMETOOLONG)) {
-        return makeStandardResponse(status::Conflict,
-                                    strerror(file.getError()));
+      } else if (file.isGood() == false && _inst._loc.get_upload() == true) {
+        return makeStandardResponse(status::Conflict, strerror(file.getError()));
       }
 
       /*
@@ -382,7 +376,7 @@ class ResponseHandler {
     void handler() {
       std::string target = resolveTargetPath();
 
-#if LOG_LEVEL == LOG_LEVEL_TRACE  // start line error
+#if LOG_LEVEL == LOG_LEVEL_TRACE
       LogStream s;
       s << "Target in DELETE: " << target;
 #endif

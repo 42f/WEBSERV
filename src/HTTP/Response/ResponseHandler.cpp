@@ -9,9 +9,6 @@ ResponseHandler::ResponseHandler(RequestHandler& reqHandler, int receivedPort)
 
 /* ..............................COPY CONSTRUCTOR.............................*/
 
-// ResponseHandler::ResponseHandler(void) : _reqHandler(RequestHandler()),
-// _port(0), _method(NULL) {}
-
 /* ................................ DESTRUCTOR ...............................*/
 
 ResponseHandler::~ResponseHandler(void) {
@@ -149,12 +146,7 @@ bool ResponseHandler::isReady() {
 void ResponseHandler::sendHeaders(int fdDest, int flags) {
   int& state = _resp.getState();
   if ((state & respState::headerSent) == false) {
-    if (_requestHandler._req.is_ok())
-      std::cout << RED << "REQUEST:\n"
-                << _requestHandler._req.unwrap() << NC << std::endl; // TODO remove db
-    std::cout << BLUE << "RESPONSE:\n"
-              << _resp << NC << std::endl; // TODO remove db
-
+    logData();
     std::stringstream output;
     output << _resp;
     if ((state & respState::cgiResp) == false) output << "\r\n";
@@ -190,8 +182,6 @@ void ResponseHandler::sendFromCgi(int fdDest, int flags) {
     _resp.getCgiInst().setCgiHeader();
 
   cgi_status::status cgiStatus = _resp.getCgiInst().status();
-  std::cout << "status in " << __func__ << ": " << cgiStatus << std::endl;
-
   if (cgiStatus == cgi_status::WAITING) {
     return ;
   } else if (STATUS_IS_ERROR(cgiStatus)) {
@@ -203,7 +193,6 @@ void ResponseHandler::sendFromCgi(int fdDest, int flags) {
     }
   }
 
-  std::cout << "sending cgi..." << std::endl;
   if ((respStatus & respState::headerSent) == false)
     sendHeaders(fdDest, flags);
   int cgiPipe = _resp.getCgiInst().get_readable_pipe();
@@ -217,7 +206,6 @@ void ResponseHandler::sendCgiHeaders(int fdDest, int flags) {
   if (_resp.getState() & respState::cgiHeadersSent)
     return ;
   std::string const & cgiHeaders = _resp.getCgiInst().getCgiHeader();
-  std::cout << "sending headers size " << cgiHeaders.size() << std::endl;
   send(fdDest, cgiHeaders.c_str(), cgiHeaders.length(), flags);
   _resp.getState() |= respState::cgiHeadersSent;
 }
@@ -265,17 +253,29 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
 void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
   std::stringstream output;
 
-  if (_requestHandler._req.is_ok())
-      std::cout << RED << "REQUEST:\n"
-                << _requestHandler._req.unwrap() << NC << std::endl; // TODO remove db
-    std::cout << BLUE << "RESPONSE:\n"
-              << _resp << NC << std::endl; // TODO remove db
-
+  logData();
   output << _resp << "\r\n" << _resp.getBuffer();
   send(fdDest, output.str().c_str(), output.str().length(), flags);
   _resp.getState() = respState::entirelySent;
 }
 
+void ResponseHandler::logData( void ) {
+#if LOG_LEVEL == LOG_LEVEL_TRACE
+  LogStream s;
+  if (_requestHandler._req.is_ok())
+    s << "REQUEST:\n"<< _requestHandler._req.unwrap();
+  else
+    s << "REQUEST:\n"<< _requestHandler._req.unwrap_err();
+  s << "RESPONSE:\n" << _resp;
+#endif
+#if DEBUG_MODE == 1
+  if (_requestHandler._req.is_ok())
+    std::cout << GREEN << "REQUEST:\n"<< _requestHandler._req.unwrap() << NC << std::endl;
+  else
+    std::cout << RED << "REQUEST:\n"<< _requestHandler._req.unwrap_err() << NC << std::endl;
+  std::cout << BLUE << "RESPONSE:\n" << _resp << NC << std::endl;
+#endif
+}
 /* ................................. ACCESSOR ................................*/
 
 /*

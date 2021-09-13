@@ -70,6 +70,7 @@ inline void make(std::string const &target, std::string const &path,
          << "}" << std::endl
          << "" << std::endl
          << ".flex-container > div_file {" << std::endl
+         << " word-wrap: break-word;" << std::endl
          << "	font-family: 'Courier New', Courier, monospace;" << std::endl
          << "	width: 42%;" << std::endl
          << "  /* background-color: #f1f1f1; */" << std::endl
