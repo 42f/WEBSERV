@@ -61,6 +61,7 @@ class CGI {
   std::string _cgiHeaders;
   Timer    _cgiTimer;
 
+  void onReturn(char *cgi, char *env);
   bool isPipeEmpty(void) const;
   template <typename T>
   void add_variable(std::string name, T value) {

@@ -15,11 +15,12 @@ int CGI::get_pid(void) const { return (_child_pid); }
 int CGI::get_fd(void) const { return (_pipe); }
 
 bool CGI::isPipeEmpty(void) const {
-  unsigned long bytesAvailable;
+  unsigned long bytesAvailable = 0;
   if (ioctl(_pipe, FIONREAD, &bytesAvailable) == -1) {
     perror("iotctl");
     bytesAvailable = 0;
   }
+  std::cout << "IN PIPE " << _pipe << " there are: " << bytesAvailable << " bytes available" << std::endl;
   return bytesAvailable == 0;
 }
 
@@ -147,14 +148,15 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   if (_child_pid < 0) {
     perror("System Error : fork()");
     _status = cgi_status::SYSTEM_ERROR;
+    // TODO free env + cgi before return ?
     return;
   }
   if (_child_pid == 0) {
     dup2(output[1], 1);
+    dup2(input[0], 0);
+
     close(input[1]);
     close(input[0]);
-
-    dup2(input[0], 0);
     close(output[1]);
     close(output[0]);
 
@@ -163,10 +165,9 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   } else {
     _cgiTimer.start();
     _status = cgi_status::WAITING;
-    int ret;
     if (req.get_body().size() > 0)
-      ret = write(input[1], req.get_body().data(), req.get_body().size());
-    std::cout << "write to child process " << ret << " bytes" << std::endl; // TODO remove
+      write(input[1], req.get_body().data(), req.get_body().size());  // TODO check return ?
+
     close(output[1]);
     close(input[0]);
     close(input[1]);
