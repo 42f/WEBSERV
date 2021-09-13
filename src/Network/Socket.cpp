@@ -57,12 +57,10 @@ void Socket::set_o_fd(int fd) { _ofd = fd; }
     Getters
 ***************************************************/
 
-int Socket::get_cgi_pid() const { return _response.getCgiInst().get_pid(); }
 int Socket::get_skt_fd() const { return _fd; }
 int Socket::get_o_fd() const { return _ofd; }
 int Socket::get_port(void) const { return _port; }
 int Socket::get_status(void) const { return _status; }
-Response const &Socket::get_response(void) const { return _response; }
 std::string Socket::get_client_ip(void) const { return _client_ip; }
 
 /***************************************************

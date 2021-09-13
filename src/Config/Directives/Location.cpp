@@ -25,7 +25,7 @@ LocationConfig::LocationConfig():
 LocationConfig::LocationConfig(config::Server const & parentServer):
 	_path(""),
 	_methods(methods::Methods::all()),
-	_auto_index(parentServer.get_auto_index()),
+	_auto_index(parentServer.has_auto_index()),
 	_upload(false),
 	_body_size(parentServer.get_body_size()),
 	_root(parentServer.get_root()),
@@ -151,11 +151,12 @@ LocationConfig	&LocationConfig::set_redirect(redirect ret)
 
 std::string				LocationConfig::get_path() const { return _path; }
 methods::Methods		LocationConfig::get_methods() const { return _methods; }
-bool					LocationConfig::get_auto_index() const { return _auto_index; }
+bool					LocationConfig::has_auto_index() const { return _auto_index; }
 bool					LocationConfig::get_upload() const { return _upload; }
 size_t					LocationConfig::get_body_size() const { return _body_size; }
 std::string				LocationConfig::get_root() const { return _root; }
 std::string				LocationConfig::get_index() const { return _index; }
+bool					LocationConfig::has_index() const { return _index.empty() == false; }
 redirect				LocationConfig::get_redirect() const { return _redirect; }
 
 

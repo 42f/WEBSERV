@@ -1,0 +1,13 @@
+#!/usr/local/bin/python3
+
+import os
+print("Content-Type: text/html\r")
+print("\r")
+print("<html>\r")
+print("<body>\r")
+
+exec_file = os.environ['PATH_TRANSLATED']
+
+exec(open(exec_file).read())
+print("</body>\r")
+print("</html>\r")

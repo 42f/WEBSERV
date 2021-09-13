@@ -206,13 +206,15 @@ void EventManager::send_response(void) {
       st = itr->get_status();
       int ofd = itr->get_o_fd();
       if (HAS_OFD_NO_NEED(st) ||
-        (FD_ISSET(ofd, &EventManager::_read_set) && HAS_OFD_USABLE(st)) ) {
-
+        (FD_ISSET(ofd, &EventManager::_read_set)
+        && HAS_OFD_USABLE(st)) ) {
         if (itr->do_send() == RESPONSE_SENT_ENTIRELY) {
           itr->unset_status(fd_status::skt_writable);
           itr->set_status(fd_status::skt_closable);
-          if (HAS_OFD_USABLE(st))
+          if (HAS_OFD_USABLE(st)) {
+            itr->unset_status(fd_status::ofd_usable);
             itr->set_status(fd_status::ofd_closable);
+          }
         }
       }
     }

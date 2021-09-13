@@ -8,10 +8,10 @@ std::map<std::string, std::string> files::File::_types;
 
 /* ............................... CONSTRUCTOR ...............................*/
 
-File::File(void) : _fd(FD_UNSET), _error(0), _flags(0), _mode(644) {}
+File::File(void) : _fd(FD_UNSET), _inode(0), _error(0), _flags(0), _mode(644) {}
 
 File::File(std::string const& path, int flags, int mode)
-    : _fd(FD_UNSET), _path(path), _error(0), _flags(flags), _mode(mode) {
+    : _fd(FD_UNSET), _inode(0), _path(path), _error(0), _flags(flags), _mode(mode) {
   openFile();
 }
 
@@ -55,9 +55,21 @@ void File::openFile() {
   }
 }
 
+bool        File::isFile( void ) const {
+  struct stat st;
+  if (stat(_path.c_str(), &st) != 0) {
+    return false;
+  }
+  return !S_ISDIR(st.st_mode);
+}
 
-bool        File::isFile( void ) const { return isFileFromPath(_path); }
-bool        File::isDir( void ) const { return isDirFromPath(_path); }
+bool        File::isDir( void ) const {
+  struct stat st;
+  if (stat(_path.c_str(), &st) != 0) {
+    return false;
+  }
+  return S_ISDIR(st.st_mode);
+}
 
 std::string File::getLastModified() const {
   if (isGood()) {

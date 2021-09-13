@@ -85,11 +85,12 @@ public:
 
 	std::string				get_path() const;
 	methods::Methods		get_methods() const;
-	bool					get_auto_index() const;
+	bool					has_auto_index() const;
 	bool					get_upload() const;
 	size_t					get_body_size() const;
 	std::string				get_root() const;
 	std::string				get_index() const;
+	bool					has_index() const;
 	redirect				get_redirect() const;
 /*
 ** --------------------------------- SETTERS ----------------------------------

@@ -116,12 +116,10 @@ class Socket {
   void set_status(int status);
   void unset_status(int status);
 
-  int get_cgi_pid(void) const;
   int get_skt_fd(void) const;
   int get_o_fd(void) const;
   int get_port(void) const;
   int get_status(void) const;
-  Response const &get_response(void) const;
   bool response_is_ready(void);
   std::string get_client_ip(void) const;
   void process_request();
@@ -143,7 +141,6 @@ class Socket {
   RequestHandler _request_handler;
   RequestHandler::result_type _res;
   ResponseHandler _response_handler;
-  Response _response;
 };
 
 }  // namespace network

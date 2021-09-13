@@ -55,7 +55,7 @@ class Response	{
 		void	loadErrorHtmlBuffer( const status::StatusCode& code,
 									const std::string& optionalMessage = "" );
 
-		void	setFile( std::string const & filePath );
+		files::File &	setFile( std::string const & filePath );
 
 		CGI  &			 		getCgiInst( void ) ;
 		CGI const &		 		getCgiInst( void ) const;

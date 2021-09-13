@@ -10,6 +10,7 @@
  */
 
 #define LOG_LEVEL_INFO	0
+#define DEBUG_MODE 		1
 
 /*
  * info level: extended. Debug data and trace included
@@ -38,6 +39,10 @@
 # define DEFAULT_SEND_SIZE 1024
 #endif
 
+#ifndef DEFAULT_MAX_OPEN_FD
+# define DEFAULT_MAX_OPEN_FD 512
+#endif
+
 #define WEBSERV_NAME			"Webserv Team ABC"
 
 #define RESPONSE_AVAILABLE		0
@@ -48,7 +53,7 @@
 #define PARAM_REDIR_REQ_URI		"$request_uri"
 #define PARAM_REDIR_REQ_QUERY	"$request_query"
 
-#define CGI_TIMEOUT				2
+#define CGI_TIMEOUT				60 // TODO check if correct ?
 
 #define UNSET					-1
 
