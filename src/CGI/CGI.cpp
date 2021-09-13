@@ -20,7 +20,6 @@ bool CGI::isPipeEmpty(void) const {
     perror("iotctl");
     bytesAvailable = 0;
   }
-  std::cout << "IN PIPE " << _pipe << " there are: " << bytesAvailable << " bytes available" << std::endl;
   return bytesAvailable == 0;
 }
 

@@ -39,6 +39,10 @@
 # define DEFAULT_SEND_SIZE 1024
 #endif
 
+#ifndef DEFAULT_MAX_OPEN_FD
+# define DEFAULT_MAX_OPEN_FD 512
+#endif
+
 #define WEBSERV_NAME			"Webserv Team ABC"
 
 #define RESPONSE_AVAILABLE		0

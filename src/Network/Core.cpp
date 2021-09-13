@@ -17,7 +17,8 @@ void Core::update_events(void) {
 }
 
 void Core::check_sockets(void) {
-  if (EventManager::get_nb_events() > 0) {
+  if (EventManager::get_nb_events() > 0 &&
+      EventManager::get_sockets().size() < DEFAULT_MAX_OPEN_FD) {
     EventManager::accept_request();
   }
 }

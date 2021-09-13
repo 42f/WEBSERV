@@ -6,7 +6,8 @@ Response::Response()
     : _respState(respState::emptyResp),
       _version(Version('1', '1')),
       _statusCode(status::None) {
-  setHeader("Cache-Control", "no-cache");  // TODO remove debug
+  setHeader("Cache-Control", "no-cache");
+  setHeader("Connection", "close");
   setHeader(headerTitle::Date, Timer::getTimeNow());
   setHeader(headerTitle::Server, WEBSERV_NAME);
 }
@@ -15,6 +16,8 @@ Response::Response(Version version, status::StatusCode statusCode)
     : _respState(respState::emptyResp),
       _version(version),
       _statusCode(statusCode) {
+  setHeader("Cache-Control", "no-cache");
+  setHeader("Connection", "close");
   setHeader(headerTitle::Date, Timer::getTimeNow());
   setHeader(headerTitle::Server, WEBSERV_NAME);
 }
@@ -126,9 +129,6 @@ std::ostream& operator<<(std::ostream& o, Response const& i) {
       o << it->first << ": " << it->second.second << "\r\n";
     }
   }
-
-  // Writes empty line separation
-  // o << "\r\n";
 
   return o;
 }
