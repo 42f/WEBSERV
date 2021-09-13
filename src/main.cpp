@@ -1,34 +1,15 @@
 
 #include <arpa/inet.h>
-#include <pthread.h>
 #include <signal.h>
-#include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/uio.h>
 #include <unistd.h>
-
-#include <fstream>
 #include <sstream>
-#include <utility>
 
 #include "Config/ConfigParser.hpp"
-#include "Config/Server.hpp"
-#include "HTTP/Request/RequestHandler.hpp"
 #include "HTTP/Response/Response.hpp"
 #include "HTTP/Response/ResponseHandler.hpp"
 #include "Network/Core.hpp"
-#include "Network/ServerPool.hpp"
-#include "utils/Logger.hpp"
 
-#define BACKLOG 100  // nb of connection queued when listen is called
-#define MAXLINE 1024
-#define SERVER_PORT 18000
-// #define SERVER_PORT 8080
-#define SA struct sockaddr
 
 void exit_server(int sig) {
   (void)sig;
@@ -47,9 +28,6 @@ void exit_server(int sig) {
 }
 
 int main(int ac, char **av) {
-  (void)ac;
-  (void)av;
-
   signal(SIGINT, &exit_server);
   std::string path;
   switch (ac) {

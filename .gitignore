@@ -24,6 +24,8 @@ webserv.cbp
 /CMakeFiles
 /CMakeCache.txt
 
+Makefile
+
 # Prerequisites
 *.d
 
