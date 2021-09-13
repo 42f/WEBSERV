@@ -260,8 +260,12 @@ class ResponseHandler {
       files::File & file = _inst._resp.setFile(indexPath);
 
       if (file.isGood() && file.isFile()) {
-        _inst._resp.setStatus(status::Ok);
-        return setRespForFile();
+        std::string cgiBin = getCgiBinPath();
+        if (cgiBin.empty()) {
+          return handleRegFile();
+        } else {
+          return handleCgiFile(cgiBin);
+        }
       } else if (file.isGood() && file.isDir()) {
         return makeStandardResponse(status::Forbidden);
       } else if (_inst._loc.has_auto_index()) {
