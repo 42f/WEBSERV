@@ -55,7 +55,7 @@ RequestHandler::result_type RequestHandler::update(const char *buff, size_t read
 
 void		RequestHandler::reset()
 {
-	//TODO if the request is complete, keep the rest of the body instead of trashing it
+	//if the request is complete, keep the rest of the body instead of trashing it
 	_buffer.clear();
 	_status = request_status::Incomplete;
 	_req = result_type::err(status::None);
