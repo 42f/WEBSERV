@@ -222,7 +222,6 @@ void ResponseHandler::sendFromFile(int fdDest, int flags) {
 }
 
 int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
-  if (isReady() == false) return 1;  // todo remove
   char buff[DEFAULT_SEND_SIZE + 2];
   bzero(buff, DEFAULT_SEND_SIZE + 2);
   ssize_t retRead = 0;

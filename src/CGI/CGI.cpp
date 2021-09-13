@@ -92,7 +92,6 @@ std::vector<char *> CGI::set_meta_variables(files::File const &file,
   add_variable("SERVER_SOFTWARE", "");
   add_variable("REDIRECT_STATUS", "");
   add_variable("PATH_INFO", file.getFileName());
-  // add_variable("SCRIPT_NAME", "");//file.getFileFromPath(file.getPath()));
   add_variable("SERVER_PROTOCOL", "HTTP/1.1");
   add_variable("GATEWAY_INTERFACE", "CGI/1.1");
   add_variable("SERVER_PORT", serv.get_port());
@@ -127,6 +126,12 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   size_t i = 0;
   set_meta_variables(file, req, serv);
 
+  char *cgi = strdup(cgi_path.c_str());
+  if (cgi == NULL || file.isGood() == false) {
+    _status = cgi_status::SYSTEM_ERROR;
+    return;
+  }
+
   char *env[_variables.size() + 1];
   for (; i < _variables.size();) {
     env[i] = _variables[i];
@@ -134,11 +139,6 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   }
   env[i] = NULL;
 
-  char *cgi = strdup(cgi_path.c_str());
-  if (cgi == NULL || file.isGood() == false) {
-    _status = cgi_status::SYSTEM_ERROR;
-    return;
-  }
   char *args[] = {cgi, NULL};
   pipe(output);
   pipe(input);
@@ -147,7 +147,10 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   if (_child_pid < 0) {
     perror("System Error : fork()");
     _status = cgi_status::SYSTEM_ERROR;
-    // TODO free env + cgi before return ?
+    free(cgi);
+    for (i = 0; i < _variables.size(); i++) {
+      free(env[i]);
+    }
     return;
   }
   if (_child_pid == 0) {

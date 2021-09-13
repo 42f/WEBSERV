@@ -1,3 +1,14 @@
+
+
+
+
+        - Select before write of CGI Body + uploadFile
+        - Return de Pipe pour -O2/O3
+        - check return of send, read, write
+
+
+
+
 Brian :
         ✅ fix location resolver pour /
         ✅ check autoindex with non existing pouette.html -> ok 404 returned
