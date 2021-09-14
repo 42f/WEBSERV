@@ -24,9 +24,7 @@ enum status {
   ofd_closed = 1 << 13,
   skt_closed = 1 << 14,
   closed = 1 << 15,
-  ofd_no_need = 1 << 16,
-  ufd_no_need = 1 << 17,
-  ufd_needed = 1 << 18
+  ofd_no_need = 1 << 16
 };
 }
 
@@ -114,8 +112,6 @@ class Socket {
   Socket(Socket const &src);
   ~Socket();
 
-  void set_o_fd(int fd);
-  void set_u_fd(int fd);
   void set_status(int status);
   void unset_status(int status);
 
@@ -128,6 +124,7 @@ class Socket {
   std::string get_client_ip(void) const;
   void process_request();
   int do_send();
+  void  doWriteBody(void);
 
   int manage_response();
   void manage_raw_request(char *buffer, int size);

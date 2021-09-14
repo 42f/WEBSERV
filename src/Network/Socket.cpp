@@ -51,8 +51,6 @@ Socket &Socket::operator=(Socket const &rhs) {
 
 void Socket::set_status(int status) { _status |= status; }
 void Socket::unset_status(int status) { _status &= ~status; }
-void Socket::set_o_fd(int fd) { _ofd = fd; }
-void Socket::set_u_fd(int fd) { _ufd = fd; }
 
 /***************************************************
     Getters
@@ -60,7 +58,7 @@ void Socket::set_u_fd(int fd) { _ufd = fd; }
 
 int Socket::get_skt_fd() const { return _fd; }
 int Socket::get_o_fd() const { return _ofd; }
-int Socket::get_u_fd() const { return _ufd; }
+int Socket::get_u_fd() const { return _response_handler.getResponse().getUploadFd(); }
 int Socket::get_port(void) const { return _port; }
 int Socket::get_status(void) const { return _status; }
 std::string Socket::get_client_ip(void) const { return _client_ip; }
@@ -74,8 +72,7 @@ void Socket::manage_raw_request(char *buffer, int size) {
   if (_res.is_ok() || _res.unwrap_err() != status::Incomplete) {
     unset_status(fd_status::skt_readable);
     set_status(fd_status::skt_writable);
-    if (_res.is_ok())
-      _res.unwrap().set_client_ip(_client_ip);
+    if (_res.is_ok()) _res.unwrap().set_client_ip(_client_ip);
     _response_handler.init(_request_handler, _port);
   }
 }
@@ -90,6 +87,8 @@ void Socket::process_request() {
     _is_processed = true;
   }
 }
+
+void Socket::doWriteBody(void) { _response_handler.doWriteBody(); }
 
 int Socket::do_send() { return _response_handler.doSend(_fd); }
 

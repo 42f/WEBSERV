@@ -33,6 +33,7 @@ class ResponseHandler {
   void init(RequestHandler& reqHandler, int receivedPort);
   int processRequest(void);
 
+  int doWriteBody();
 #if __APPLE__
   int doSend(int fdDest, int flags = 0);
 #else
@@ -60,7 +61,6 @@ class ResponseHandler {
 
   std::string getReqHeader(const std::string& target);
 
-  int doWriteBody();
 
   int doSendFromFD(int fdSrc, int fdDest, int flags);
   void sendHeaders(int fdDest, int flags);
@@ -115,6 +115,7 @@ class ResponseHandler {
       CGI& cgiInst = _inst._resp.getCgiInst();
       cgiInst.execute_cgi(cgiBin, _inst._resp.getFileInst(), _inst._req,
                           _inst._serv);
+      // ------------
       setRespForCgi();
       _inst._resp.setStatus(status::Ok);
     }
