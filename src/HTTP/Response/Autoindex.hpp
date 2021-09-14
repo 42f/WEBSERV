@@ -9,10 +9,10 @@ namespace Autoindex {
 
 inline std::string humanReadable(off_t inputSize) {
   std::stringstream output;
-  if (inputSize > 10000) {
+  if (inputSize > 1000000) {
     output.precision(2);
     double roundedSize = inputSize;
-    output << std::fixed << roundedSize / 10000 << " Mb";
+    output << std::fixed << roundedSize / 1000000 << " Mb";
   } else if (inputSize > 1000) {
     output.precision(2);
     double roundedSize = inputSize;
