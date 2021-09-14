@@ -117,8 +117,11 @@ void ResponseHandler::doWriteBody( void ) {
 
   if (uploadFd != UNSET) {
     const std::vector<char> &body = _req.get_body();
-    if (body.size() > 0)
-      write(uploadFd, body.data(), body.size());
+    if (body.size() > 0) {
+     int ret = write(uploadFd, body.data(), body.size());
+     std::cout << "body size = " << body.size() << std::endl;
+     std::cout << "red write = " << ret << std::endl;
+    }
     close(uploadFd);
     _resp.setUploadFd(UNSET);
   }

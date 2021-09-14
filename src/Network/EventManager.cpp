@@ -86,9 +86,7 @@ void EventManager::do_select(void) {
       _max_fd = (skfd > _max_fd) ? skfd : _max_fd;
       FD_SET(skfd, &EventManager::_read_set);
       FD_SET(skfd, &EventManager::_write_set);
-      std::cout << "UFD = " << ufd << " in " << __func__ << std::endl;
       if (ufd != UNSET) {
-        std::cout << "SET IN WRITE UFD" << std::endl;
         _max_fd = (ufd > _max_fd) ? ufd : _max_fd;
         FD_SET(ufd, &EventManager::_write_set);
       }
@@ -212,11 +210,7 @@ void EventManager::send_response(void) {
        itr != EventManager::_sockets.end(); ++itr) {
     int st = itr->get_status();
     if (FULL_SKT_WR(itr->get_skt_fd(), st)) {
-      itr->process_request();
-      if (FD_ISSET(itr->get_u_fd(), &EventManager::_write_set)) {
-        itr->doWriteBody();
-        continue ;
-      }
+      itr->process_request(EventManager::_write_set);
       st = itr->get_status();
       int ofd = itr->get_o_fd();
       if (HAS_OFD_NO_NEED(st) ||

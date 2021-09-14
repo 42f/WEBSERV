@@ -122,7 +122,7 @@ class Socket {
   int get_status(void) const;
   bool response_is_ready(void);
   std::string get_client_ip(void) const;
-  void process_request();
+  void process_request( fd_set const & writeSet );
   int do_send();
   void  doWriteBody(void);
 
@@ -132,6 +132,9 @@ class Socket {
   Socket &operator=(Socket const &rhs);
 
  private:
+
+  void setOfdStatus();
+
   int _fd;
   int _ofd;
   int _ufd;

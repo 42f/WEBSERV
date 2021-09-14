@@ -77,15 +77,26 @@ void Socket::manage_raw_request(char *buffer, int size) {
   }
 }
 
-void Socket::process_request() {
+void Socket::process_request(fd_set const & writeSet) {
+  Response const & resp = _response_handler.getResponse();
+
   if (_is_processed == false) {
     _ofd = _response_handler.processRequest();
-    if (_ofd == RESPONSE_NO_FD)
-      _status |= fd_status::ofd_no_need;
-    else
-      _status |= fd_status::ofd_usable;
+    if (resp.getUploadFd() == UNSET) {
+      setOfdStatus();
+    }
     _is_processed = true;
+  } else if (FD_ISSET(resp.getUploadFd(), &writeSet)) {
+    _response_handler.doWriteBody();
+    setOfdStatus();
   }
+}
+
+void Socket::setOfdStatus() {
+  if (_ofd == RESPONSE_NO_FD)
+    _status |= fd_status::ofd_no_need;
+  else
+    _status |= fd_status::ofd_usable;
 }
 
 void Socket::doWriteBody(void) { _response_handler.doWriteBody(); }

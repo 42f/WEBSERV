@@ -351,7 +351,7 @@ class ResponseHandler {
                              O_CREAT | O_WRONLY, 0644);
       if (uploadFile.isGood()) {
         _inst._resp.setUploadFile(uploadFile.getPath());
-        std::cerr << "UFD = " << _inst._resp.getUploadFd() << std::endl; // TODO Remove
+        std::cerr << "UFD = " << _inst._resp.getUploadFd() << " in " << __func__ << std::endl; // TODO Remove
         return makeStandardResponse(status::Accepted);
 
         /* ------------------------------------- */
