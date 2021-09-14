@@ -74,20 +74,28 @@ void EventManager::do_select(void) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
-    if (IS_LISTENABLE(itr->get_status())) {
-      if (itr->get_skt_fd() > _max_fd) _max_fd = itr->get_skt_fd();
-      FD_SET(itr->get_skt_fd(), &EventManager::_read_set);
-    } else if (!HAS_ERROR(itr->get_status())) {
-      if (itr->get_skt_fd() > _max_fd) _max_fd = itr->get_skt_fd();
-      FD_SET(itr->get_skt_fd(), &EventManager::_read_set);
-      FD_SET(itr->get_skt_fd(), &EventManager::_write_set);
-      if (HAS_OFD_USABLE(itr->get_status())) {
-        if (itr->get_o_fd() > _max_fd) _max_fd = itr->get_o_fd();
-        FD_SET(itr->get_o_fd(), &EventManager::_read_set);
-        FD_SET(itr->get_o_fd(), &EventManager::_write_set);
-        if (itr->get_u_fd() != UNSET) {
-          FD_SET(itr->get_u_fd(), &EventManager::_write_set);
-        }
+    int skfd =itr->get_skt_fd();
+    int ofd =itr->get_o_fd();
+    int ufd =itr->get_u_fd();
+    int status = itr->get_status();
+
+    if (IS_LISTENABLE(status)) {
+      _max_fd = (skfd > _max_fd) ? skfd : _max_fd;
+      FD_SET(skfd, &EventManager::_read_set);
+    } else if (!HAS_ERROR(status)) {
+      _max_fd = (skfd > _max_fd) ? skfd : _max_fd;
+      FD_SET(skfd, &EventManager::_read_set);
+      FD_SET(skfd, &EventManager::_write_set);
+      std::cout << "UFD = " << ufd << " in " << __func__ << std::endl;
+      if (ufd != UNSET) {
+        std::cout << "SET IN WRITE UFD" << std::endl;
+        _max_fd = (ufd > _max_fd) ? ufd : _max_fd;
+        FD_SET(ufd, &EventManager::_write_set);
+      }
+      if (HAS_OFD_USABLE(status)) {
+        _max_fd = (ofd > _max_fd) ? ofd : _max_fd;
+        FD_SET(ofd, &EventManager::_read_set);
+        FD_SET(ofd, &EventManager::_write_set);
       }
     }
   }
@@ -205,13 +213,14 @@ void EventManager::send_response(void) {
     int st = itr->get_status();
     if (FULL_SKT_WR(itr->get_skt_fd(), st)) {
       itr->process_request();
+      if (FD_ISSET(itr->get_u_fd(), &EventManager::_write_set)) {
+        itr->doWriteBody();
+        continue ;
+      }
       st = itr->get_status();
       int ofd = itr->get_o_fd();
       if (HAS_OFD_NO_NEED(st) ||
           (FD_ISSET(ofd, &EventManager::_read_set) && HAS_OFD_USABLE(st))) {
-        if (FD_ISSET(itr->get_u_fd(), &EventManager::_write_set)) {
-          itr->doWriteBody();
-        }
         if (itr->do_send() == RESPONSE_SENT_ENTIRELY) {
           itr->unset_status(fd_status::skt_writable);
           itr->set_status(fd_status::skt_closable);

@@ -112,20 +112,16 @@ std::string ResponseHandler::getReqHeader(const std::string& target) {
   return _req.get_header(target).unwrap_or("");
 }
 
-int ResponseHandler::doWriteBody( void ) {
-  int& state = _resp.getState();
-  const std::vector<char> &body = _req.get_body();
+void ResponseHandler::doWriteBody( void ) {
+  int uploadFd = _resp.getUploadFd();
 
-  ssize_t ret = 0;
-  if (state & respState::hasBodyToWrite) {
+  if (uploadFd != UNSET) {
+    const std::vector<char> &body = _req.get_body();
     if (body.size() > 0)
-      ret = write(_resp.getUploadFd(), body.data(), body.size());
-    if (ret < 0)
-      state = respState::ioError;
-    else
-      state &= ~respState::hasBodyToWrite;
+      write(uploadFd, body.data(), body.size());
+    close(uploadFd);
+    _resp.setUploadFd(UNSET);
   }
-  return ret; // TODO usefull ?
 }
 
 int ResponseHandler::doSend(int fdDest, int flags) {

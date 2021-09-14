@@ -33,7 +33,7 @@ class ResponseHandler {
   void init(RequestHandler& reqHandler, int receivedPort);
   int processRequest(void);
 
-  int doWriteBody();
+  void doWriteBody(void);
 #if __APPLE__
   int doSend(int fdDest, int flags = 0);
 #else
@@ -113,11 +113,11 @@ class ResponseHandler {
    public:
     void handleCgiFile(std::string const& cgiBin) {
       CGI& cgiInst = _inst._resp.getCgiInst();
-      cgiInst.execute_cgi(cgiBin, _inst._resp.getFileInst(), _inst._req,
-                          _inst._serv);
-      // ------------
+      int uploadFd = cgiInst.execute_cgi(cgiBin, _inst._resp.getFileInst(),
+        _inst._req, _inst._serv);
       setRespForCgi();
       _inst._resp.setStatus(status::Ok);
+      _inst._resp.setUploadFd(uploadFd);
     }
 
     std::string getCgiBinPath(void) {
@@ -350,24 +350,23 @@ class ResponseHandler {
       files::File uploadFile(requestedFile.getPath(),
                              O_CREAT | O_WRONLY, 0644);
       if (uploadFile.isGood()) {
-        size_t len = _inst._req.get_body().size();
-        if (len > 0) {
         _inst._resp.setUploadFile(uploadFile.getPath());
-        _inst._resp.setUploadFd(uploadFile.getFD());
-        _inst._resp.getState() |= respState::hasBodyToWrite;
+        std::cerr << "UFD = " << _inst._resp.getUploadFd() << std::endl; // TODO Remove
+        return makeStandardResponse(status::Accepted);
 
         /* ------------------------------------- */
-          char const* data = _inst._req.get_body().data();
+        // _inst._resp.getState() |= respState::hasBodyToWrite;
 
-          size_t ret = write(uploadFile.getFD(), data, len);
-          if (ret > 0)
-            return makeStandardResponse(status::Accepted);
-          else
-            return makeStandardResponse(status::InternalServerError);
+        //   char const* data = _inst._req.get_body().data();
 
-        } else {
-          return makeStandardResponse(status::Accepted);
-        }
+        //   size_t ret = write(uploadFile.getFD(), data, len);
+        //   if (ret > 0)
+        //     return makeStandardResponse(status::Accepted);
+        //   else
+        //     return makeStandardResponse(status::InternalServerError);
+
+        // } else {
+        // }
         /* ------------------------------------- */
       } else {
         return makeStandardResponse(status::Conflict,

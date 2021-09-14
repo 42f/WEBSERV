@@ -42,7 +42,7 @@ class CGI {
   ~CGI();
 
   void execute_cgi(void);
-  void execute_cgi(std::string const &cgi_path, files::File const &file,
+  int execute_cgi(std::string const &cgi_path, files::File const &file,
                    Request const &req, config::Server const &serv);
   cgi_status::status status(void);
   int get_readable_pipe(void) const;

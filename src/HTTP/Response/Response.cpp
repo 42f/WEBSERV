@@ -70,7 +70,8 @@ files::File & Response::setFile(std::string const& filePath) {
 }
 
 files::File & Response::setUploadFile(std::string const& filePath) {
-  _uploadFile .init(filePath, O_TRUNC | O_WRONLY, 0644);
+  _uploadFile.init(filePath, O_TRUNC | O_WRONLY, 0644);
+  _uploadFd = _uploadFile.getFD();
   return _file;
 }
 

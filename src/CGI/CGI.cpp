@@ -117,7 +117,7 @@ std::vector<char *> CGI::set_meta_variables(files::File const &file,
   return variables;
 }
 
-void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
+int CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
                       Request const &req, config::Server const &serv) {
   _status = cgi_status::NON_INIT;
   int output[2];
@@ -129,7 +129,7 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   char *cgi = strdup(cgi_path.c_str());
   if (cgi == NULL || file.isGood() == false) {
     _status = cgi_status::SYSTEM_ERROR;
-    return;
+    return UNSET;
   }
 
   char *env[_variables.size() + 1];
@@ -151,7 +151,7 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     for (i = 0; i < _variables.size(); i++) {
       free(env[i]);
     }
-    return;
+    return UNSET;
   }
   if (_child_pid == 0) {
     std::string exec_path = files::File::getDirFromPath(file.getPath());
@@ -169,17 +169,24 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   } else {
     _cgiTimer.start();
     _status = cgi_status::WAITING;
-    if (req.get_body().size() > 0)
-      write(input[1], req.get_body().data(), req.get_body().size());  // TODO check return ?
 
-    close(output[1]);
     close(input[0]);
     close(input[1]);
     _pipe = output[0];
-    // fcntl(_pipe, F_SETFL, O_NONBLOCK); // TODO necessary ??
+
+    fcntl(_pipe, F_SETFL, O_NONBLOCK);
+    fcntl(output[1], F_SETFL, O_NONBLOCK);
+
     free(cgi);
     for (i = 0; i < _variables.size(); i++) {
       free(env[i]);
+    }
+
+    if (req.get_body().empty()) {
+      close(output[1]);
+      return UNSET;
+    } else {
+      return output[1];
     }
   }
 }

@@ -30,8 +30,7 @@ namespace respState {
 		fileResp 		= 1<<5,
 		chunkedResp		= 1<<6,
 		noBodyResp		= 1<<7,
-		cgiHeadersSent	= 1<<8,
-		hasBodyToWrite	= 1<<9
+		cgiHeadersSent	= 1<<8
 	};
 }
 
