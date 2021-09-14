@@ -112,6 +112,22 @@ std::string ResponseHandler::getReqHeader(const std::string& target) {
   return _req.get_header(target).unwrap_or("");
 }
 
+int ResponseHandler::doWriteBody( void ) {
+  int& state = _resp.getState();
+  const std::vector<char> &body = _req.get_body();
+
+  ssize_t ret = 0;
+  if (state & respState::hasBodyToWrite) {
+    if (body.size() > 0)
+      ret = write(_resp.getUploadFd(), body.data(), body.size());
+    if (ret < 0)
+      state = respState::ioError;
+    else
+      state &= ~respState::hasBodyToWrite;
+  }
+  return ret; // TODO usefull ?
+}
+
 int ResponseHandler::doSend(int fdDest, int flags) {
 #if __APPLE__
   int set = 1;

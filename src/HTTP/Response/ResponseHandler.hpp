@@ -59,12 +59,16 @@ class ResponseHandler {
   Response _resp;
 
   std::string getReqHeader(const std::string& target);
+
+  int doWriteBody();
+
+  int doSendFromFD(int fdSrc, int fdDest, int flags);
   void sendHeaders(int fdDest, int flags);
   void sendCgiHeaders(int fdDest, int flags);
   void sendFromBuffer(int fdDest, int flags);
   void sendFromCgi(int fdDest, int flags);
   void sendFromFile(int fdDest, int flags);
-  int doSendFromFD(int fdSrc, int fdDest, int flags);
+
   void manageRedirect(redirect const& red);
   int getOutputFd(void);
   status::StatusCode pickCgiError(cgi_status::status cgiStat) const;
@@ -329,7 +333,7 @@ class ResponseHandler {
         */
       } else if (file.isGood() == false && _inst._loc.get_upload() == true &&
                  file.getError() & ENOENT) {
-        return doUploadFile();
+        return handleUpload();
       } else if (file.isGood() == false && _inst._loc.get_upload() == true) {
         return makeStandardResponse(status::Conflict, strerror(file.getError()));
       }
@@ -340,26 +344,30 @@ class ResponseHandler {
       return makeStandardResponse(status::Forbidden);
     }
 
-    void doUploadFile() {
+    void handleUpload() {
       files::File const& requestedFile = _inst._resp.getFileInst();
-
       files::File uploadFile(requestedFile.getPath(),
-                             O_CREAT | O_TRUNC | O_WRONLY, 0644);
+                             O_CREAT | O_WRONLY, 0644);
       if (uploadFile.isGood()) {
         size_t len = _inst._req.get_body().size();
         if (len > 0) {
-          char const* data = _inst._req.get_body().data();
+        _inst._resp.setUploadFile(uploadFile.getPath());
+        _inst._resp.setUploadFd(uploadFile.getFD());
+        _inst._resp.getState() |= respState::hasBodyToWrite;
 
-          // TODO -> do select here ??
+        /* ------------------------------------- */
+          char const* data = _inst._req.get_body().data();
 
           size_t ret = write(uploadFile.getFD(), data, len);
           if (ret > 0)
             return makeStandardResponse(status::Accepted);
           else
             return makeStandardResponse(status::InternalServerError);
+
         } else {
           return makeStandardResponse(status::Accepted);
         }
+        /* ------------------------------------- */
       } else {
         return makeStandardResponse(status::Conflict,
                                     strerror(uploadFile.getError()));
