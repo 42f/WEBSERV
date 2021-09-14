@@ -46,7 +46,7 @@ EventManager::~EventManager() {}
     Getters
 ***************************************************/
 
-std::list<Socket> const & EventManager::get_sockets(void)  { return _sockets; }
+std::list<Socket> const &EventManager::get_sockets(void) { return _sockets; }
 
 unsigned long EventManager::get_size(void) {
   return EventManager::_sockets.size();
@@ -85,6 +85,9 @@ void EventManager::do_select(void) {
         if (itr->get_o_fd() > _max_fd) _max_fd = itr->get_o_fd();
         FD_SET(itr->get_o_fd(), &EventManager::_read_set);
         FD_SET(itr->get_o_fd(), &EventManager::_write_set);
+        if (HAS_UFD_USABLE(itr->get_status())) {
+          FD_SET(itr->get_u_fd(), &EventManager::_write_set);
+        }
       }
     }
   }
@@ -199,15 +202,13 @@ void EventManager::send_response(void) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
-
     int st = itr->get_status();
     if (FULL_SKT_WR(itr->get_skt_fd(), st)) {
       itr->process_request();
       st = itr->get_status();
       int ofd = itr->get_o_fd();
       if (HAS_OFD_NO_NEED(st) ||
-        (FD_ISSET(ofd, &EventManager::_read_set)
-        && HAS_OFD_USABLE(st)) ) {
+          (FD_ISSET(ofd, &EventManager::_read_set) && HAS_OFD_USABLE(st))) {
         if (itr->do_send() == RESPONSE_SENT_ENTIRELY) {
           itr->unset_status(fd_status::skt_writable);
           itr->set_status(fd_status::skt_closable);

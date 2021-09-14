@@ -24,7 +24,9 @@ enum status {
   ofd_closed = 1 << 13,
   skt_closed = 1 << 14,
   closed = 1 << 15,
-  ofd_no_need = 1 << 16
+  ofd_no_need = 1 << 16,
+  ufd_no_need = 1 << 17,
+  ufd_needed = 1 << 18
 };
 }
 
@@ -113,11 +115,13 @@ class Socket {
   ~Socket();
 
   void set_o_fd(int fd);
+  void set_u_fd(int fd);
   void set_status(int status);
   void unset_status(int status);
 
   int get_skt_fd(void) const;
   int get_o_fd(void) const;
+  int get_u_fd(void) const;
   int get_port(void) const;
   int get_status(void) const;
   bool response_is_ready(void);
@@ -133,6 +137,7 @@ class Socket {
  private:
   int _fd;
   int _ofd;
+  int _ufd;
   int _port;
   int _status;
   bool _is_processed;

@@ -52,6 +52,7 @@ Socket &Socket::operator=(Socket const &rhs) {
 void Socket::set_status(int status) { _status |= status; }
 void Socket::unset_status(int status) { _status &= ~status; }
 void Socket::set_o_fd(int fd) { _ofd = fd; }
+void Socket::set_u_fd(int fd) { _ufd = fd; }
 
 /***************************************************
     Getters
@@ -59,6 +60,7 @@ void Socket::set_o_fd(int fd) { _ofd = fd; }
 
 int Socket::get_skt_fd() const { return _fd; }
 int Socket::get_o_fd() const { return _ofd; }
+int Socket::get_u_fd() const { return _ufd; }
 int Socket::get_port(void) const { return _port; }
 int Socket::get_status(void) const { return _status; }
 std::string Socket::get_client_ip(void) const { return _client_ip; }
