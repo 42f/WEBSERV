@@ -116,11 +116,18 @@ void ResponseHandler::doWriteBody( void ) {
   int uploadFd = _resp.getUploadFd();
 
   if (uploadFd != UNSET) {
-    const std::vector<char> &body = _req.get_body();
+    const std::vector<char>& body = _req.get_body();
     if (body.size() > 0) {
-     int ret = write(uploadFd, body.data(), body.size());
-     std::cout << "body size = " << body.size() << std::endl;
-     std::cout << "red write = " << ret << std::endl;
+      int ret, offset = 0;
+      int leftOver = body.size();
+      while (ret >= 0 && leftOver > 0) {
+        ret = write(uploadFd, body.data() + offset, body.size() - 10);
+        leftOver -= ret;
+        offset += ret;
+      }
+      if (ret < 0) {
+        _resp.getState() = respState::ioError;
+      }
     }
     close(uploadFd);
     _resp.setUploadFd(UNSET);
@@ -173,8 +180,9 @@ void ResponseHandler::sendHeaders(int fdDest, int flags) {
   }
 }
 
-status::StatusCode ResponseHandler::pickCgiError(cgi_status::status cgiStatus) const {
-  switch(cgiStatus) {
+status::StatusCode ResponseHandler::pickCgiError(
+    cgi_status::status cgiStatus) const {
+  switch (cgiStatus) {
     case cgi_status::TIMEOUT:
       return status::GatewayTimeout;
     case cgi_status::SYSTEM_ERROR:
@@ -190,15 +198,13 @@ status::StatusCode ResponseHandler::pickCgiError(cgi_status::status cgiStatus) c
 }
 
 void ResponseHandler::sendFromCgi(int fdDest, int flags) {
-
-
-  int & respStatus = _resp.getState();
+  int& respStatus = _resp.getState();
   if ((respStatus & respState::headerSent) == false)
     _resp.getCgiInst().setCgiHeader();
 
   cgi_status::status cgiStatus = _resp.getCgiInst().status();
   if (cgiStatus == cgi_status::WAITING) {
-    return ;
+    return;
   } else if (STATUS_IS_ERROR(cgiStatus)) {
     if ((respStatus & respState::headerSent) == false) {
       return _method->makeStandardResponse(pickCgiError(cgiStatus));
@@ -208,8 +214,7 @@ void ResponseHandler::sendFromCgi(int fdDest, int flags) {
     }
   }
 
-  if ((respStatus & respState::headerSent) == false)
-    sendHeaders(fdDest, flags);
+  if ((respStatus & respState::headerSent) == false) sendHeaders(fdDest, flags);
   int cgiPipe = _resp.getCgiInst().get_readable_pipe();
   if ((respStatus & respState::cgiHeadersSent) == false)
     sendCgiHeaders(fdDest, flags);
@@ -217,10 +222,8 @@ void ResponseHandler::sendFromCgi(int fdDest, int flags) {
 }
 
 void ResponseHandler::sendCgiHeaders(int fdDest, int flags) {
-
-  if (_resp.getState() & respState::cgiHeadersSent)
-    return ;
-  std::string const & cgiHeaders = _resp.getCgiInst().getCgiHeader();
+  if (_resp.getState() & respState::cgiHeadersSent) return;
+  std::string const& cgiHeaders = _resp.getCgiInst().getCgiHeader();
   send(fdDest, cgiHeaders.c_str(), cgiHeaders.length(), flags);
   _resp.getState() |= respState::cgiHeadersSent;
 }
@@ -273,20 +276,22 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
   _resp.getState() = respState::entirelySent;
 }
 
-void ResponseHandler::logData( void ) {
+void ResponseHandler::logData(void) {
 #if LOG_LEVEL == LOG_LEVEL_TRACE
   LogStream s;
   if (_requestHandler._req.is_ok())
-    s << "REQUEST:\n"<< _requestHandler._req.unwrap();
+    s << "REQUEST:\n" << _requestHandler._req.unwrap();
   else
-    s << "REQUEST:\n"<< _requestHandler._req.unwrap_err();
+    s << "REQUEST:\n" << _requestHandler._req.unwrap_err();
   s << "RESPONSE:\n" << _resp;
 #endif
 #if DEBUG_MODE == 1
   if (_requestHandler._req.is_ok())
-    std::cout << GREEN << "REQUEST:\n"<< _requestHandler._req.unwrap() << NC << std::endl;
+    std::cout << GREEN << "REQUEST:\n"
+              << _requestHandler._req.unwrap() << NC << std::endl;
   else
-    std::cout << RED << "REQUEST:\n"<< _requestHandler._req.unwrap_err() << NC << std::endl;
+    std::cout << RED << "REQUEST:\n"
+              << _requestHandler._req.unwrap_err() << NC << std::endl;
   std::cout << BLUE << "RESPONSE:\n" << _resp << NC << std::endl;
 #endif
 }

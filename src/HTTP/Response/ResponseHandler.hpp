@@ -353,21 +353,6 @@ class ResponseHandler {
         _inst._resp.setUploadFile(uploadFile.getPath());
         std::cerr << "UFD = " << _inst._resp.getUploadFd() << " in " << __func__ << std::endl; // TODO Remove
         return makeStandardResponse(status::Accepted);
-
-        /* ------------------------------------- */
-        // _inst._resp.getState() |= respState::hasBodyToWrite;
-
-        //   char const* data = _inst._req.get_body().data();
-
-        //   size_t ret = write(uploadFile.getFD(), data, len);
-        //   if (ret > 0)
-        //     return makeStandardResponse(status::Accepted);
-        //   else
-        //     return makeStandardResponse(status::InternalServerError);
-
-        // } else {
-        // }
-        /* ------------------------------------- */
       } else {
         return makeStandardResponse(status::Conflict,
                                     strerror(uploadFile.getError()));
