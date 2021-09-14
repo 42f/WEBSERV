@@ -28,7 +28,7 @@ div {text-align: center;}
 <body>
 	<h1>
 		Hello from /tmp/server/index.php !<br/>
-		<?php echo "hello from php"; ?>
+		<?php echo "hello from php<br/>"; ?>
 		<a href="./site0">go to site0...</a><br/>
 		<a href="./site1">go to site1...</a><br/>
 		<a href="./site2">go to site2...</a><br/>
