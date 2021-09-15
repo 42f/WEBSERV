@@ -70,7 +70,7 @@ class ResponseHandler {
   void sendFromFile(int fdDest, int flags);
 
   void manageRedirect(redirect const& red);
-  int getOutputFd(void);
+  int pickOutputFd(void);
   status::StatusCode pickCgiError(cgi_status::status cgiStat) const;
 
   void logData( void );

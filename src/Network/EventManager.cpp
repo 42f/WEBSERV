@@ -90,7 +90,8 @@ void EventManager::do_select(void) {
         _max_fd = (ufd > _max_fd) ? ufd : _max_fd;
         FD_SET(ufd, &EventManager::_write_set);
       }
-      if (HAS_OFD_USABLE(status)) {
+      // if (HAS_OFD_USABLE(status)) {
+      if (ofd != UNSET) {
         _max_fd = (ofd > _max_fd) ? ofd : _max_fd;
         FD_SET(ofd, &EventManager::_read_set);
         FD_SET(ofd, &EventManager::_write_set);

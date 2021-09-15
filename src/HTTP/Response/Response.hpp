@@ -62,6 +62,7 @@ class Response	{
 		int						getCgiFD( void ) const;
 
 		void					setUploadFd( int fd );
+		int						getOutputFd( void ) const;
 		int						getUploadFd( void ) const;
 		files::File const & 	getFileInst( void ) const;
 		int						getFileFD( void ) const;

@@ -84,6 +84,7 @@ files::File const& Response::getFileInst(void) const { return _file; }
 int Response::getFileFD(void) const { return _file.getFD(); }
 
 void	Response::setUploadFd( int fd ) { _uploadFd = fd; }
+int		Response::getOutputFd( void ) const { return _file.getFD() ; }
 int		Response::getUploadFd( void ) const { return _uploadFd; }
 status::StatusCode Response::getStatusCode(void) const { return _statusCode; }
 std::string& Response::getBuffer(void) { return _htmlBuffer; }

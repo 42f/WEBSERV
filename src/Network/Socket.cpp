@@ -57,7 +57,8 @@ void Socket::unset_status(int status) { _status &= ~status; }
 ***************************************************/
 
 int Socket::get_skt_fd() const { return _fd; }
-int Socket::get_o_fd() const { return _ofd; }
+// int Socket::get_o_fd() const { return _ofd; }
+int Socket::get_o_fd() const { return _response_handler.getResponse().getOutputFd(); }
 int Socket::get_u_fd() const { return _response_handler.getResponse().getUploadFd(); }
 int Socket::get_port(void) const { return _port; }
 int Socket::get_status(void) const { return _status; }

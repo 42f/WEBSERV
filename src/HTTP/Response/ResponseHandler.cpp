@@ -58,12 +58,12 @@ void ResponseHandler::init(RequestHandler& reqHandler, int receivedPort) {
 int ResponseHandler::processRequest() {
   if (_requestHandler._req.is_err()) {
     GetMethod(*this).makeStandardResponse(_requestHandler._req.unwrap_err());
-    return getOutputFd();
+    return pickOutputFd();
   }
   std::string host = getReqHeader("Host");
   if (host.empty()) {
     GetMethod(*this).makeStandardResponse(status::BadRequest);
-    return getOutputFd();
+    return pickOutputFd();
   }
   _serv = network::ServerPool::getServerMatch(host, _port);
   _loc = network::ServerPool::getLocationMatch(_serv, _req.target);
@@ -74,31 +74,31 @@ int ResponseHandler::processRequest() {
     std::stringstream allowed;
     allowed << _loc.get_methods();
     _resp.setHeader(headerTitle::Allow, allowed.str());
-    return getOutputFd();
+    return pickOutputFd();
   }
 
   // If any payload, check if acceptable size
   if (_loc.get_body_size() < _req.get_body().size()) {
     _method->makeStandardResponse(status::PayloadTooLarge);
-    return getOutputFd();
+    return pickOutputFd();
   }
 
   // Check if the location resolved has a redirection in place
   redirect red = _loc.get_redirect();
   if (red.status != 0) {
     _method->manageRedirect(red);
-    return getOutputFd();
+    return pickOutputFd();
   }
 
   if (_loc.get_root().empty()) {
     _method->makeStandardResponse(status::Forbidden);
-    return getOutputFd();
+    return pickOutputFd();
   }
   _method->handler();
-  return getOutputFd();
+  return pickOutputFd();
 }
 
-int ResponseHandler::getOutputFd() {
+int ResponseHandler::pickOutputFd() {
   if (_resp.getState() & respState::cgiResp) {
     return _resp.getCgiFD();
   } else if (_resp.getState() & respState::fileResp) {
