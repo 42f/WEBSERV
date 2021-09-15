@@ -34,6 +34,7 @@ Response::~Response() {}
 
 void Response::reset(Version const& vers, status::StatusCode code) {
   _respState = respState::emptyResp;
+  _file.closeFile();
   _version = vers;
   _statusCode = code;
   _headers.clear();
