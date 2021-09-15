@@ -82,13 +82,10 @@ void Socket::process_request(fd_set const & writeSet) {
 
   if (_is_processed == false) {
     _ofd = _response_handler.processRequest();
-    if (resp.getUploadFd() == UNSET) {
-      setOfdStatus();
-    }
+    setOfdStatus();
     _is_processed = true;
   } else if (FD_ISSET(resp.getUploadFd(), &writeSet)) {
     _response_handler.doWriteBody();
-    setOfdStatus();
   }
 }
 
@@ -98,8 +95,6 @@ void Socket::setOfdStatus() {
   else
     _status |= fd_status::ofd_usable;
 }
-
-void Socket::doWriteBody(void) { _response_handler.doWriteBody(); }
 
 int Socket::do_send() { return _response_handler.doSend(_fd); }
 

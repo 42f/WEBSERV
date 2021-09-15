@@ -40,7 +40,6 @@ class ResponseHandler {
   int doSend(int fdDest, int flags = MSG_NOSIGNAL);
 #endif
 
-  bool isReady(void);
   Response const& getResponse(void) const;
   Request const& getRequest(void) const;
 
@@ -64,6 +63,7 @@ class ResponseHandler {
 
   int doSendFromFD(int fdSrc, int fdDest, int flags);
   void sendHeaders(int fdDest, int flags);
+  void handleCgiError( cgi_status::status error );
   void sendCgiHeaders(int fdDest, int flags);
   void sendFromBuffer(int fdDest, int flags);
   void sendFromCgi(int fdDest, int flags);

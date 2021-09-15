@@ -14,9 +14,9 @@ CGI::~CGI() {
 int CGI::get_pid(void) const { return (_child_pid); }
 int CGI::get_fd(void) const { return (_pipe); }
 
-bool CGI::isPipeEmpty(void) const {
+bool CGI::isPipeEmpty(int fd) const {
   unsigned long bytesAvailable = 0;
-  if (ioctl(_pipe, FIONREAD, &bytesAvailable) == -1) {
+  if (ioctl(fd, FIONREAD, &bytesAvailable) == -1) {
     perror("iotctl");
     bytesAvailable = 0;
   }
@@ -45,9 +45,9 @@ cgi_status::status CGI::status(void) {
     } else {
       _status = cgi_status::DONE;
     }
-  } else if (ret == 0 && isPipeEmpty() == false) {
+  } else if (ret == 0 && isPipeEmpty(_pipe) == false) {
     _status = cgi_status::READABLE;
-  } else if (ret == 0 && isPipeEmpty() == true) {
+  } else if (ret == 0 && isPipeEmpty(_pipe) == true) {
     _status = cgi_status::WAITING;
   } else if (ret < 0) {
     _status = cgi_status::SYSTEM_ERROR;
@@ -58,7 +58,7 @@ cgi_status::status CGI::status(void) {
 std::string const &CGI::getCgiHeader(void) const { return _cgiHeaders; }
 
 void CGI::setCgiHeader(void) {
-  if (_cgiHeaders.empty() && isPipeEmpty() == false) {
+  if (_cgiHeaders.empty() && isPipeEmpty(_pipe) == false) {
     char cBuff;
     int retRead = 1;
     while ((retRead = read(_pipe, &cBuff, 1)) > 0) {
@@ -164,29 +164,36 @@ int CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     close(output[1]);
     close(output[0]);
     chdir(exec_path.c_str());
+
+    // char buff[1024];
+    // bzero(buff, 1024);
+    // std::cerr << " read = " << read(STDIN_FILENO, buff, 1023) << std::endl;
+    // std::cerr << " read ->" << buff << std::endl;
+
     execve(args[0], args, env);
     exit(-1);
   } else {
+
     _cgiTimer.start();
     _status = cgi_status::WAITING;
-
-    close(input[0]);
-    close(input[1]);
-    _pipe = output[0];
-
-    fcntl(_pipe, F_SETFL, O_NONBLOCK);
-    fcntl(output[1], F_SETFL, O_NONBLOCK);
 
     free(cgi);
     for (i = 0; i < _variables.size(); i++) {
       free(env[i]);
     }
 
+    close(input[0]);
+    close(output[1]);
+
+    _pipe = output[0];
+    fcntl(_pipe, F_SETFL, O_NONBLOCK);
+
     if (req.get_body().empty()) {
-      close(output[1]);
+      close(input[1]);
       return UNSET;
     } else {
-      return output[1];
+      fcntl(input[1], F_SETFL, O_NONBLOCK);
+      return input[1];
     }
   }
 }

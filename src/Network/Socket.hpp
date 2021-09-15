@@ -120,11 +120,10 @@ class Socket {
   int get_u_fd(void) const;
   int get_port(void) const;
   int get_status(void) const;
-  bool response_is_ready(void);
   std::string get_client_ip(void) const;
   void process_request( fd_set const & writeSet );
   int do_send();
-  void  doWriteBody(void);
+  void doWriteBody(void);
 
   int manage_response();
   void manage_raw_request(char *buffer, int size);

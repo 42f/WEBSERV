@@ -118,18 +118,16 @@ void ResponseHandler::doWriteBody( void ) {
   if (uploadFd != UNSET) {
     const std::vector<char>& body = _req.get_body();
     if (body.size() > 0) {
-      int ret, offset = 0;
+      int ret = 0;
+      int offset = 0;
       int leftOver = body.size();
       while (ret >= 0 && leftOver > 0) {
-        ret = write(uploadFd, body.data() + offset, body.size() - 10);
+        ret = write(uploadFd, body.data() + offset, leftOver);
         leftOver -= ret;
         offset += ret;
       }
-      if (ret < 0) {
-        _resp.getState() = respState::ioError;
-      }
     }
-    close(uploadFd);
+    // close(uploadFd); // TODO close here ?
     _resp.setUploadFd(UNSET);
   }
 }
@@ -158,12 +156,6 @@ int ResponseHandler::doSend(int fdDest, int flags) {
   else
     return RESPONSE_AVAILABLE;
 }
-
-bool ResponseHandler::isReady() {
-  int state = _resp.getState();
-  return state != respState::emptyResp &&
-         (state & (respState::ioError | respState::entirelySent)) == false;
-};
 
 void ResponseHandler::sendHeaders(int fdDest, int flags) {
   int& state = _resp.getState();
@@ -197,6 +189,16 @@ status::StatusCode ResponseHandler::pickCgiError(
   }
 }
 
+void ResponseHandler::handleCgiError( cgi_status::status cgiStatus ) {
+  int& respStatus = _resp.getState();
+  if ((respStatus & respState::headerSent) == false) {
+    return _method->makeStandardResponse(pickCgiError(cgiStatus));
+  } else {
+    respStatus = respState::ioError;
+    return;
+  }
+}
+
 void ResponseHandler::sendFromCgi(int fdDest, int flags) {
   int& respStatus = _resp.getState();
   if ((respStatus & respState::headerSent) == false)
@@ -206,12 +208,7 @@ void ResponseHandler::sendFromCgi(int fdDest, int flags) {
   if (cgiStatus == cgi_status::WAITING) {
     return;
   } else if (STATUS_IS_ERROR(cgiStatus)) {
-    if ((respStatus & respState::headerSent) == false) {
-      return _method->makeStandardResponse(pickCgiError(cgiStatus));
-    } else {
-      respStatus = respState::ioError;
-      return;
-    }
+    return handleCgiError(cgiStatus);
   }
 
   if ((respStatus & respState::headerSent) == false) sendHeaders(fdDest, flags);
