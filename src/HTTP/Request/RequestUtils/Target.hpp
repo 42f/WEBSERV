@@ -5,6 +5,7 @@
 #ifndef WEBSERV_TARGET_HPP
 #define WEBSERV_TARGET_HPP
 
+#include <algorithm>
 #include "Charset.hpp"
 
 struct Target
@@ -17,6 +18,16 @@ public:
 	std::string 	decoded_query;
 
 private:
+
+	static bool predDoubleShash(char a, char b) {
+		return a == '/' && b =='/';
+	}
+
+	static std::string cleanExtraSlashes(std::string path) {
+		std::string::iterator it = std::unique(path.begin(), path.end(), predDoubleShash);
+		path.resize( std::distance(path.begin(), it));
+		return path;
+	}
 
 	static std::string 	decode(const std::string &input)
 	{
@@ -43,7 +54,8 @@ public:
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 	Target(): scheme(""), path(""), query(""), decoded_path("") { }
-	Target(std::string &path, slice query): scheme("http"), path(path), query(query.to_string()) {
+	Target(std::string &path, slice query): scheme("http"), query(query.to_string()) {
+		this->path = cleanExtraSlashes(path);
 		decoded_path = decode(this->path);
 		decoded_query = decode(this->query);
 	}
