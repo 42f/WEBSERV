@@ -17,8 +17,10 @@ void exit_server(int sig) {
   std::list<network::Socket>::const_iterator itr;
   for (itr = network::EventManager::get_sockets().begin();
        itr != network::EventManager::get_sockets().end(); itr++) {
-    if (itr->get_cgi_pid() != UNSET)
+    if (itr->get_cgi_pid() != UNSET) {
       kill(itr->get_cgi_pid(), SIGINT);
+      waitpid(itr->get_cgi_pid(), NULL, WNOHANG);
+    }
     close(itr->get_skt_fd());
   }
   std::cout << "\rOpen Connections: " << network::EventManager::get_size()
