@@ -31,7 +31,7 @@ class ResponseHandler {
 
  public:
   void init(RequestHandler& reqHandler, int receivedPort);
-  int processRequest(void);
+  void processRequest(void);
 
   void doWriteBody(void);
 #if __APPLE__
@@ -103,11 +103,17 @@ class ResponseHandler {
       return output;
     }
 
-  //  private:
+   private:
     virtual std::string removeLocPath(std::string const& target) {
-      if (target.find(_inst._loc.get_path()) == 0)
-        return target.substr(_inst._loc.get_path().length());
-      return target;
+
+      std::string output(target);
+
+      std::string locPath = _inst._loc.get_path();
+      if (output[output.length() - 1] != '/' && locPath[locPath.length() - 1] == '/')
+        output += "/";
+      if (output.find(locPath) == 0)
+        return output.substr(locPath.length());
+      return output;
     }
 
    public:
@@ -116,6 +122,7 @@ class ResponseHandler {
       int uploadFd = cgiInst.execute_cgi(cgiBin, _inst._resp.getFileInst(),
         _inst._req, _inst._serv);
       setRespForCgi();
+      _inst._resp.getFileInst().closeFile();
       _inst._resp.setStatus(status::Ok);
       _inst._resp.setUploadFd(uploadFd);
     }
@@ -133,21 +140,24 @@ class ResponseHandler {
 
     void makeStandardResponse(status::StatusCode code,
                               const std::string& optionalMessage = "") {
-      _inst._resp.reset(Version(), code);
+
+      Response & resp = _inst._resp;
+      resp.reset(Version(), code);
       std::map<int, std::string> const& err_pages =
           _inst._serv.get_error_pages();
 
       std::map<int, std::string>::const_iterator errIt = err_pages.find(code);
-      struct stat st;
-      if (errIt != err_pages.end() && stat(errIt->second.c_str(), &st) == 0 &&
-          !S_ISDIR(st.st_mode)) {
+
+      if (errIt != err_pages.end()) {
         std::string errorPagePath = err_pages.find(code)->second;
-        _inst._resp.setFile(errorPagePath);
-        if (_inst._resp.getFileInst().isGood()) {
-          return setRespForFile();
-        }
+        resp.setFile(errorPagePath);
       }
-      setRespForErrorBuff(optionalMessage);
+      if (resp.getFileInst().isGood() && resp.getFileInst().isFile()) {
+        return setRespForFile();
+      } else {
+        resp.reset(Version(), code);
+        return setRespForErrorBuff(optionalMessage);
+      }
     }
 
     void setRespNoBody(status::StatusCode code) {
@@ -351,7 +361,6 @@ class ResponseHandler {
                              O_CREAT | O_WRONLY, 0644);
       if (uploadFile.isGood()) {
         _inst._resp.setUploadFile(uploadFile.getPath());
-        std::cerr << "UFD = " << _inst._resp.getUploadFd() << " in " << __func__ << std::endl; // TODO Remove
         return makeStandardResponse(status::Accepted);
       } else {
         return makeStandardResponse(status::Conflict,
@@ -379,7 +388,7 @@ class ResponseHandler {
 #endif
 
       _inst._resp.setFile(target);
-      files::File const& file = _inst._resp.getFileInst();
+      files::File & file = _inst._resp.getFileInst();
 
       if (file.isGood() && file.isFile()) {
         return doDeleteFile(target);
@@ -389,6 +398,7 @@ class ResponseHandler {
         return makeStandardResponse(status::Conflict,
                                     strerror(file.getError()));
       }
+      file.closeFile();
     }
 
     void doDeleteFile(std::string const& target) {

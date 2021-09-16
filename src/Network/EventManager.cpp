@@ -86,15 +86,14 @@ void EventManager::do_select(void) {
       _max_fd = (skfd > _max_fd) ? skfd : _max_fd;
       FD_SET(skfd, &EventManager::_read_set);
       FD_SET(skfd, &EventManager::_write_set);
+
       if (ufd != UNSET) {
         _max_fd = (ufd > _max_fd) ? ufd : _max_fd;
         FD_SET(ufd, &EventManager::_write_set);
       }
-      // if (HAS_OFD_USABLE(status)) {
       if (ofd != UNSET) {
         _max_fd = (ofd > _max_fd) ? ofd : _max_fd;
         FD_SET(ofd, &EventManager::_read_set);
-        FD_SET(ofd, &EventManager::_write_set);
       }
     }
   }
@@ -211,18 +210,20 @@ void EventManager::send_response(void) {
        itr != EventManager::_sockets.end(); ++itr) {
     int st = itr->get_status();
     if (FULL_SKT_WR(itr->get_skt_fd(), st)) {
-      itr->process_request(EventManager::_write_set);
+
+      itr->process_request();
+
+      int ufd = itr->get_u_fd();
+      if (ufd != UNSET && FD_ISSET(ufd, &EventManager::_write_set)) {
+        itr->write_body();
+      }
+
       st = itr->get_status();
       int ofd = itr->get_o_fd();
-      if (HAS_OFD_NO_NEED(st) ||
-          (FD_ISSET(ofd, &EventManager::_read_set) && HAS_OFD_USABLE(st))) {
+      if (ofd == UNSET || FD_ISSET(ofd, &EventManager::_read_set)) {
         if (itr->do_send() == RESPONSE_SENT_ENTIRELY) {
           itr->unset_status(fd_status::skt_writable);
           itr->set_status(fd_status::skt_closable);
-          if (HAS_OFD_USABLE(st)) {
-            itr->unset_status(fd_status::ofd_usable);
-            itr->set_status(fd_status::ofd_closable);
-          }
         }
       }
     }

@@ -121,7 +121,8 @@ class Socket {
   int get_port(void) const;
   int get_status(void) const;
   std::string get_client_ip(void) const;
-  void process_request( fd_set const & writeSet );
+  void process_request( void );
+  void write_body( void );
   int do_send();
   void doWriteBody(void);
 

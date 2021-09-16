@@ -81,6 +81,7 @@ CGI const & Response::getCgiInst(void) const { return _cgi; }
 int Response::getCgiFD(void) const { return _cgi.get_readable_pipe(); }
 
 files::File const& Response::getFileInst(void) const { return _file; }
+files::File & Response::getFileInst(void) { return _file; }
 int Response::getFileFD(void) const { return _file.getFD(); }
 
 void	Response::setUploadFd( int fd ) { _uploadFd = fd; }

@@ -64,6 +64,7 @@ class Response	{
 		void					setUploadFd( int fd );
 		int						getOutputFd( void ) const;
 		int						getUploadFd( void ) const;
+		files::File &		 	getFileInst( void );
 		files::File const & 	getFileInst( void ) const;
 		int						getFileFD( void ) const;
 		status::StatusCode		getStatusCode( void ) const;

@@ -83,7 +83,7 @@ public:
 	static	LocationConfig	*redirection(redirect ret);
 	static	LocationConfig	*dump(slice unused);
 
-	std::string				get_path() const;
+	std::string	const &		get_path() const;
 	methods::Methods		get_methods() const;
 	bool					has_auto_index() const;
 	bool					get_upload() const;

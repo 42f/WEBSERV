@@ -149,7 +149,7 @@ LocationConfig	&LocationConfig::set_redirect(redirect ret)
 ** --------------------------------- GETTER   ---------------------------------
 */
 
-std::string				LocationConfig::get_path() const { return _path; }
+std::string	const &		LocationConfig::get_path() const { return _path; }
 methods::Methods		LocationConfig::get_methods() const { return _methods; }
 bool					LocationConfig::has_auto_index() const { return _auto_index; }
 bool					LocationConfig::get_upload() const { return _upload; }

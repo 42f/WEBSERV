@@ -55,15 +55,13 @@ void ResponseHandler::init(RequestHandler& reqHandler, int receivedPort) {
   }
 }
 
-int ResponseHandler::processRequest() {
+void ResponseHandler::processRequest() {
   if (_requestHandler._req.is_err()) {
-    GetMethod(*this).makeStandardResponse(_requestHandler._req.unwrap_err());
-    return pickOutputFd();
+    return GetMethod(*this).makeStandardResponse(_requestHandler._req.unwrap_err());
   }
   std::string host = getReqHeader("Host");
   if (host.empty()) {
-    GetMethod(*this).makeStandardResponse(status::BadRequest);
-    return pickOutputFd();
+    return GetMethod(*this).makeStandardResponse(status::BadRequest);
   }
   _serv = network::ServerPool::getServerMatch(host, _port);
   _loc = network::ServerPool::getLocationMatch(_serv, _req.target);
@@ -73,38 +71,24 @@ int ResponseHandler::processRequest() {
     _method->makeStandardResponse(status::MethodNotAllowed);
     std::stringstream allowed;
     allowed << _loc.get_methods();
-    _resp.setHeader(headerTitle::Allow, allowed.str());
-    return pickOutputFd();
+    return _resp.setHeader(headerTitle::Allow, allowed.str());
   }
 
   // If any payload, check if acceptable size
   if (_loc.get_body_size() < _req.get_body().size()) {
-    _method->makeStandardResponse(status::PayloadTooLarge);
-    return pickOutputFd();
+    return _method->makeStandardResponse(status::PayloadTooLarge);
   }
 
   // Check if the location resolved has a redirection in place
   redirect red = _loc.get_redirect();
   if (red.status != 0) {
-    _method->manageRedirect(red);
-    return pickOutputFd();
+    return _method->manageRedirect(red);
   }
 
   if (_loc.get_root().empty()) {
-    _method->makeStandardResponse(status::Forbidden);
-    return pickOutputFd();
+    return _method->makeStandardResponse(status::Forbidden);
   }
-  _method->handler();
-  return pickOutputFd();
-}
-
-int ResponseHandler::pickOutputFd() {
-  if (_resp.getState() & respState::cgiResp) {
-    return _resp.getCgiFD();
-  } else if (_resp.getState() & respState::fileResp) {
-    return _resp.getFileFD();
-  }
-  return RESPONSE_NO_FD;
+  return _method->handler();
 }
 
 // safely returns the value of a header if it exists, an empty string otherwise
@@ -117,8 +101,8 @@ void ResponseHandler::doWriteBody( void ) {
 
   if (uploadFd != UNSET) {
     const std::vector<char>& body = _req.get_body();
+    int ret = 1;
     if (body.size() > 0) {
-      int ret = 0;
       int offset = 0;
       int leftOver = body.size();
       while (ret >= 0 && leftOver > 0) {
@@ -127,8 +111,13 @@ void ResponseHandler::doWriteBody( void ) {
         offset += ret;
       }
     }
-    // close(uploadFd); // TODO close here ?
-    _resp.setUploadFd(UNSET);
+    if (ret < 0) {
+     _method->makeStandardResponse(status::InternalServerError);
+    }
+    if (ret < 1) {
+      close(uploadFd); // TODO close here ?
+      _resp.setUploadFd(UNSET);
+    }
   }
 }
 
@@ -151,10 +140,12 @@ int ResponseHandler::doSend(int fdDest, int flags) {
   else if (state & respState::noBodyResp)
     sendHeaders(fdDest, flags);
 
-  if (state & (respState::entirelySent | respState::ioError))
+  if (state & (respState::entirelySent | respState::ioError)) {
+    _resp.getFileInst().closeFile();
     return RESPONSE_SENT_ENTIRELY;
-  else
+  } else {
     return RESPONSE_AVAILABLE;
+  }
 }
 
 void ResponseHandler::sendHeaders(int fdDest, int flags) {
