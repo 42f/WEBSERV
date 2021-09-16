@@ -24,12 +24,14 @@ bool CGI::isPipeEmpty(int fd) const {
 }
 
 cgi_status::status CGI::status(void) {
-  if (_cgiTimer.getTimeElapsed() >= CGI_TIMEOUT) {
-    _status = cgi_status::TIMEOUT;
+
+  if (_status == cgi_status::NON_INIT ||
+      _status == cgi_status::DONE || STATUS_IS_ERROR(_status)) {
     return _status;
   }
 
-  if (_status == cgi_status::DONE || STATUS_IS_ERROR(_status)) {
+  if (_cgiTimer.getTimeElapsed() >= CGI_TIMEOUT) {
+    _status = cgi_status::TIMEOUT;
     return _status;
   }
 

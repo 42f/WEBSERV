@@ -82,10 +82,8 @@ void Socket::process_request() {
   if (_is_processed == false) {
     _response_handler.processRequest();
     _is_processed = true;
-  } else {
-
-    //check timeout
   }
+  _response_handler.checkCgiTimeout();
 }
 
 void Socket::write_body() {

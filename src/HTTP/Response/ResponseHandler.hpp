@@ -32,6 +32,7 @@ class ResponseHandler {
  public:
   void init(RequestHandler& reqHandler, int receivedPort);
   void processRequest(void);
+  void checkCgiTimeout();
 
   void doWriteBody(void);
 #if __APPLE__
@@ -52,16 +53,15 @@ class ResponseHandler {
  private:
   RequestHandler& _requestHandler;
   Request _req;
-  int _port;
   config::Server _serv;
   LocationConfig _loc;
   A_Method* _method;
   Response _resp;
 
+  int _port;
   int _uploadLeftOver;
 
   std::string getReqHeader(const std::string& target);
-
 
   int doSendFromFD(int fdSrc, int fdDest, int flags);
   void sendHeaders(int fdDest, int flags);
@@ -71,8 +71,6 @@ class ResponseHandler {
   void sendFromCgi(int fdDest, int flags);
   void sendFromFile(int fdDest, int flags);
 
-  void manageRedirect(redirect const& red);
-  int pickOutputFd(void);
   status::StatusCode pickCgiError(cgi_status::status cgiStat) const;
 
   void logData( void );

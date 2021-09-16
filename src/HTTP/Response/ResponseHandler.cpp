@@ -3,7 +3,7 @@
 /* ............................... CONSTRUCTOR ...............................*/
 
 ResponseHandler::ResponseHandler(RequestHandler& reqHandler, int receivedPort)
-    : _requestHandler(reqHandler), _port(0), _method(NULL), _uploadLeftOver(0) {
+    : _requestHandler(reqHandler),_method(NULL), _port(0), _uploadLeftOver(0) {
   this->init(reqHandler, receivedPort);
 }
 
@@ -103,24 +103,17 @@ void ResponseHandler::doWriteBody( void ) {
     const std::vector<char>& body = _req.get_body();
     int ret = 0;
     if (body.size() > 0) {
-
       int offset = body.size() - _uploadLeftOver;
       ret = write(uploadFd, body.data() + offset, _uploadLeftOver);
       _uploadLeftOver -= ret;
-      // int offset = 0;
-      // int leftOver = body.size();
-      // while (ret >= 0 && leftOver > 0) {
-      //   ret = write(uploadFd, body.data() + offset, leftOver);
-      //   leftOver -= ret;
-      //   offset += ret;
-      // }
     }
-    if (ret < 0) {
-     _method->makeStandardResponse(status::InternalServerError);
-    }
-    if (ret == 0) {
-      // close(uploadFd); // TODO close here ?
+    if (ret < 1) {
+      close(uploadFd);
       _resp.setUploadFd(UNSET);
+      if (ret < 0)
+        return _method->makeStandardResponse(status::InternalServerError);
+      else
+        return ;
     }
   }
 }
@@ -165,6 +158,21 @@ void ResponseHandler::sendHeaders(int fdDest, int flags) {
       state |= respState::headerSent | respState::entirelySent;
     else
       state |= respState::headerSent;
+  }
+}
+
+void ResponseHandler::checkCgiTimeout() {
+  cgi_status::status cgiStatus = _resp.getCgiInst().status();
+  if (cgiStatus == cgi_status::NON_INIT)
+    return ;
+
+  if (STATUS_IS_ERROR(cgiStatus)) {
+    int uploadFd = _resp.getUploadFd();
+    if (uploadFd != UNSET) {
+      close(uploadFd);
+      _resp.setUploadFd(UNSET);
+    }
+    return handleCgiError(cgiStatus);
   }
 }
 
