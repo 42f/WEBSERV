@@ -58,6 +58,8 @@ class ResponseHandler {
   A_Method* _method;
   Response _resp;
 
+  int _uploadLeftOver;
+
   std::string getReqHeader(const std::string& target);
 
 
@@ -98,22 +100,20 @@ class ResponseHandler {
       std::string file = removeLocPath(target);
 
       output = _inst._loc.get_root();
-      if (file[0] != '/' && output[output.length() - 1] != '/') output += '/';
+      if (file[0] != '/' && output[output.length() - 1] != '/')
+        output += '/';
       output += file;
       return output;
     }
 
    private:
     virtual std::string removeLocPath(std::string const& target) {
+      std::string locPath(_inst._loc.get_path());
 
-      std::string output(target);
-
-      std::string locPath = _inst._loc.get_path();
-      if (output[output.length() - 1] != '/' && locPath[locPath.length() - 1] == '/')
-        output += "/";
-      if (output.find(locPath) == 0)
-        return output.substr(locPath.length());
-      return output;
+      if (locPath.length() > 0 && target.find(locPath) == 0) {
+        return target.substr(locPath.length());
+      }
+      return target;
     }
 
    public:
@@ -125,6 +125,7 @@ class ResponseHandler {
       _inst._resp.getFileInst().closeFile();
       _inst._resp.setStatus(status::Ok);
       _inst._resp.setUploadFd(uploadFd);
+      _inst._uploadLeftOver = _inst._req.get_body().size();
     }
 
     std::string getCgiBinPath(void) {
@@ -361,6 +362,7 @@ class ResponseHandler {
                              O_CREAT | O_WRONLY, 0644);
       if (uploadFile.isGood()) {
         _inst._resp.setUploadFile(uploadFile.getPath());
+        _inst._uploadLeftOver = _inst._req.get_body().size();
         return makeStandardResponse(status::Accepted);
       } else {
         return makeStandardResponse(status::Conflict,

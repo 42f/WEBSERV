@@ -58,6 +58,9 @@ void ServerPool::locationsInit(config::Server &serv) {
     std::vector<LocationConfig>::iterator it = locations.begin();
     std::vector<LocationConfig>::iterator ite = locations.end();
     for (; it != ite; it++) {
+      std::string & path = it->get_path();
+      if (path != "/" && path[path.length() - 1] == '/')
+        path.resize(path.length() - 1);
       it->_root.assign((it->_root.empty()) ? serv.get_root() : it->_root);
       it->_index.assign((it->_index.empty()) ? serv.get_index() : it->_index);
       it->_body_size = (it->_body_size == LocationConfig::SIZE_UNSET)

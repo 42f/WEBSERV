@@ -3,7 +3,7 @@
 /* ............................... CONSTRUCTOR ...............................*/
 
 ResponseHandler::ResponseHandler(RequestHandler& reqHandler, int receivedPort)
-    : _requestHandler(reqHandler), _port(0), _method(NULL) {
+    : _requestHandler(reqHandler), _port(0), _method(NULL), _uploadLeftOver(0) {
   this->init(reqHandler, receivedPort);
 }
 
@@ -101,21 +101,25 @@ void ResponseHandler::doWriteBody( void ) {
 
   if (uploadFd != UNSET) {
     const std::vector<char>& body = _req.get_body();
-    int ret = 1;
+    int ret = 0;
     if (body.size() > 0) {
-      int offset = 0;
-      int leftOver = body.size();
-      while (ret >= 0 && leftOver > 0) {
-        ret = write(uploadFd, body.data() + offset, leftOver);
-        leftOver -= ret;
-        offset += ret;
-      }
+
+      int offset = body.size() - _uploadLeftOver;
+      ret = write(uploadFd, body.data() + offset, _uploadLeftOver);
+      _uploadLeftOver -= ret;
+      // int offset = 0;
+      // int leftOver = body.size();
+      // while (ret >= 0 && leftOver > 0) {
+      //   ret = write(uploadFd, body.data() + offset, leftOver);
+      //   leftOver -= ret;
+      //   offset += ret;
+      // }
     }
     if (ret < 0) {
      _method->makeStandardResponse(status::InternalServerError);
     }
-    if (ret < 1) {
-      close(uploadFd); // TODO close here ?
+    if (ret == 0) {
+      // close(uploadFd); // TODO close here ?
       _resp.setUploadFd(UNSET);
     }
   }
@@ -129,6 +133,7 @@ int ResponseHandler::doSend(int fdDest, int flags) {
   int& state = _resp.getState();
   if (state == respState::emptyResp ||
       state & (respState::entirelySent | respState::ioError)) {
+    _resp.getFileInst().closeFile();
     return RESPONSE_SENT_ENTIRELY;
   }
   if (state & respState::cgiResp) {

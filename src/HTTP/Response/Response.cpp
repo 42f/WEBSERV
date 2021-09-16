@@ -85,11 +85,17 @@ files::File & Response::getFileInst(void) { return _file; }
 int Response::getFileFD(void) const { return _file.getFD(); }
 
 void	Response::setUploadFd( int fd ) { _uploadFd = fd; }
-int		Response::getOutputFd( void ) const { return _file.getFD() ; }
+int		Response::getOutputFd( void ) const {
+  if (getState() & respState::cgiResp)
+    return _cgi.get_readable_pipe();
+  else
+    return _file.getFD() ;
+  }
 int		Response::getUploadFd( void ) const { return _uploadFd; }
 status::StatusCode Response::getStatusCode(void) const { return _statusCode; }
 std::string& Response::getBuffer(void) { return _htmlBuffer; }
 int& Response::getState(void) { return _respState; }
+int const & Response::getState(void) const { return _respState; }
 
 void Response::loadErrorHtmlBuffer(const status::StatusCode& code,
                                    const std::string& optionalMessage) {

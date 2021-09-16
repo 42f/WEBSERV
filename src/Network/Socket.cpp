@@ -83,6 +83,7 @@ void Socket::process_request() {
     _response_handler.processRequest();
     _is_processed = true;
   } else {
+
     //check timeout
   }
 }

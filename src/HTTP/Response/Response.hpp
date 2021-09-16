@@ -70,6 +70,7 @@ class Response	{
 		status::StatusCode		getStatusCode( void ) const;
 		std::string &			getBuffer( void );
 		int &					getState( void );
+		int const &				getState( void ) const;
 
 		void	reset( Version const & vers = Version(), status::StatusCode code = status::None );
 

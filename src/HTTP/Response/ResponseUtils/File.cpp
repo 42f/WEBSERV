@@ -32,7 +32,7 @@ File::~File(void) {
 void File::closeFile( void ) {
   if (_fd != FD_UNSET) {
     int ret = close(_fd);
-    std::cout << "close file: " << _path << " = " << ret << std::endl;
+    std::cout << "close fd " << _fd << " file: " << _path << " = " << ret << std::endl;
     _fd = FD_UNSET;
   } else {
     std::cout << "FD UNSET, not closing file: " << _path << std::endl;
@@ -56,13 +56,13 @@ void File::init(std::string const& path, int flags, int mode) {
 }
 
 void File::openFile() {
-  std::cout << "open file: " << _path << std::endl;
   _error = 0;
   errno = 0;
   if (_flags == O_RDONLY)
     _fd = open(_path.c_str(), _flags);
   else
     _fd = open(_path.c_str(), _flags, _mode);
+  std::cout << "open fd " << _fd << " file: " << _path << std::endl;
   if (_fd < 0)
     _error = errno;
   else {
