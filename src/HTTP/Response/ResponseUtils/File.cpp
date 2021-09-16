@@ -22,16 +22,29 @@ File::File(const File& src) { *this = src; }
 /* ................................ DESTRUCTOR ...............................*/
 
 File::~File(void) {
-  if (_fd > FD_UNSET) close(_fd);
+  this->closeFile();
 }
 
 /* ................................. METHODS .................................*/
 
 /* ................................. ACCESSOR ................................*/
 
-void File::init(std::string const& path, int flags, int mode) {
+void File::closeFile( void ) {
   if (_fd != FD_UNSET) {
     close(_fd);
+    _fd = FD_UNSET;
+  }
+  _path.erase();
+  _inode = 0;
+  _flags = 0;
+  _error = 0;
+  _mode = 0;
+}
+
+void File::init(std::string const& path, int flags, int mode) {
+  if (_fd != FD_UNSET) {
+    closeFile();
+    _fd = FD_UNSET;
   }
   _path = path;
   _flags = flags;

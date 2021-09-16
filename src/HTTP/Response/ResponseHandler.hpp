@@ -31,15 +31,16 @@ class ResponseHandler {
 
  public:
   void init(RequestHandler& reqHandler, int receivedPort);
-  int processRequest(void);
+  void processRequest(void);
+  void checkCgiTimeout();
 
+  void doWriteBody(void);
 #if __APPLE__
   int doSend(int fdDest, int flags = 0);
 #else
   int doSend(int fdDest, int flags = MSG_NOSIGNAL);
 #endif
 
-  bool isReady(void);
   Response const& getResponse(void) const;
   Request const& getRequest(void) const;
 
@@ -52,21 +53,24 @@ class ResponseHandler {
  private:
   RequestHandler& _requestHandler;
   Request _req;
-  int _port;
   config::Server _serv;
   LocationConfig _loc;
   A_Method* _method;
   Response _resp;
 
+  int _port;
+  int _uploadLeftOver;
+
   std::string getReqHeader(const std::string& target);
+
+  int doSendFromFD(int fdSrc, int fdDest, int flags);
   void sendHeaders(int fdDest, int flags);
+  void handleCgiError( cgi_status::status error );
   void sendCgiHeaders(int fdDest, int flags);
   void sendFromBuffer(int fdDest, int flags);
   void sendFromCgi(int fdDest, int flags);
   void sendFromFile(int fdDest, int flags);
-  int doSendFromFD(int fdSrc, int fdDest, int flags);
-  void manageRedirect(redirect const& red);
-  int getOutputFd(void);
+
   status::StatusCode pickCgiError(cgi_status::status cgiStat) const;
 
   void logData( void );
@@ -94,25 +98,32 @@ class ResponseHandler {
       std::string file = removeLocPath(target);
 
       output = _inst._loc.get_root();
-      if (file[0] != '/' && output[output.length() - 1] != '/') output += '/';
+      if (file[0] != '/' && output[output.length() - 1] != '/')
+        output += '/';
       output += file;
       return output;
     }
 
-  //  private:
+   private:
     virtual std::string removeLocPath(std::string const& target) {
-      if (target.find(_inst._loc.get_path()) == 0)
-        return target.substr(_inst._loc.get_path().length());
+      std::string locPath(_inst._loc.get_path());
+
+      if (locPath.length() > 0 && target.find(locPath) == 0) {
+        return target.substr(locPath.length());
+      }
       return target;
     }
 
    public:
     void handleCgiFile(std::string const& cgiBin) {
       CGI& cgiInst = _inst._resp.getCgiInst();
-      cgiInst.execute_cgi(cgiBin, _inst._resp.getFileInst(), _inst._req,
-                          _inst._serv);
+      int uploadFd = cgiInst.execute_cgi(cgiBin, _inst._resp.getFileInst(),
+        _inst._req, _inst._serv);
       setRespForCgi();
+      _inst._resp.getFileInst().closeFile();
       _inst._resp.setStatus(status::Ok);
+      _inst._resp.setUploadFd(uploadFd);
+      _inst._uploadLeftOver = _inst._req.get_body().size();
     }
 
     std::string getCgiBinPath(void) {
@@ -128,21 +139,24 @@ class ResponseHandler {
 
     void makeStandardResponse(status::StatusCode code,
                               const std::string& optionalMessage = "") {
-      _inst._resp.reset(Version(), code);
+
+      Response & resp = _inst._resp;
+      resp.reset(Version(), code);
       std::map<int, std::string> const& err_pages =
           _inst._serv.get_error_pages();
 
       std::map<int, std::string>::const_iterator errIt = err_pages.find(code);
-      struct stat st;
-      if (errIt != err_pages.end() && stat(errIt->second.c_str(), &st) == 0 &&
-          !S_ISDIR(st.st_mode)) {
+
+      if (errIt != err_pages.end()) {
         std::string errorPagePath = err_pages.find(code)->second;
-        _inst._resp.setFile(errorPagePath);
-        if (_inst._resp.getFileInst().isGood()) {
-          return setRespForFile();
-        }
+        resp.setFile(errorPagePath);
       }
-      setRespForErrorBuff(optionalMessage);
+      if (resp.getFileInst().isGood() && resp.getFileInst().isFile()) {
+        return setRespForFile();
+      } else {
+        resp.reset(Version(), code);
+        return setRespForErrorBuff(optionalMessage);
+      }
     }
 
     void setRespNoBody(status::StatusCode code) {
@@ -329,7 +343,7 @@ class ResponseHandler {
         */
       } else if (file.isGood() == false && _inst._loc.get_upload() == true &&
                  file.getError() & ENOENT) {
-        return doUploadFile();
+        return handleUpload();
       } else if (file.isGood() == false && _inst._loc.get_upload() == true) {
         return makeStandardResponse(status::Conflict, strerror(file.getError()));
       }
@@ -340,26 +354,14 @@ class ResponseHandler {
       return makeStandardResponse(status::Forbidden);
     }
 
-    void doUploadFile() {
+    void handleUpload() {
       files::File const& requestedFile = _inst._resp.getFileInst();
-
       files::File uploadFile(requestedFile.getPath(),
-                             O_CREAT | O_TRUNC | O_WRONLY, 0644);
+                             O_CREAT | O_WRONLY, 0644);
       if (uploadFile.isGood()) {
-        size_t len = _inst._req.get_body().size();
-        if (len > 0) {
-          char const* data = _inst._req.get_body().data();
-
-          // TODO -> do select here ??
-
-          size_t ret = write(uploadFile.getFD(), data, len);
-          if (ret > 0)
-            return makeStandardResponse(status::Accepted);
-          else
-            return makeStandardResponse(status::InternalServerError);
-        } else {
-          return makeStandardResponse(status::Accepted);
-        }
+        _inst._resp.setUploadFile(uploadFile.getPath());
+        _inst._uploadLeftOver = _inst._req.get_body().size();
+        return makeStandardResponse(status::Accepted);
       } else {
         return makeStandardResponse(status::Conflict,
                                     strerror(uploadFile.getError()));
@@ -386,7 +388,7 @@ class ResponseHandler {
 #endif
 
       _inst._resp.setFile(target);
-      files::File const& file = _inst._resp.getFileInst();
+      files::File & file = _inst._resp.getFileInst();
 
       if (file.isGood() && file.isFile()) {
         return doDeleteFile(target);
@@ -396,6 +398,7 @@ class ResponseHandler {
         return makeStandardResponse(status::Conflict,
                                     strerror(file.getError()));
       }
+      file.closeFile();
     }
 
     void doDeleteFile(std::string const& target) {

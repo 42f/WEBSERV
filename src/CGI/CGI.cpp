@@ -3,6 +3,7 @@
 CGI::CGI(void) {
   _status = cgi_status::NON_INIT;
   _pipe = UNSET;
+  _child_pid = UNSET;
   _child_return = 0;
 }
 CGI::~CGI() {
@@ -14,9 +15,9 @@ CGI::~CGI() {
 int CGI::get_pid(void) const { return (_child_pid); }
 int CGI::get_fd(void) const { return (_pipe); }
 
-bool CGI::isPipeEmpty(void) const {
+bool CGI::isPipeEmpty(int fd) const {
   unsigned long bytesAvailable = 0;
-  if (ioctl(_pipe, FIONREAD, &bytesAvailable) == -1) {
+  if (ioctl(fd, FIONREAD, &bytesAvailable) == -1) {
     perror("iotctl");
     bytesAvailable = 0;
   }
@@ -24,12 +25,14 @@ bool CGI::isPipeEmpty(void) const {
 }
 
 cgi_status::status CGI::status(void) {
-  if (_cgiTimer.getTimeElapsed() >= CGI_TIMEOUT) {
-    _status = cgi_status::TIMEOUT;
+
+  if (_status == cgi_status::NON_INIT ||
+      _status == cgi_status::DONE || STATUS_IS_ERROR(_status)) {
     return _status;
   }
 
-  if (_status == cgi_status::DONE || STATUS_IS_ERROR(_status)) {
+  if (_cgiTimer.getTimeElapsed() >= CGI_TIMEOUT) {
+    _status = cgi_status::TIMEOUT;
     return _status;
   }
 
@@ -37,17 +40,13 @@ cgi_status::status CGI::status(void) {
 
   if (ret == _child_pid) {
     if (CGI_BAD_EXIT(_child_return)) {
-      if (WIFSIGNALED(_child_return) || WEXITSTATUS(_child_return) == 255) {
-        _status = cgi_status::SYSTEM_ERROR;
-      } else {
-        _status = cgi_status::CGI_ERROR;
-      }
+      _status = cgi_status::CGI_ERROR;
     } else {
       _status = cgi_status::DONE;
     }
-  } else if (ret == 0 && isPipeEmpty() == false) {
+  } else if (ret == 0 && isPipeEmpty(_pipe) == false) {
     _status = cgi_status::READABLE;
-  } else if (ret == 0 && isPipeEmpty() == true) {
+  } else if (ret == 0 && isPipeEmpty(_pipe) == true) {
     _status = cgi_status::WAITING;
   } else if (ret < 0) {
     _status = cgi_status::SYSTEM_ERROR;
@@ -58,7 +57,7 @@ cgi_status::status CGI::status(void) {
 std::string const &CGI::getCgiHeader(void) const { return _cgiHeaders; }
 
 void CGI::setCgiHeader(void) {
-  if (_cgiHeaders.empty() && isPipeEmpty() == false) {
+  if (_cgiHeaders.empty() && isPipeEmpty(_pipe) == false) {
     char cBuff;
     int retRead = 1;
     while ((retRead = read(_pipe, &cBuff, 1)) > 0) {
@@ -117,7 +116,7 @@ std::vector<char *> CGI::set_meta_variables(files::File const &file,
   return variables;
 }
 
-void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
+int CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
                       Request const &req, config::Server const &serv) {
   _status = cgi_status::NON_INIT;
   int output[2];
@@ -129,7 +128,7 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   char *cgi = strdup(cgi_path.c_str());
   if (cgi == NULL || file.isGood() == false) {
     _status = cgi_status::SYSTEM_ERROR;
-    return;
+    return UNSET;
   }
 
   char *env[_variables.size() + 1];
@@ -151,7 +150,7 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     for (i = 0; i < _variables.size(); i++) {
       free(env[i]);
     }
-    return;
+    return UNSET;
   }
   if (_child_pid == 0) {
     std::string exec_path = files::File::getDirFromPath(file.getPath());
@@ -164,22 +163,31 @@ void CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     close(output[1]);
     close(output[0]);
     chdir(exec_path.c_str());
+
     execve(args[0], args, env);
     exit(-1);
   } else {
+
     _cgiTimer.start();
     _status = cgi_status::WAITING;
-    if (req.get_body().size() > 0)
-      write(input[1], req.get_body().data(), req.get_body().size());  // TODO check return ?
 
-    close(output[1]);
-    close(input[0]);
-    close(input[1]);
-    _pipe = output[0];
-    // fcntl(_pipe, F_SETFL, O_NONBLOCK); // TODO necessary ??
     free(cgi);
     for (i = 0; i < _variables.size(); i++) {
       free(env[i]);
+    }
+
+    close(input[0]);
+    close(output[1]);
+
+    _pipe = output[0];
+    fcntl(_pipe, F_SETFL, O_NONBLOCK);
+
+    if (req.get_body().empty()) {
+      close(input[1]);
+      return UNSET;
+    } else {
+      fcntl(input[1], F_SETFL, O_NONBLOCK);
+      return input[1];
     }
   }
 }

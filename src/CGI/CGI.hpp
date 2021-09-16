@@ -42,7 +42,7 @@ class CGI {
   ~CGI();
 
   void execute_cgi(void);
-  void execute_cgi(std::string const &cgi_path, files::File const &file,
+  int execute_cgi(std::string const &cgi_path, files::File const &file,
                    Request const &req, config::Server const &serv);
   cgi_status::status status(void);
   int get_readable_pipe(void) const;
@@ -62,7 +62,7 @@ class CGI {
   Timer    _cgiTimer;
 
   void onReturn(char *cgi, char *env);
-  bool isPipeEmpty(void) const;
+  bool isPipeEmpty(int fd) const;
   template <typename T>
   void add_variable(std::string name, T value) {
     std::ostringstream ss;

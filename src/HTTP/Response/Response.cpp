@@ -5,7 +5,8 @@
 Response::Response()
     : _respState(respState::emptyResp),
       _version(Version('1', '1')),
-      _statusCode(status::None) {
+      _statusCode(status::None),
+      _uploadFd(UNSET) {
   setHeader("Cache-Control", "no-cache");
   setHeader("Connection", "close");
   setHeader(headerTitle::Date, Timer::getTimeNow());
@@ -15,7 +16,8 @@ Response::Response()
 Response::Response(Version version, status::StatusCode statusCode)
     : _respState(respState::emptyResp),
       _version(version),
-      _statusCode(statusCode) {
+      _statusCode(statusCode),
+      _uploadFd(UNSET) {
   setHeader("Cache-Control", "no-cache");
   setHeader("Connection", "close");
   setHeader(headerTitle::Date, Timer::getTimeNow());
@@ -23,10 +25,6 @@ Response::Response(Version version, status::StatusCode statusCode)
 }
 
 /* ..............................COPY CONSTRUCTOR.............................*/
-
-Response::Response(const Response& src) {
-  if (this != &src) *this = src;
-}
 
 /* ................................ DESTRUCTOR ...............................*/
 
@@ -36,6 +34,7 @@ Response::~Response() {}
 
 void Response::reset(Version const& vers, status::StatusCode code) {
   _respState = respState::emptyResp;
+  _file.closeFile();
   _version = vers;
   _statusCode = code;
   _headers.clear();
@@ -71,16 +70,32 @@ files::File & Response::setFile(std::string const& filePath) {
   return _file;
 }
 
+files::File & Response::setUploadFile(std::string const& filePath) {
+  _uploadFile.init(filePath, O_TRUNC | O_WRONLY, 0644);
+  _uploadFd = _uploadFile.getFD();
+  return _file;
+}
+
 CGI & Response::getCgiInst(void)  { return _cgi; }
 CGI const & Response::getCgiInst(void) const { return _cgi; }
 int Response::getCgiFD(void) const { return _cgi.get_readable_pipe(); }
 
 files::File const& Response::getFileInst(void) const { return _file; }
+files::File & Response::getFileInst(void) { return _file; }
 int Response::getFileFD(void) const { return _file.getFD(); }
 
+void	Response::setUploadFd( int fd ) { _uploadFd = fd; }
+int		Response::getOutputFd( void ) const {
+  if (getState() & respState::cgiResp)
+    return _cgi.get_readable_pipe();
+  else
+    return _file.getFD() ;
+  }
+int		Response::getUploadFd( void ) const { return _uploadFd; }
 status::StatusCode Response::getStatusCode(void) const { return _statusCode; }
 std::string& Response::getBuffer(void) { return _htmlBuffer; }
 int& Response::getState(void) { return _respState; }
+int const & Response::getState(void) const { return _respState; }
 
 void Response::loadErrorHtmlBuffer(const status::StatusCode& code,
                                    const std::string& optionalMessage) {
