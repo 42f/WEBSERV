@@ -62,6 +62,7 @@ int Socket::get_o_fd() const { return _response_handler.getResponse().getOutputF
 int Socket::get_u_fd() const { return _response_handler.getResponse().getUploadFd(); }
 int Socket::get_port(void) const { return _port; }
 int Socket::get_status(void) const { return _status; }
+int Socket::get_cgi_pid(void) const { return _response_handler.getResponse().getCgiInst().get_pid(); }
 std::string Socket::get_client_ip(void) const { return _client_ip; }
 
 /***************************************************

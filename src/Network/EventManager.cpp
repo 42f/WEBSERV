@@ -215,13 +215,11 @@ void EventManager::send_response(void) {
 
       int ufd = itr->get_u_fd();
       if (ufd != UNSET && FD_ISSET(ufd, &EventManager::_write_set)) {
-        std::cout << RED << "." << ufd << NC;
         itr->write_body();
       }
 
       int ofd = itr->get_o_fd();
       if (ufd == UNSET && (ofd == UNSET || FD_ISSET(ofd, &EventManager::_read_set))) {
-        std::cout << GREEN << "." << ofd << NC;
         if (itr->do_send() == RESPONSE_SENT_ENTIRELY) {
           itr->unset_status(fd_status::skt_writable);
           itr->set_status(fd_status::skt_closable);

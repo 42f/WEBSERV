@@ -23,7 +23,6 @@ RequestHandler::result_type RequestHandler::receive()
 {
 	Result<bool>	res = _req.unwrap().receive(_buffer);
 	if (res.is_err()) {
-		std::cout << "is this an error ?" << std::endl;
 		_status = request_status::Error;
 		return _req;
 	} else if (res.unwrap()) {

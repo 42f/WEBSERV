@@ -31,11 +31,8 @@ File::~File(void) {
 
 void File::closeFile( void ) {
   if (_fd != FD_UNSET) {
-    int ret = close(_fd);
-    std::cout << "close fd " << _fd << " file: " << _path << " = " << ret << std::endl;
+    close(_fd);
     _fd = FD_UNSET;
-  } else {
-    std::cout << "FD UNSET, not closing file: " << _path << std::endl;
   }
   _path.erase();
   _inode = 0;
@@ -62,7 +59,6 @@ void File::openFile() {
     _fd = open(_path.c_str(), _flags);
   else
     _fd = open(_path.c_str(), _flags, _mode);
-  std::cout << "open fd " << _fd << " file: " << _path << std::endl;
   if (_fd < 0)
     _error = errno;
   else {

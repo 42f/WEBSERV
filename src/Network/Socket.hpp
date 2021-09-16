@@ -120,6 +120,7 @@ class Socket {
   int get_u_fd(void) const;
   int get_port(void) const;
   int get_status(void) const;
+  int get_cgi_pid(void) const;
   std::string get_client_ip(void) const;
   void process_request( void );
   void write_body( void );

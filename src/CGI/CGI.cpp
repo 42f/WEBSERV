@@ -3,6 +3,7 @@
 CGI::CGI(void) {
   _status = cgi_status::NON_INIT;
   _pipe = UNSET;
+  _child_pid = UNSET;
   _child_return = 0;
 }
 CGI::~CGI() {
@@ -39,11 +40,7 @@ cgi_status::status CGI::status(void) {
 
   if (ret == _child_pid) {
     if (CGI_BAD_EXIT(_child_return)) {
-      if (WIFSIGNALED(_child_return) || WEXITSTATUS(_child_return) == 255) {
-        _status = cgi_status::SYSTEM_ERROR;
-      } else {
-        _status = cgi_status::CGI_ERROR;
-      }
+      _status = cgi_status::CGI_ERROR;
     } else {
       _status = cgi_status::DONE;
     }
@@ -166,11 +163,6 @@ int CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     close(output[1]);
     close(output[0]);
     chdir(exec_path.c_str());
-
-    // char buff[1024];
-    // bzero(buff, 1024);
-    // std::cerr << " read = " << read(STDIN_FILENO, buff, 1023) << std::endl;
-    // std::cerr << " read ->" << buff << std::endl;
 
     execve(args[0], args, env);
     exit(-1);

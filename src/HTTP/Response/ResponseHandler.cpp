@@ -107,7 +107,7 @@ void ResponseHandler::doWriteBody( void ) {
       ret = write(uploadFd, body.data() + offset, _uploadLeftOver);
       _uploadLeftOver -= ret;
     }
-    if (ret < 1) {
+    if (_uploadLeftOver == 0 || ret < 1) {
       close(uploadFd);
       _resp.setUploadFd(UNSET);
       if (ret < 0)
@@ -196,6 +196,11 @@ status::StatusCode ResponseHandler::pickCgiError(
 void ResponseHandler::handleCgiError( cgi_status::status cgiStatus ) {
   int& respStatus = _resp.getState();
   if ((respStatus & respState::headerSent) == false) {
+    int pid = _resp.getCgiInst().get_pid();
+    if (pid != UNSET && cgiStatus == cgi_status::TIMEOUT) {
+      kill(pid, SIGKILL);
+      waitpid(pid, NULL, 0);
+    }
     return _method->makeStandardResponse(pickCgiError(cgiStatus));
   } else {
     respStatus = respState::ioError;

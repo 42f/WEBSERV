@@ -17,12 +17,12 @@ void exit_server(int sig) {
   std::list<network::Socket>::const_iterator itr;
   for (itr = network::EventManager::get_sockets().begin();
        itr != network::EventManager::get_sockets().end(); itr++) {
-    // if (itr->get_cgi_pid() != 0)
-      // kill(itr->get_cgi_pid(), SIGINT);
+    if (itr->get_cgi_pid() != UNSET)
+      kill(itr->get_cgi_pid(), SIGINT);
     close(itr->get_skt_fd());
   }
   std::cout << "\rOpen Connections: " << network::EventManager::get_size()
-            << std::endl;
+            << std::endl; // TODO remove debug
   std::cout << "\rGot signal, Bye..." << std::endl;
   exit(0);
 }
