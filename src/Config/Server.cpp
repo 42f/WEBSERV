@@ -182,9 +182,6 @@ namespace config
 		} else
 		{
 			LogStream() << "Parsed " << cfgs.unwrap().size() << " servers\n";
-			for (std::vector<config::Server>::iterator it = cfgs.unwrap().begin(); it != cfgs.unwrap().end(); it++) {
-				std::cout << *it << std::endl;
-			}//TODO remove for(config is print)
 			return cfgs.unwrap();
 		}
 	}
