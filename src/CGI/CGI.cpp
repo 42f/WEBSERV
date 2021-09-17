@@ -7,18 +7,17 @@ CGI::CGI(void) {
   _child_return = 0;
 }
 CGI::~CGI() {
-  if (_pipe != UNSET) close(_pipe);
-  if (_status != cgi_status::NON_INIT)
-    waitpid(_child_pid, &_child_return, WNOHANG);
+  if (_pipe != UNSET)
+    close(_pipe);
 }
 
 int CGI::get_pid(void) const { return (_child_pid); }
+int CGI::unset_pid(void) { return _child_pid = UNSET; }
 int CGI::get_fd(void) const { return (_pipe); }
 
 bool CGI::isPipeEmpty(int fd) const {
   unsigned long bytesAvailable = 0;
-  if (ioctl(fd, FIONREAD, &bytesAvailable) == -1) {
-    perror("iotctl");
+  if (ioctl(fd, FIONREAD, &bytesAvailable) < 0) {
     bytesAvailable = 0;
   }
   return bytesAvailable == 0;
@@ -30,26 +29,23 @@ cgi_status::status CGI::status(void) {
       _status == cgi_status::DONE || STATUS_IS_ERROR(_status)) {
     return _status;
   }
-
   if (_cgiTimer.getTimeElapsed() >= CGI_TIMEOUT) {
     _status = cgi_status::TIMEOUT;
     return _status;
   }
 
   int ret = waitpid(_child_pid, &_child_return, WNOHANG);
-
   if (ret == _child_pid) {
     if (CGI_BAD_EXIT(_child_return)) {
       _status = cgi_status::CGI_ERROR;
     } else {
       _status = cgi_status::DONE;
     }
-  } else if (ret == 0 && isPipeEmpty(_pipe) == false) {
-    _status = cgi_status::READABLE;
-  } else if (ret == 0 && isPipeEmpty(_pipe) == true) {
-    _status = cgi_status::WAITING;
+    unset_pid();
   } else if (ret < 0) {
     _status = cgi_status::SYSTEM_ERROR;
+  } else if (ret == 0 && _status != cgi_status::READABLE && isPipeEmpty(_pipe) == false ) {
+    _status = cgi_status::READABLE;
   }
   return (_status);
 }
@@ -118,9 +114,15 @@ std::vector<char *> CGI::set_meta_variables(files::File const &file,
 
 int CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
                       Request const &req, config::Server const &serv) {
+
   _status = cgi_status::NON_INIT;
+
   int output[2];
   int input[2];
+  if (pipe(output) < 0 || pipe(input) < 0) {
+    _status = cgi_status::SYSTEM_ERROR;
+    return UNSET;
+  }
 
   size_t i = 0;
   set_meta_variables(file, req, serv);
@@ -128,6 +130,7 @@ int CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   char *cgi = strdup(cgi_path.c_str());
   if (cgi == NULL || file.isGood() == false) {
     _status = cgi_status::SYSTEM_ERROR;
+    free(cgi);
     return UNSET;
   }
 
@@ -139,8 +142,6 @@ int CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   env[i] = NULL;
 
   char *args[] = {cgi, NULL};
-  pipe(output);
-  pipe(input);
 
   _child_pid = fork();
   if (_child_pid < 0) {
@@ -155,34 +156,35 @@ int CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   if (_child_pid == 0) {
     std::string exec_path = files::File::getDirFromPath(file.getPath());
 
-    dup2(output[1], 1);
-    dup2(input[0], 0);
-
+    if (dup2(output[1], 1) < 0 || dup2(input[0], 0) < 0) {
+      close(input[1]);
+      close(input[0]);
+      close(output[1]);
+      close(output[0]);
+      exit(-1);
+    }
+    if (chdir(exec_path.c_str()) < 0) {
+      exit(-1);
+    }
     close(input[1]);
     close(input[0]);
     close(output[1]);
     close(output[0]);
-    chdir(exec_path.c_str());
-
     execve(args[0], args, env);
     exit(-1);
   } else {
 
     _cgiTimer.start();
     _status = cgi_status::WAITING;
-
     free(cgi);
     for (i = 0; i < _variables.size(); i++) {
       free(env[i]);
     }
-
     close(input[0]);
     close(output[1]);
-
     _pipe = output[0];
     fcntl(_pipe, F_SETFL, O_NONBLOCK);
-
-    if (req.get_body().empty()) {
+    if (req.method != methods::POST || req.get_body().empty()) {
       close(input[1]);
       return UNSET;
     } else {

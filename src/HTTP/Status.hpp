@@ -69,7 +69,8 @@ namespace status
 		URITooLong,
 		UnsupportedMediaType,
 		RangeNotSatisfiable,
-		ExpectationFailed, //417
+		ExpectationFailed,
+		Teapot, //418
 		MisdirectedRequest = 421,
 		UnprocessableEntity,
 		Locked,
