@@ -167,7 +167,8 @@ int CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     close(input[0]);
     close(output[1]);
     close(output[0]);
-    chdir(exec_path.c_str());
+    if (chdir(exec_path.c_str()) < 0)
+      exit(-1);
 
     execve(args[0], args, env);
     exit(-1);
