@@ -17,17 +17,6 @@ ResponseHandler::~ResponseHandler(void) {
 
 /* ................................. METHODS .................................*/
 
-void ResponseHandler::doSendCachedTooManyRequests(int fdDest) {
-  static std::string cache(
-      "HTTP/1.1 429 Too Many Requests\r\nRetry-After: 3600\r\n\r\n");
-
-#if __APPLE__
-  send(fdDest, cache.c_str(), cache.length(), 0);
-#else
-  send(fdDest, cache.c_str(), cache.length(), MSG_NOSIGNAL);
-#endif
-}
-
 void ResponseHandler::init(RequestHandler& reqHandler, int receivedPort) {
   if (_method != NULL) delete _method;
   _method = NULL;
@@ -111,9 +100,7 @@ void ResponseHandler::doWriteBody( void ) {
       close(uploadFd);
       _resp.setUploadFd(UNSET);
       if (ret < 0)
-        return _method->makeStandardResponse(status::InternalServerError);
-      else
-        return ;
+        _method->makeStandardResponse(status::InternalServerError);
     }
   }
 }
@@ -228,10 +215,15 @@ void ResponseHandler::sendFromCgi(int fdDest, int flags) {
 }
 
 void ResponseHandler::sendCgiHeaders(int fdDest, int flags) {
-  if (_resp.getState() & respState::cgiHeadersSent) return;
+  if (_resp.getState() & respState::cgiHeadersSent) {
+    return;
+  }
+
   std::string const& cgiHeaders = _resp.getCgiInst().getCgiHeader();
-  send(fdDest, cgiHeaders.c_str(), cgiHeaders.length(), flags);
-  _resp.getState() |= respState::cgiHeadersSent;
+  if (send(fdDest, cgiHeaders.c_str(), cgiHeaders.length(), flags) < 0)
+    _resp.getState() |= respState::ioError;
+  else
+    _resp.getState() |= respState::cgiHeadersSent;
 }
 
 void ResponseHandler::sendFromFile(int fdDest, int flags) {
@@ -245,15 +237,16 @@ void ResponseHandler::sendFromFile(int fdDest, int flags) {
   }
 }
 
-int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
+void ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
   char buff[DEFAULT_SEND_SIZE + 2];
   bzero(buff, DEFAULT_SEND_SIZE + 2);
   ssize_t retRead = 0;
+  ssize_t retSend = 0;
   int& state = _resp.getState();
 
   if ((retRead = read(fdSrc, buff, DEFAULT_SEND_SIZE)) < 0) {
     state = respState::ioError;
-    return -1;
+    return;
   }
   if (state & respState::chunkedResp) {
     std::stringstream chunkSize;
@@ -263,14 +256,16 @@ int ResponseHandler::doSendFromFD(int fdSrc, int fdDest, int flags) {
     buff[retRead + 0] = '\r';
     buff[retRead + 1] = '\n';
     chunkData.insert(chunkData.end(), buff, buff + retRead + 2);
-    send(fdDest, chunkData.data(), chunkData.length(), flags);
+    retSend = send(fdDest, chunkData.data(), chunkData.length(), flags);
   } else {
-    send(fdDest, buff, retRead, flags);
+    retSend = send(fdDest, buff, retRead, flags);
   }
   if (retRead == 0) {
     state |= respState::entirelySent;
   }
-  return retRead;
+  if (retSend < 0) {
+    state |= respState::ioError;
+  }
 }
 
 void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
@@ -278,8 +273,10 @@ void ResponseHandler::sendFromBuffer(int fdDest, int flags) {
 
   logData();
   output << _resp << "\r\n" << _resp.getBuffer();
-  send(fdDest, output.str().c_str(), output.str().length(), flags);
-  _resp.getState() = respState::entirelySent;
+  if (send(fdDest, output.str().c_str(), output.str().length(), flags) < 0)
+    _resp.getState() = respState::ioError;
+  else
+    _resp.getState() = respState::entirelySent;
 }
 
 void ResponseHandler::logData(void) {

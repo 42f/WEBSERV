@@ -48,8 +48,6 @@ class ResponseHandler {
   ResponseHandler(RequestHandler& reqHandler, int receivedPort);
   ~ResponseHandler(void);
 
-  static void doSendCachedTooManyRequests(int fdDst);
-
  private:
   RequestHandler& _requestHandler;
   Request _req;
@@ -63,7 +61,7 @@ class ResponseHandler {
 
   std::string getReqHeader(const std::string& target);
 
-  int doSendFromFD(int fdSrc, int fdDest, int flags);
+  void doSendFromFD(int fdSrc, int fdDest, int flags);
   void sendHeaders(int fdDest, int flags);
   void handleCgiError( cgi_status::status error );
   void sendCgiHeaders(int fdDest, int flags);
