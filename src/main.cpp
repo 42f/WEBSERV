@@ -55,10 +55,8 @@ int main(int ac, char **av) {
   Logger::getInstance("./logg", Logger::toConsole);
 
   std::set<int> ports = network::ServerPool::getPorts();
-  std::vector<network::ServerSocket> sockets(ports.begin(), ports.end());
-
-  network::Core core(sockets);
+  network::Core core(std::vector<network::ServerSocket>(ports.begin(), ports.end()));
+  ports.clear();
   core.run_servers();
-
   return 0;
 }
