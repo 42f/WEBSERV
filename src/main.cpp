@@ -6,10 +6,6 @@
 #include <sstream>
 
 #include "Socket.hpp"        // network::Sockets, fd_status::status
-#include "Config/ConfigParser.hpp"
-#include "HTTP/Response/Response.hpp"
-#include "HTTP/Response/ResponseHandler.hpp"
-#include "ServerSocket.hpp"  // network::ServerSockets
 #include "ServerSocket.hpp"  // network::ServerSockets
 #include "Network/Core.hpp"
 
@@ -34,19 +30,15 @@ void exit_server(int sig) {
   exit(0);
 }
 
-int main(int ac, char **av) {
+int main(int ac, char **av)
+{
   signal(SIGINT, &exit_server);
   std::string path;
-  switch (ac) {
-    case 1:
-      path = "webserv.config";
-      break;
-    case 2:
-      path = av[1];
-      break;
-    default:
-      std::cerr << "./webserv [ConfigServerv]" << std::endl;
-      return -1;
+  if (ac == 2)
+  	path = av[1];
+  else {
+	  std::cerr << "./webserv [ConfigServerv]" << std::endl;
+	  return -1;
   }
 
   network::ServerPool::init(path);
