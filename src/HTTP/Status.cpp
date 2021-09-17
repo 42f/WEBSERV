@@ -52,6 +52,7 @@ namespace status
 		_msgs[status::UnsupportedMediaType] = "Unsupported Media Type";
 		_msgs[status::RangeNotSatisfiable] = "Range Not Satisfiable";
 		_msgs[status::ExpectationFailed] = "Expectation Failed";
+		_msgs[status::Teapot] = "I'm a teapot";
 		_msgs[status::MisdirectedRequest] = "Misdirected Request";
 		_msgs[status::UnprocessableEntity] = "Unprocessable Entity";
 		_msgs[status::Locked] = "Locked";

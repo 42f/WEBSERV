@@ -104,8 +104,11 @@ void Response::loadErrorHtmlBuffer(const status::StatusCode& code,
     std::stringstream tmpBuff;
     tmpBuff << "<html>" << '\n'
             << "<head>" << '\n'
-            << "	<title>" << code << ' '
-            << status::StatusMessage::get(code) << "</title>" << '\n'
+            << "	<title>" << code;
+  if (status::StatusMessage::get(code).empty() == false) {
+    tmpBuff << ' ' << status::StatusMessage::get(code);
+  }
+    tmpBuff << "</title>" << '\n'
             << "</head>" << '\n'
             << "<body>" << '\n'
             << "	<center>" << '\n';
@@ -114,9 +117,12 @@ void Response::loadErrorHtmlBuffer(const status::StatusCode& code,
     tmpBuff << "		<h1> Oopsy ! That's an error. </h1>" << '\n';
   }
 
-    tmpBuff << "		<h1> " << code << ' '
-            << status::StatusMessage::get(code) << " </h1>" << '\n'
-            << "	</center>" << '\n'
+    tmpBuff << "		<h1> " << code;
+  if (status::StatusMessage::get(code).empty() == false) {
+    tmpBuff << ' ' << status::StatusMessage::get(code);
+  }
+    tmpBuff << " </h1>" << '\n'
+            << "  </center>" << '\n'
             << "	<hr>" << '\n'
             << "	<center>Webserv Team ABC</center>" << '\n'
             << "</body>" << '\n'
