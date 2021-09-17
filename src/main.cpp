@@ -29,15 +29,11 @@ void exit_server(int) {
 int main(int ac, char **av)
 {
   signal(SIGINT, &exit_server);
-  std::string path;
-  if (ac == 2)
-  	path = av[1];
-  else {
+  if (ac != 2) {
 	  std::cerr << "./webserv [ConfigServerv]" << std::endl;
 	  return -1;
   }
-
-  network::ServerPool::init(path);
+  network::ServerPool::init(av[1]);
   files::File::initContentTypes(TYPES_MIME_CONF_PATH);
 
   Logger::getInstance("./logg", Logger::toConsole);
