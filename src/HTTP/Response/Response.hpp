@@ -39,7 +39,6 @@ class Response	{
 	public:
 
 		Response( void );
-		Response( Response const & src );
 		Response( Version version, status::StatusCode statusCode );
 
 		~Response( void );
@@ -55,22 +54,29 @@ class Response	{
 		void	loadErrorHtmlBuffer( const status::StatusCode& code,
 									const std::string& optionalMessage = "" );
 
-		files::File &	setFile( std::string const & filePath );
+		files::File &			setFile( std::string const & filePath );
+		files::File &			setUploadFile( std::string const & filePath );
 
 		CGI  &			 		getCgiInst( void ) ;
 		CGI const &		 		getCgiInst( void ) const;
 		int						getCgiFD( void ) const;
 
+		void					setUploadFd( int fd );
+		int						getOutputFd( void ) const;
+		int						getUploadFd( void ) const;
+		files::File &		 	getFileInst( void );
 		files::File const & 	getFileInst( void ) const;
 		int						getFileFD( void ) const;
 		status::StatusCode		getStatusCode( void ) const;
 		std::string &			getBuffer( void );
 		int &					getState( void );
+		int const &				getState( void ) const;
 
 		void	reset( Version const & vers = Version(), status::StatusCode code = status::None );
 
 	private:
 
+		Response( Response const & src );
 		typedef	std::pair<std::string const, std::string>		header_t;
 		typedef	std::map<std::string const, header_t>			headerMap_t;
 
@@ -82,8 +88,11 @@ class Response	{
 
 		// body data
 		files::File									_file;
+		files::File									_uploadFile;
+
 		CGI											_cgi;
 		std::string									_htmlBuffer;
+		int											_uploadFd;
 
 		friend std::ostream&	operator<<( std::ostream & o, Response const & i );
 };

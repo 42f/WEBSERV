@@ -46,7 +46,7 @@ EventManager::~EventManager() {}
     Getters
 ***************************************************/
 
-std::list<Socket> const & EventManager::get_sockets(void)  { return _sockets; }
+std::list<Socket> const &EventManager::get_sockets(void) { return _sockets; }
 
 unsigned long EventManager::get_size(void) {
   return EventManager::_sockets.size();
@@ -74,17 +74,26 @@ void EventManager::do_select(void) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
-    if (IS_LISTENABLE(itr->get_status())) {
-      if (itr->get_skt_fd() > _max_fd) _max_fd = itr->get_skt_fd();
-      FD_SET(itr->get_skt_fd(), &EventManager::_read_set);
-    } else if (!HAS_ERROR(itr->get_status())) {
-      if (itr->get_skt_fd() > _max_fd) _max_fd = itr->get_skt_fd();
-      FD_SET(itr->get_skt_fd(), &EventManager::_read_set);
-      FD_SET(itr->get_skt_fd(), &EventManager::_write_set);
-      if (HAS_OFD_USABLE(itr->get_status())) {
-        if (itr->get_o_fd() > _max_fd) _max_fd = itr->get_o_fd();
-        FD_SET(itr->get_o_fd(), &EventManager::_read_set);
-        FD_SET(itr->get_o_fd(), &EventManager::_write_set);
+    int skfd =itr->get_skt_fd();
+    int ofd =itr->get_o_fd();
+    int ufd =itr->get_u_fd();
+    int status = itr->get_status();
+
+    if (IS_LISTENABLE(status)) {
+      _max_fd = (skfd > _max_fd) ? skfd : _max_fd;
+      FD_SET(skfd, &EventManager::_read_set);
+    } else if (!HAS_ERROR(status)) {
+      _max_fd = (skfd > _max_fd) ? skfd : _max_fd;
+      FD_SET(skfd, &EventManager::_read_set);
+      FD_SET(skfd, &EventManager::_write_set);
+
+      if (ufd != UNSET) {
+        _max_fd = (ufd > _max_fd) ? ufd : _max_fd;
+        FD_SET(ufd, &EventManager::_write_set);
+      }
+      if (ofd != UNSET) {
+        _max_fd = (ofd > _max_fd) ? ofd : _max_fd;
+        FD_SET(ofd, &EventManager::_read_set);
       }
     }
   }
@@ -199,22 +208,21 @@ void EventManager::send_response(void) {
   std::list<Socket>::iterator itr;
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end(); ++itr) {
-
     int st = itr->get_status();
     if (FULL_SKT_WR(itr->get_skt_fd(), st)) {
+
       itr->process_request();
-      st = itr->get_status();
+
+      int ufd = itr->get_u_fd();
+      if (ufd != UNSET && FD_ISSET(ufd, &EventManager::_write_set)) {
+        itr->write_body();
+      }
+
       int ofd = itr->get_o_fd();
-      if (HAS_OFD_NO_NEED(st) ||
-        (FD_ISSET(ofd, &EventManager::_read_set)
-        && HAS_OFD_USABLE(st)) ) {
+      if (ufd == UNSET && (ofd == UNSET || FD_ISSET(ofd, &EventManager::_read_set))) {
         if (itr->do_send() == RESPONSE_SENT_ENTIRELY) {
           itr->unset_status(fd_status::skt_writable);
           itr->set_status(fd_status::skt_closable);
-          if (HAS_OFD_USABLE(st)) {
-            itr->unset_status(fd_status::ofd_usable);
-            itr->set_status(fd_status::ofd_closable);
-          }
         }
       }
     }
@@ -231,13 +239,7 @@ void EventManager::resize(void) {
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end();) {
     if (HAS_SKT_CLOSABLE(itr->get_status())) {
-      FD_CLR(itr->get_skt_fd(), &EventManager::_read_set);
-      FD_CLR(itr->get_skt_fd(), &EventManager::_write_set);
       close(itr->get_skt_fd());
-      if (HAS_OFD_CLOSABLE(itr->get_status())) {
-        FD_CLR(itr->get_o_fd(), &EventManager::_read_set);
-        FD_CLR(itr->get_o_fd(), &EventManager::_write_set);
-      }
       std::list<Socket>::iterator itr_tmp = itr;
       itr++;
       EventManager::_sockets.erase(itr_tmp);

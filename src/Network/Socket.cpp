@@ -51,16 +51,18 @@ Socket &Socket::operator=(Socket const &rhs) {
 
 void Socket::set_status(int status) { _status |= status; }
 void Socket::unset_status(int status) { _status &= ~status; }
-void Socket::set_o_fd(int fd) { _ofd = fd; }
 
 /***************************************************
     Getters
 ***************************************************/
 
 int Socket::get_skt_fd() const { return _fd; }
-int Socket::get_o_fd() const { return _ofd; }
+// int Socket::get_o_fd() const { return _ofd; }
+int Socket::get_o_fd() const { return _response_handler.getResponse().getOutputFd(); }
+int Socket::get_u_fd() const { return _response_handler.getResponse().getUploadFd(); }
 int Socket::get_port(void) const { return _port; }
 int Socket::get_status(void) const { return _status; }
+int Socket::get_cgi_pid(void) const { return _response_handler.getResponse().getCgiInst().get_pid(); }
 std::string Socket::get_client_ip(void) const { return _client_ip; }
 
 /***************************************************
@@ -72,21 +74,21 @@ void Socket::manage_raw_request(char *buffer, int size) {
   if (_res.is_ok() || _res.unwrap_err() != status::Incomplete) {
     unset_status(fd_status::skt_readable);
     set_status(fd_status::skt_writable);
-    if (_res.is_ok())
-      _res.unwrap().set_client_ip(_client_ip);
+    if (_res.is_ok()) _res.unwrap().set_client_ip(_client_ip);
     _response_handler.init(_request_handler, _port);
   }
 }
 
 void Socket::process_request() {
   if (_is_processed == false) {
-    _ofd = _response_handler.processRequest();
-    if (_ofd == RESPONSE_NO_FD)
-      _status |= fd_status::ofd_no_need;
-    else
-      _status |= fd_status::ofd_usable;
+    _response_handler.processRequest();
     _is_processed = true;
   }
+  _response_handler.checkCgiTimeout();
+}
+
+void Socket::write_body() {
+    _response_handler.doWriteBody();
 }
 
 int Socket::do_send() { return _response_handler.doSend(_fd); }

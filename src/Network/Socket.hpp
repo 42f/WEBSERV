@@ -112,18 +112,20 @@ class Socket {
   Socket(Socket const &src);
   ~Socket();
 
-  void set_o_fd(int fd);
   void set_status(int status);
   void unset_status(int status);
 
   int get_skt_fd(void) const;
   int get_o_fd(void) const;
+  int get_u_fd(void) const;
   int get_port(void) const;
   int get_status(void) const;
-  bool response_is_ready(void);
+  int get_cgi_pid(void) const;
   std::string get_client_ip(void) const;
-  void process_request();
+  void process_request( void );
+  void write_body( void );
   int do_send();
+  void doWriteBody(void);
 
   int manage_response();
   void manage_raw_request(char *buffer, int size);
@@ -131,8 +133,12 @@ class Socket {
   Socket &operator=(Socket const &rhs);
 
  private:
+
+  void setOfdStatus();
+
   int _fd;
   int _ofd;
+  int _ufd;
   int _port;
   int _status;
   bool _is_processed;

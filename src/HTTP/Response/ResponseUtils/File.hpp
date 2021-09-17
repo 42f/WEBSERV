@@ -27,6 +27,7 @@ class File {
   ~File(void);
 
   void init(std::string const& path, int flags = O_RDONLY, int mode = 0644);
+  void closeFile (void);
   bool isGood(void) const;
   int getFD(void) const;
   size_t getSize(void) const;
