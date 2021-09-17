@@ -46,7 +46,7 @@ EventManager::~EventManager() {}
     Getters
 ***************************************************/
 
-std::list<Socket> const &EventManager::get_sockets(void) { return _sockets; }
+std::list<Socket> &EventManager::get_sockets(void) { return _sockets; }
 
 unsigned long EventManager::get_size(void) {
   return EventManager::_sockets.size();
@@ -239,10 +239,19 @@ void EventManager::resize(void) {
   for (itr = EventManager::_sockets.begin();
        itr != EventManager::_sockets.end();) {
     if (HAS_SKT_CLOSABLE(itr->get_status())) {
-      close(itr->get_skt_fd());
-      std::list<Socket>::iterator itr_tmp = itr;
-      itr++;
-      EventManager::_sockets.erase(itr_tmp);
+      int pidCgi = itr->get_cgi_pid();
+      if (pidCgi != UNSET && kill(pidCgi, SIGQUIT) == 0) {
+        waitpid(pidCgi, NULL, 0);
+        close(itr->get_skt_fd());
+        std::list<Socket>::iterator itr_tmp = itr;
+        itr++;
+        EventManager::_sockets.erase(itr_tmp);
+      } else if (pidCgi == UNSET) {
+        close(itr->get_skt_fd());
+        std::list<Socket>::iterator itr_tmp = itr;
+        itr++;
+        EventManager::_sockets.erase(itr_tmp);
+      }
     } else {
       itr++;
     }

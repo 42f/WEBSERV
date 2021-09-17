@@ -17,8 +17,7 @@ int CGI::get_fd(void) const { return (_pipe); }
 
 bool CGI::isPipeEmpty(int fd) const {
   unsigned long bytesAvailable = 0;
-  if (ioctl(fd, FIONREAD, &bytesAvailable) == -1) {
-    perror("iotctl");
+  if (ioctl(fd, FIONREAD, &bytesAvailable) < 0) {
     bytesAvailable = 0;
   }
   return bytesAvailable == 0;
@@ -30,26 +29,22 @@ cgi_status::status CGI::status(void) {
       _status == cgi_status::DONE || STATUS_IS_ERROR(_status)) {
     return _status;
   }
-
   if (_cgiTimer.getTimeElapsed() >= CGI_TIMEOUT) {
     _status = cgi_status::TIMEOUT;
     return _status;
   }
 
   int ret = waitpid(_child_pid, &_child_return, WNOHANG);
-
   if (ret == _child_pid) {
     if (CGI_BAD_EXIT(_child_return)) {
       _status = cgi_status::CGI_ERROR;
     } else {
       _status = cgi_status::DONE;
     }
-  } else if (ret == 0 && isPipeEmpty(_pipe) == false) {
-    _status = cgi_status::READABLE;
-  } else if (ret == 0 && isPipeEmpty(_pipe) == true) {
-    _status = cgi_status::WAITING;
   } else if (ret < 0) {
     _status = cgi_status::SYSTEM_ERROR;
+  } else if (ret == 0 && _status != cgi_status::READABLE && isPipeEmpty(_pipe) == false ) {
+    _status = cgi_status::READABLE;
   }
   return (_status);
 }

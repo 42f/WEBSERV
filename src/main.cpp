@@ -5,23 +5,29 @@
 #include <unistd.h>
 #include <sstream>
 
+#include "Socket.hpp"        // network::Sockets, fd_status::status
 #include "Config/ConfigParser.hpp"
 #include "HTTP/Response/Response.hpp"
 #include "HTTP/Response/ResponseHandler.hpp"
+#include "ServerSocket.hpp"  // network::ServerSockets
+#include "ServerSocket.hpp"  // network::ServerSockets
 #include "Network/Core.hpp"
 
 
 void exit_server(int sig) {
   (void)sig;
   // TODO close all pending connections and cgi pipes ?
-  std::list<network::Socket>::const_iterator itr;
-  for (itr = network::EventManager::get_sockets().begin();
-       itr != network::EventManager::get_sockets().end(); itr++) {
+  std::list<network::Socket>::iterator itr;
+  itr = network::EventManager::get_sockets().begin();
+  while(itr != network::EventManager::get_sockets().end()) {
     if (itr->get_cgi_pid() != UNSET) {
       kill(itr->get_cgi_pid(), SIGINT);
-      waitpid(itr->get_cgi_pid(), NULL, WNOHANG);
+      waitpid(itr->get_cgi_pid(), NULL, 0);
     }
     close(itr->get_skt_fd());
+    std::list<network::Socket>::iterator itr_tmp = itr;
+    itr++;
+    network::EventManager::get_sockets().erase(itr_tmp);
   }
   std::cout << "\rOpen Connections: " << network::EventManager::get_size()
             << std::endl; // TODO remove debug
