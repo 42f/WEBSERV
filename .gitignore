@@ -8,7 +8,7 @@
 
 #binaries
 webserv
-webserv98
+webservClion
 
 #logs
 webserv.log
@@ -17,13 +17,14 @@ request.test
 #clion project files
 /.idea
 /Testing
-webserv.cbp
+webservClion.cbp
 
 # Cmake files
 /cmake_install.cmake
 /CMakeFiles
 /CMakeCache.txt
 
+CMakeLists.txt
 Makefile
 
 # Prerequisites

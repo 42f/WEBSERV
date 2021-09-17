@@ -18,7 +18,6 @@ RequestHandler::RequestHandler() : _status(request_status::Incomplete), _req(res
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
-// if client timeout, there's no need to call this
 RequestHandler::result_type RequestHandler::receive()
 {
 	Result<bool>	res = _req.unwrap().receive(_buffer);
