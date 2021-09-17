@@ -184,7 +184,7 @@ int CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
     close(output[1]);
     _pipe = output[0];
     fcntl(_pipe, F_SETFL, O_NONBLOCK);
-    if (req.method == methods::POST && req.get_body().empty()) {
+    if (req.method != methods::POST || req.get_body().empty()) {
       close(input[1]);
       return UNSET;
     } else {
