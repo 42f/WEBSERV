@@ -10,7 +10,7 @@
  */
 
 #define LOG_LEVEL_INFO	0
-#define DEBUG_MODE 		1
+#define DEBUG_MODE 		0
 
 /*
  * info level: extended. Debug data and trace included

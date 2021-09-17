@@ -14,9 +14,7 @@
 #include "Network/Core.hpp"
 
 
-void exit_server(int sig) {
-  (void)sig;
-  // TODO close all pending connections and cgi pipes ?
+void exit_server(int) {
   std::list<network::Socket>::iterator itr;
   itr = network::EventManager::get_sockets().begin();
   while(itr != network::EventManager::get_sockets().end()) {
@@ -28,9 +26,7 @@ void exit_server(int sig) {
     itr++;
     network::EventManager::get_sockets().erase(itr_tmp);
   }
-  std::cout << "\rOpen Connections: " << network::EventManager::get_size()
-            << std::endl; // TODO remove debug
-  std::cout << "\rGot signal, Bye..." << std::endl;
+  std::cout << "\rClosing Webserv." << std::endl;
   exit(0);
 }
 
@@ -57,6 +53,7 @@ int main(int ac, char **av) {
   std::set<int> ports = network::ServerPool::getPorts();
   network::Core core(std::vector<network::ServerSocket>(ports.begin(), ports.end()));
   ports.clear();
+  std::cout << "\rWebserv is running." << std::endl;
   core.run_servers();
   return 0;
 }
