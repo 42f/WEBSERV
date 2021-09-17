@@ -137,7 +137,6 @@ void Response::loadErrorHtmlBuffer(const status::StatusCode& code,
 
 /* ................................. OVERLOAD ................................*/
 
-// Writes the response's content to the client's connection fd
 std::ostream& operator<<(std::ostream& o, Response const& i) {
   // Writes status line
   o << "HTTP/" << i._version << " " << i._statusCode << " "

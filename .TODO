@@ -1,7 +1,0 @@
-
-
-        - Return de Pipe pour -O2/O3
-        - check return of send, read, write
-        - TODO comments to cleanup
-        - leaks
-

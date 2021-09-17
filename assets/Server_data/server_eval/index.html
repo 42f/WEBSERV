@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Webserv Project</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,800' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Poiret+One' rel='stylesheet' type='text/css'><link rel="stylesheet" href="/css/style.css">
+  <script>
+    close = document.getElementById("close");
+    close.addEventListener('click', function() {
+      note = document.getElementById("note");
+      note.style.display = 'none';
+    }, false);
+   </script>
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<div class="full-screen">
+  <div>
+    <h1>Webserv team ABC</h1>
+    <br>
+    <a class="button-line" href="/post_form.html">PHP: Post a Form</a>
+    <a class="button-line" href="/php/get_form_result.php?name=Norminet&email=student@42.fr&one=21&two=21">PHP: Get a Form</a>
+    <a class="button-line" href="/cgi">Php: Infos</a>
+    <a class="button-line" href="/python/welcome_get.py?name=norminet&email=coucou@gmail.com">Python: Get a Form</a>
+  </div>
+  <br/>
+  <div>
+    <a class="button-line" href="/upload_form.html">Upload a file</a>
+    <a class="button-line" href="/uploaded_files">Uploads Autoindex</a>
+    <a class="button-line" href="/autoindex">Root Autoindex</a>
+  </div>
+</div>
+<!-- partial -->
+
+</body>
+</html>
