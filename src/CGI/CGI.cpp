@@ -118,9 +118,15 @@ std::vector<char *> CGI::set_meta_variables(files::File const &file,
 
 int CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
                       Request const &req, config::Server const &serv) {
+
   _status = cgi_status::NON_INIT;
+
   int output[2];
   int input[2];
+  if (pipe(output) < 0 || pipe(input) < 0) {
+    _status = cgi_status::SYSTEM_ERROR;
+    return UNSET;
+  }
 
   size_t i = 0;
   set_meta_variables(file, req, serv);
@@ -128,6 +134,7 @@ int CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   char *cgi = strdup(cgi_path.c_str());
   if (cgi == NULL || file.isGood() == false) {
     _status = cgi_status::SYSTEM_ERROR;
+    free(cgi);
     return UNSET;
   }
 
@@ -139,8 +146,6 @@ int CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   env[i] = NULL;
 
   char *args[] = {cgi, NULL};
-  pipe(output);
-  pipe(input);
 
   _child_pid = fork();
   if (_child_pid < 0) {
