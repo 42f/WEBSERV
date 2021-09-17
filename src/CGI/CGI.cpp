@@ -160,34 +160,34 @@ int CGI::execute_cgi(std::string const &cgi_path, files::File const &file,
   if (_child_pid == 0) {
     std::string exec_path = files::File::getDirFromPath(file.getPath());
 
-    dup2(output[1], 1);
-    dup2(input[0], 0);
-
+    if (dup2(output[1], 1) < 0 || dup2(input[0], 0) < 0) {
+      close(input[1]);
+      close(input[0]);
+      close(output[1]);
+      close(output[0]);
+      exit(-1);
+    }
+    if (chdir(exec_path.c_str()) < 0) {
+      exit(-1);
+    }
     close(input[1]);
     close(input[0]);
     close(output[1]);
     close(output[0]);
-    if (chdir(exec_path.c_str()) < 0)
-      exit(-1);
-
     execve(args[0], args, env);
     exit(-1);
   } else {
 
     _cgiTimer.start();
     _status = cgi_status::WAITING;
-
     free(cgi);
     for (i = 0; i < _variables.size(); i++) {
       free(env[i]);
     }
-
     close(input[0]);
     close(output[1]);
-
     _pipe = output[0];
     fcntl(_pipe, F_SETFL, O_NONBLOCK);
-
     if (req.get_body().empty()) {
       close(input[1]);
       return UNSET;
