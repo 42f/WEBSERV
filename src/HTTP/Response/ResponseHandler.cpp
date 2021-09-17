@@ -184,9 +184,9 @@ void ResponseHandler::handleCgiError( cgi_status::status cgiStatus ) {
   int& respStatus = _resp.getState();
   if ((respStatus & respState::headerSent) == false) {
     int pid = _resp.getCgiInst().get_pid();
-    if (pid != UNSET && cgiStatus == cgi_status::TIMEOUT) {
-      kill(pid, SIGKILL);
-      waitpid(pid, NULL, 0);
+    if (pid != UNSET && cgiStatus == cgi_status::TIMEOUT && kill(pid, SIGKILL) == 0) {
+        if (waitpid(pid, NULL, 0) == pid)
+          _resp.getCgiInst().unset_pid();
     }
     return _method->makeStandardResponse(pickCgiError(cgiStatus));
   } else {

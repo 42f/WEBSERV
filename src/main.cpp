@@ -20,8 +20,7 @@ void exit_server(int sig) {
   std::list<network::Socket>::iterator itr;
   itr = network::EventManager::get_sockets().begin();
   while(itr != network::EventManager::get_sockets().end()) {
-    if (itr->get_cgi_pid() != UNSET) {
-      kill(itr->get_cgi_pid(), SIGINT);
+    if (itr->get_cgi_pid() != UNSET && kill(itr->get_cgi_pid(), SIGINT) == 0) {
       waitpid(itr->get_cgi_pid(), NULL, 0);
     }
     close(itr->get_skt_fd());

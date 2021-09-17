@@ -47,6 +47,7 @@ class CGI {
   cgi_status::status status(void);
   int get_readable_pipe(void) const;
   int get_pid(void) const;
+  int unset_pid(void);
   int get_fd(void) const;
   void setCgiHeader(void);
   std::string const & getCgiHeader(void) const;

@@ -7,12 +7,12 @@ CGI::CGI(void) {
   _child_return = 0;
 }
 CGI::~CGI() {
-  if (_pipe != UNSET) close(_pipe);
-  if (_status != cgi_status::NON_INIT)
-    waitpid(_child_pid, &_child_return, WNOHANG);
+  if (_pipe != UNSET)
+    close(_pipe);
 }
 
 int CGI::get_pid(void) const { return (_child_pid); }
+int CGI::unset_pid(void) { return _child_pid = UNSET; }
 int CGI::get_fd(void) const { return (_pipe); }
 
 bool CGI::isPipeEmpty(int fd) const {
@@ -41,6 +41,7 @@ cgi_status::status CGI::status(void) {
     } else {
       _status = cgi_status::DONE;
     }
+    unset_pid();
   } else if (ret < 0) {
     _status = cgi_status::SYSTEM_ERROR;
   } else if (ret == 0 && _status != cgi_status::READABLE && isPipeEmpty(_pipe) == false ) {
