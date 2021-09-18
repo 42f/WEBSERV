@@ -26,7 +26,7 @@
        echo "
         <div id=\"note\">
           You can delete the file with:<br>
-          curl -vX DELETE localhost:18000/upload_dir/". htmlspecialchars( basename( $_FILES["fileToUpload"]["name"])) ."
+          curl -vX DELETE localhost:18000/uploaded_files/". htmlspecialchars( basename( $_FILES["fileToUpload"]["name"])) ."
         </div>";
 
       echo "<h2>The file ". htmlspecialchars( basename( $_FILES["fileToUpload"]["name"])). " has been uploaded.</h2>";
