@@ -13,3 +13,5 @@ case "$OSTYPE" in
 esac
 
 ln -s /usr/bin/python /tmp/cgi_bin/python
+
+mkdir -p /tmp/server_eval/uploads_dir
