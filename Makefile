@@ -69,5 +69,6 @@ fclean: clean
 	${RM} ${NAME}
 
 re: fclean all
+	./assets/clean_setup_files.sh
 
 .PHONY : clean fclean re

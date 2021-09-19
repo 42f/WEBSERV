@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#! $PYTHON_PATH
 
 import os
 print("Content-Type: text/html\r")
