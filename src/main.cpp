@@ -26,12 +26,18 @@ void exit_server(int) {
   exit(0);
 }
 
-int main(int ac, char **av)
+int main(int ac, char const **av)
 {
+  char const *defaultPath = "./webserv.config";
+
   signal(SIGINT, &exit_server);
-  if (ac != 2) {
+  if (ac > 2) {
 	  std::cerr << "./webserv [ConfigServerv]" << std::endl;
 	  return -1;
+  }
+  else if (ac == 1) {
+    av[1] = defaultPath;
+    std::cout << YELLOW << "\rUsing default config: " << defaultPath << NC << std::endl;
   }
   network::ServerPool::init(av[1]);
   files::File::initContentTypes(TYPES_MIME_CONF_PATH);
@@ -41,7 +47,7 @@ int main(int ac, char **av)
   std::set<int> ports = network::ServerPool::getPorts();
   network::Core core(std::vector<network::ServerSocket>(ports.begin(), ports.end()));
   ports.clear();
-  std::cout << "\rWebserv is running." << std::endl;
+  std::cout << GREEN << "\rWebserv is running." << NC << std::endl;
   core.run_servers();
   return 0;
 }
