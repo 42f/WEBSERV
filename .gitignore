@@ -17,6 +17,7 @@ request.test
 #clion project files
 /.idea
 /Testing
+webserv.cbp
 webservClion.cbp
 
 # Cmake files
