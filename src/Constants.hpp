@@ -27,6 +27,10 @@
 #define WHITE	"\033[0;37m"
 #define NC		"\033[0m"
 
+#ifndef DEFAULT_CONF_PATH
+# define DEFAULT_CONF_PATH "./webserv.config"
+#endif
+
 #ifndef TYPES_MIME_CONF_PATH
 # define TYPES_MIME_CONF_PATH "./assets/conf_types/types_mime.conf"
 #endif
