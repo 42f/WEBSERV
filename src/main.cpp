@@ -28,7 +28,7 @@ void exit_server(int) {
 
 int main(int ac, char const **av)
 {
-//  char const *defaultPath = "./webserv.config";
+  std::string const defaultPath = "./webserv.config";
 
   signal(SIGINT, &exit_server);
   if (ac > 2) {
@@ -39,7 +39,7 @@ int main(int ac, char const **av)
  //   av[1] = defaultPath;
  //   std::cout << YELLOW << "\rUsing default config: " << defaultPath << NC << std::endl;
  // }
-  network::ServerPool::init(av[1] ? "./webserv.config" : av[1]);
+  network::ServerPool::init(ac == 1 ? defaultPath : av[1]);
   files::File::initContentTypes(TYPES_MIME_CONF_PATH);
 
   Logger::getInstance("./logg", Logger::toConsole);
